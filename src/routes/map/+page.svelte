@@ -8,12 +8,14 @@
         console.log(data)
     })
 </script>
-<div class='map'>
-    <div class='ui'>
+<section class='map hero is-fullheight-with-navbar'>
+    <!-- <div class='ui'>
         <p>Test</p>
+    </div> -->
+    <div class='hero-body m-0 p-0'>
+        <Map data={data} />
     </div>
-    <Map data={data} />
-</div>
+</section>
 
 <style>
     .map {

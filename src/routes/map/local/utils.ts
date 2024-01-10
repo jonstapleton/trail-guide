@@ -103,10 +103,38 @@ export class Cartographer {
         this.p5.scale(this.currentScale)
         this.p5.translate(this.x, this.y)
         
+        // Nodes
+        let nodeObj:any = {}
         for(let i=0;i<data.nodes.length;i++) {
             const node = data.nodes[i]
-            // p5.rect(node.x/2, node.y/-2, node.width/2, node.height/2, 15, 15)
-            this.p5.circle(node.x/2, node.y/-2, 50)    
+            this.p5.circle(node.x/2, node.y/2, 50)
+            nodeObj[node.id] = node    
+        }
+        // Edges
+        for(let i=0;i<data.edges.length;i++) {
+            const edge = data.edges[i]
+            const node1 = nodeObj[edge.fromNode]
+            const controlPointKeyX = {"left":-300,"right":300,"top":0,"bottom":0}
+            const controlPointKeyY = {"left":0,"right":0,"top":-300,"bottom":300}
+            const controlPoint1 = {
+                x: node1.x + controlPointKeyX[edge.fromSide],
+                y: node1.y + controlPointKeyY[edge.fromSide]
+            }
+
+            const node2 = nodeObj[edge.toNode]
+            const controlPoint2 = {
+                x: node2.x + controlPointKeyX[edge.toSide],
+                y: node2.y + controlPointKeyY[edge.toSide]
+            }
+            console.log(controlPoint1)
+            // this.p5.line(node1.x/2, node1.y/2, node2.x/2, node2.y/2);
+            this.p5.fill('rgba(0, 0, 0, 0)')
+            this.p5.bezier(
+                node1.x/2, node1.y/2,
+                controlPoint1.x/2, controlPoint2.y/2,
+                controlPoint2.x/2, controlPoint2.y/2,
+                node2.x/2, node2.y/2
+            )
         }
         this.p5.pop()
         

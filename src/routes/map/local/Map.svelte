@@ -20,7 +20,7 @@
     export let data:Map
     export let sketch = (p5:any) => {
         p5.setup = () => {
-            p5.createCanvas(p5.displayWidth, p5.displayHeight * 0.88)
+            p5.createCanvas(p5.displayWidth, p5.displayHeight*0.83)
             mx = p5.mouseX
             my = p5.mouseY
             cursor = new Cursor(p5);
@@ -59,10 +59,3 @@
 <div class='canvas'>
     <P5 {sketch} />
 </div>
-
-<style>
-    .canvas {
-        height: 100%;
-        overflow: hidden;
-    }
-</style>
