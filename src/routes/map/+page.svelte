@@ -1,7 +1,8 @@
 <script lang='ts'>
-	import Map from '$lib/components/Map.svelte'
+	import Map from '$lib/components/Map/Map.svelte'
     import { onMount } from 'svelte';
     export let data
+    
 
     onMount(() => {
         console.log(data)
