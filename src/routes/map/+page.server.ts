@@ -1,4 +1,4 @@
-import type Map from '$lib/components/Map/Map.svelte';
+import type Map from './local/Map.svelte';
 import {read} from 'to-vfile'
 
 export async function load() {

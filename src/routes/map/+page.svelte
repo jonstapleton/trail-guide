@@ -1,5 +1,5 @@
 <script lang='ts'>
-	import Map from '$lib/components/Map/Map.svelte'
+	import Map from './local/Map.svelte'
     import { onMount } from 'svelte';
     export let data
     
@@ -23,7 +23,5 @@
         position: absolute;
         height: 50rem;
         background-color: pink;
-    }
-    .ui > p {
     }
 </style>
