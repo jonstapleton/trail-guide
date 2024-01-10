@@ -126,7 +126,6 @@ export class Cartographer {
                 x: node2.x + controlPointKeyX[edge.toSide],
                 y: node2.y + controlPointKeyY[edge.toSide]
             }
-            console.log(controlPoint1)
             // this.p5.line(node1.x/2, node1.y/2, node2.x/2, node2.y/2);
             this.p5.fill('rgba(0, 0, 0, 0)')
             this.p5.bezier(

@@ -59,3 +59,9 @@
 <div class='canvas'>
     <P5 {sketch} />
 </div>
+
+<style>
+    .canvas {
+        z-index: -99;
+    }
+</style>
