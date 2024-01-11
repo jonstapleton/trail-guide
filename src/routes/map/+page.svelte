@@ -1,9 +1,11 @@
 <script lang='ts'>
-	import TrailPanel from '$lib/components/trail/TrailPanel.svelte';
+	import LocationCard from '$lib/components/location/LocationCard.svelte';
+import TrailPanel from '$lib/components/trail/TrailPanel.svelte';
 import Map from './local/Map.svelte'
     import { onMount } from 'svelte';
     export let data
-    
+
+    let panelData:any
 
     onMount(() => {
         console.log(data)
@@ -11,10 +13,11 @@ import Map from './local/Map.svelte'
 </script>
 <section class='map hero is-fullheight-with-navbar'>
     <div class='ui'>
-        <TrailPanel />
+        <!-- <TrailPanel /> -->
+        <LocationCard nodeInfo={panelData} />
     </div>
     <div class='hero-body m-0 p-0'>
-        <Map data={data} />
+        <Map on:nodeSelect={(e) => { panelData = e.detail.data }} data={data} />
     </div>
 </section>
 

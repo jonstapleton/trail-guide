@@ -1,3 +1,4 @@
+import { text } from "@sveltejs/kit";
 import type { Coords } from "./types";
 
 export class Cursor {
@@ -8,6 +9,8 @@ export class Cursor {
     dragOffsetY:number|null = null;
     mx:number;
     my:number;
+    tx:number;
+    ty:number;
     keys:string[] = []
 
     constructor(p5:any) {
@@ -29,12 +32,28 @@ export class Cursor {
             this.dragOffsetY = null
             // this.setState(this.p5.ARROW)
         }
-
-        this.p5.circle(this.mx, this.my, 10); // draw cursor for debugging
+        // this.p5.fill(0);
+        // this.p5.text(`${this.mx}, ${this.my}`, this.mx, this.my)
+        // this.p5.circle(this.mx, this.my, 10); // draw cursor for debugging
         if(this.dragOffsetX) {
             this.p5.line(this.mx, this.my, this.dragOffsetX, this.dragOffsetY);
         }
         
+    }
+
+    click(data:any):any|null {
+        // TODO: check coordinates
+        let selectedNode:any|null = null
+        for(let i=0;i<data.nodes.length;i++) {
+            const node = data.nodes[i]
+            if(this.p5.dist(this.tx, this.ty, node.x/2, node.y/2) <= 50) {
+                node.selected = true;
+                selectedNode = node
+            } else {
+                node.selected = false;
+            }
+        }
+        return selectedNode
     }
 
     getOffset():Coords|null {
@@ -65,6 +84,11 @@ export class Cursor {
     getState() {
         return this.state
     }
+
+    setTransformCoords(coords:Coords) {
+        this.tx = coords.x
+        this.ty = coords.y
+    }
 }
 
 export class Cartographer {
@@ -92,23 +116,52 @@ export class Cartographer {
         this.offset.y = this.y
     }
 
-    draw(data:any) {
+    draw(data:any, cursor:Cursor) {
         if(this.currentScale != this.scale) {
             const lerp = (this.scale - this.currentScale) / 4
             this.currentScale += lerp;
         }
+
         
         this.p5.push()
         this.p5.translate(this.p5.width/4, this.p5.height/2)
         this.p5.scale(this.currentScale)
         this.p5.translate(this.x, this.y)
+
+        // from https://www.reddit.com/r/p5js/comments/jo7ucf/clicking_on_a_translated_scaled_and_rotated_shape/
+        const matrix = this.p5.drawingContext.getTransform()
+        const localCoord = matrix
+            .inverse()
+            .transformPoint(
+                new DOMPoint(
+                    this.p5.mouseX * this.p5.pixelDensity(),
+                    this.p5.mouseY * this.p5.pixelDensity()
+                )
+            );
+        cursor.setTransformCoords(localCoord)
+        
         
         // Nodes
         let nodeObj:any = {}
         for(let i=0;i<data.nodes.length;i++) {
             const node = data.nodes[i]
+            
+            // if mouse is hovering over a node, highlight it
+            if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= 50) {
+                this.p5.fill(this.p5.color(255, 0, 0))
+                this.p5.circle(node.x/2, node.y/2, 60);
+            }
+            // Draw node
+            const color = node.selected? this.p5.color(0, 255, 0) : 255            
+            this.p5.fill(color)
             this.p5.circle(node.x/2, node.y/2, 50)
-            nodeObj[node.id] = node    
+            
+            
+
+            // this.p5.fill(0)
+            // this.p5.text(`${node.x/2}, ${node.y/2}`, node.x/2, node.y/2)
+            // TODO: you can optimize by moving this iteration & the creation of nodeObj to setup()
+            nodeObj[node.id] = node // create the nodeObj object to help with drawing edges    
         }
         // Edges
         for(let i=0;i<data.edges.length;i++) {
@@ -136,6 +189,7 @@ export class Cartographer {
             )
         }
         this.p5.pop()
-        
+        this.p5.fill(0)
+        this.p5.text(`${localCoord.x}, ${localCoord.y}`, 20, this.p5.height - 25)
     }
 }
