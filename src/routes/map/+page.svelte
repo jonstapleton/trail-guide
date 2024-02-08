@@ -1,11 +1,16 @@
 <script lang='ts'>
 	import LocationCard from '$lib/components/location/LocationCard.svelte';
-import TrailPanel from '$lib/components/trail/TrailPanel.svelte';
-import Map from './local/Map.svelte'
+    import TrailPanel from '$lib/components/trail/TrailPanel.svelte';
+    import Map from './local/Map.svelte'
+    import MapPanel from './local/MapPanel.svelte';
     import { onMount } from 'svelte';
     export let data
 
     let panelData:any
+
+    function closeLocationPanel() {
+        panelData = null;
+    }
 
     onMount(() => {
         console.log(data)
@@ -13,8 +18,10 @@ import Map from './local/Map.svelte'
 </script>
 <section class='map hero is-fullheight-with-navbar'>
     <div class='ui'>
+        <MapPanel />
+        
         <!-- <TrailPanel /> -->
-        <LocationCard nodeInfo={panelData} />
+        <LocationCard on:close={closeLocationPanel} nodeInfo={panelData} />
     </div>
     <div class='hero-body m-0 p-0'>
         <Map on:nodeSelect={(e) => { panelData = e.detail.data }} data={data} />
@@ -27,7 +34,8 @@ import Map from './local/Map.svelte'
     }
     .ui {
         position: absolute;
-        /* height: 50rem; */
-        background-color: white;
+        height: 100%;
+        width: 100%;
+        /* background-color: blue; */
     }
 </style>

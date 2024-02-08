@@ -12,12 +12,16 @@ import YAML from 'yaml'
 
 export async function GET({ params }) {
     // process markdown
-    let frontmatter:object
+    let frontmatter:object = {}
     const file = await unified()
         .use(remarkParse)
         .use(remarkFrontmatter, ['yaml'])
         .use(() => (tree) => {
-            frontmatter = YAML.parse(tree.children[0].value)
+            frontmatter = tree.children[0] && tree.children[0].value ? YAML.parse(tree.children[0].value) : {}
+            // if there's no frontmatter defined but there's content in the file, the frontmatter will get assigned the first element
+            if(typeof(frontmatter) == typeof('string')) {
+                frontmatter = {}
+            }
         })
         .use(remarkGfm)
         .use(remarkRehype)
@@ -26,7 +30,8 @@ export async function GET({ params }) {
         // TODO: this is going to cause problems for us! Paths, etc.
         .process(await read(`../modules/${params.path.replace('.json', '')}`))
     
-    console.log(file)
+    console.log(file, frontmatter)
+    frontmatter.title = frontmatter.title? frontmatter.title :  `../modules/${params.path.replace('.json', '')}`
 
     return json({
         path: params.path,

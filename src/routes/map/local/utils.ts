@@ -2,7 +2,7 @@ import { text } from "@sveltejs/kit";
 import type { Coords } from "./types";
 
 export class Cursor {
-
+    overNode = false
     state:any = null
     p5:any;
     dragOffsetX:number|null = null;
@@ -22,21 +22,18 @@ export class Cursor {
     update() {
         this.mx = this.p5.mouseX
         this.my = this.p5.mouseY
+    }
 
-        // handle mouse pressed operations
-        if(this.p5.mouseIsPressed && !this.dragOffsetX) {
-            this.dragOffsetX = this.p5.mouseX
-            this.dragOffsetY = this.p5.mouseY
-        } else if(!this.p5.mouseIsPressed) {
-            this.dragOffsetX = null
-            this.dragOffsetY = null
-            // this.setState(this.p5.ARROW)
+    getDrag():Coords {
+        if(this.p5.mouseIsPressed) {
+            return {
+                x: this.p5.pmouseX - this.p5.mouseX,
+                y: this.p5.pmouseY - this.p5.mouseY
+            } 
         }
-        // this.p5.fill(0);
-        // this.p5.text(`${this.mx}, ${this.my}`, this.mx, this.my)
-        // this.p5.circle(this.mx, this.my, 10); // draw cursor for debugging
-        if(this.dragOffsetX) {
-            this.p5.line(this.mx, this.my, this.dragOffsetX, this.dragOffsetY);
+        return {
+            x: 0,
+            y: 0
         }
         
     }
@@ -117,16 +114,6 @@ export class Cartographer {
     }
 
     draw(data:any, cursor:Cursor) {
-        if(this.currentScale != this.scale) {
-            const lerp = (this.scale - this.currentScale) / 4
-            this.currentScale += lerp;
-        }
-
-        
-        this.p5.push()
-        this.p5.translate(this.p5.width/4, this.p5.height/2)
-        this.p5.scale(this.currentScale)
-        this.p5.translate(this.x, this.y)
 
         // from https://www.reddit.com/r/p5js/comments/jo7ucf/clicking_on_a_translated_scaled_and_rotated_shape/
         const matrix = this.p5.drawingContext.getTransform()
@@ -147,17 +134,19 @@ export class Cartographer {
             const node = data.nodes[i]
             
             // if mouse is hovering over a node, highlight it
+            // let the cursor know it's in a hover state
+            cursor.overNode = false;
             if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= 50) {
                 this.p5.fill(this.p5.color(255, 0, 0))
                 this.p5.circle(node.x/2, node.y/2, 60);
+                cursor.overNode = true
             }
             // Draw node
+            // TODO: we need to see a lot more information about the node without having to interact with it
             const color = node.selected? this.p5.color(0, 255, 0) : 255            
             this.p5.fill(color)
             this.p5.circle(node.x/2, node.y/2, 50)
             
-            
-
             // this.p5.fill(0)
             // this.p5.text(`${node.x/2}, ${node.y/2}`, node.x/2, node.y/2)
             // TODO: you can optimize by moving this iteration & the creation of nodeObj to setup()
@@ -187,9 +176,75 @@ export class Cartographer {
                 controlPoint2.x/2, controlPoint2.y/2,
                 node2.x/2, node2.y/2
             )
-        }
-        this.p5.pop()
-        this.p5.fill(0)
-        this.p5.text(`${localCoord.x}, ${localCoord.y}`, 20, this.p5.height - 25)
+        }        
     }
+}
+
+export class Camera {
+    
+    p5:any
+    currentScale:number = 1
+    scale:number = 1;
+    x:number = 0; y:number = 0;
+    lx:number = 0; ly:number = 0;
+    offsetX:number = 0; offsetY:number = 0
+
+    constructor(p5:any, data:object, scale:number) {
+        this.scale = scale;
+        if(data && data.nodes) {
+            let minX = 0; let minY = 0;
+            for(let i=0;i<data.nodes.length;i++) {
+                if(data.nodes[i].x < minX) { minX = data.nodes[i].x }
+                if(data.nodes[i].y < minY) { minY = data.nodes[i].y }
+            } 
+            console.log(`MinX: ${minX}, MinY: ${minY}`)
+            this.lx -= minX
+            this.ly -= minY/4
+            this.x = this.lx
+            this.y = this.ly
+        }
+        this.p5 = p5;
+    }
+
+    setCoords(coords:Coords) {
+        // this.x = coords.x; this.y = coords.y
+        
+        const dx = this.p5.width/2 - this.p5.mouseX
+        const dy = this.p5.height/2 - this.p5.mouseY
+        console.log(`${dx}, ${dy}`)
+        this.lx += dx
+        this.ly += dy
+    }
+
+    display(coords:Coords, cb:any) {
+        // lerp scale changes
+        if(this.currentScale != this.scale) {
+            const lerp = (this.scale - this.currentScale) / 4
+            this.currentScale += lerp;
+        } 
+        // update map offset coordinates
+        this.lx -= coords.x; this.ly -= coords.y
+        
+        // lerp click changes
+        this.x += lerp(this.x, this.lx, 4);
+        this.y += lerp(this.y, this.ly, 4);
+
+        // center of screen debug marker
+        // this.p5.circle(this.p5.width/2, this.p5.height/2, 10)
+        
+        this.p5.push();
+        this.p5.translate(this.x, this.y);
+        this.p5.scale(this.currentScale)
+        cb();
+        this.p5.pop();
+        this.p5.fill(0)
+        this.p5.text(`${this.x}, ${this.y}`, 20, this.p5.height - 25)
+    }
+}
+
+function lerp(target:number, current:number, str:number):number {
+    if(target != current) {
+        return (current - target) / str
+    }
+    return 0
 }

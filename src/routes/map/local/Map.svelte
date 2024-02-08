@@ -1,8 +1,9 @@
 <script lang='ts'>
     import P5 from 'p5-svelte'
     import { onMount } from 'svelte';
-    import { Cartographer, Cursor } from './utils';
+    import { Camera, Cartographer, Cursor } from './utils';
     import { createEventDispatcher } from 'svelte'
+    import { faCameraRetro } from '@fortawesome/free-solid-svg-icons';
 
     const dispatch = createEventDispatcher()
 
@@ -24,6 +25,7 @@
     let space = false
     let mx:number, my:number
     let cursor:Cursor;
+    let camera:Camera;
     let carto:Cartographer;
     let canvas;
 
@@ -36,25 +38,32 @@
             my = p5.mouseY
             cursor = new Cursor(p5);
             carto = new Cartographer(p5);
+            camera = new Camera(p5, data, 0.5)
         };
 
-        // TODO: optimize
         p5.draw = () => {
             p5.background(255);
 
             cursor.update();
+            const coords= cursor.getDrag()
+
+            camera.display(coords, () => {
+                carto.draw(data, cursor);
+            })
             
-            const coords = cursor.getOffset();
-            // if coords is null, it means we've finished dragging
-            coords ? carto.move(coords.x, coords.y) : carto.lock()
-            carto.draw(data, cursor);
+            // TODO: If the cursor is over a node, draw the tooltip
+            if(cursor.overNode) {
+                // What content should be in the tooltip?
+                    // - description
+            }
 
         }
 
         p5.mouseClicked = (e:any) => {
             const selectedNode = cursor.click(data);
             if(selectedNode) {
-                sendClick(selectedNode)
+                sendClick(selectedNode) // send data to UI
+                camera.setCoords({x: p5.mouseX, y: p5.mouseY});
             }
         }
 
@@ -69,8 +78,8 @@
             }
         }
         p5.mouseWheel = (e:any) => {
-            carto.scale += e.delta / 1000
-            carto.scale = carto.scale < 0.125 ?  0.125:carto.scale
+            camera.scale += e.delta / 1000
+            camera.scale = carto.scale < 0.125 ?  0.125:camera.scale
         }
     }
 </script>
