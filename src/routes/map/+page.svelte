@@ -60,7 +60,7 @@
         <Map    
             on:nodeSelect={handleNodeSelect} 
             data={data}
-            center={openPanel? 0.75 : 0.5}
+            center={openPanel? 0.66 : 0.5}
             interact={interactable} 
         />
     </div>
