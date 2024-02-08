@@ -1,14 +1,24 @@
 <script lang='ts'>
     import Fa from 'svelte-fa'
     import { faMap, faLocationDot, faDownload, faGear, faUpload } from '@fortawesome/free-solid-svg-icons'
+    import { createEventDispatcher } from 'svelte'
+    
+    export let selected:string|null
+    function select (name:string) {
+        if(selected == name) {
+            selected = ''
+        } else {
+            selected = name
+        }
+    }
 </script>
 
 <div class='map-panel'>
-    <a class='button round'>
+    <a on:click={() => select('Trails') } class='button round {selected == 'Trails'? 'highlighted' : ''}'>
         <Fa icon={faMap} size='2x' />
         <span class='button-text'>Trails</span>
     </a>
-    <a class='button round'>
+    <a on:click={() => select('Locations') } class='button round {selected == 'Locations'? 'highlighted' : ''}'>
         <Fa icon={faLocationDot} size='2x' />
         <span class='button-text'>Locations</span>
     </a>
@@ -60,5 +70,8 @@
             width: 4rem;
             height: 4rem;
         }
+    }
+    .highlighted {
+        background-color: whitesmoke;
     }
 </style>

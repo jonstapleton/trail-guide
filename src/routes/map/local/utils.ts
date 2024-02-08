@@ -12,6 +12,7 @@ export class Cursor {
     tx:number;
     ty:number;
     keys:string[] = []
+    selectedNode:object|null = null
 
     constructor(p5:any) {
         this.p5 = p5
@@ -24,7 +25,10 @@ export class Cursor {
         this.my = this.p5.mouseY
     }
 
-    getDrag():Coords {
+    getDrag(interact:boolean):Coords {
+        if(!interact) {
+            return { x: 0, y: 0}
+        }
         if(this.p5.mouseIsPressed) {
             return {
                 x: this.p5.pmouseX - this.p5.mouseX,
@@ -39,18 +43,28 @@ export class Cursor {
     }
 
     click(data:any):any|null {
-        // TODO: check coordinates
-        let selectedNode:any|null = null
+        let newNode = false
+        let selectedNodes:number[] = []
+        let index = null
         for(let i=0;i<data.nodes.length;i++) {
             const node = data.nodes[i]
+            if(node.selected) {
+                selectedNodes.push(i)
+            }
             if(this.p5.dist(this.tx, this.ty, node.x/2, node.y/2) <= 50) {
-                node.selected = true;
-                selectedNode = node
-            } else {
-                node.selected = false;
+                node.selected = !node.selected;
+                this.selectedNode = node
+                index = i
+                newNode = true
             }
         }
-        return selectedNode
+        // Turn off other selected node(s)
+        if(newNode) {
+            for(let i=0;i<selectedNodes.length;i++) {
+                data.nodes[selectedNodes[i]].selected = false
+            }
+        }
+        return newNode ? {node: this.selectedNode, index: index} : {node: null, index: null} 
     }
 
     getOffset():Coords|null {
@@ -184,7 +198,7 @@ export class Camera {
     
     p5:any
     currentScale:number = 1
-    scale:number = 1;
+    scale:number = 1; lscale:number = 1
     x:number = 0; y:number = 0;
     lx:number = 0; ly:number = 0;
     offsetX:number = 0; offsetY:number = 0
@@ -206,14 +220,24 @@ export class Camera {
         this.p5 = p5;
     }
 
-    setCoords(coords:Coords) {
-        // this.x = coords.x; this.y = coords.y
-        
-        const dx = this.p5.width/2 - this.p5.mouseX
-        const dy = this.p5.height/2 - this.p5.mouseY
-        console.log(`${dx}, ${dy}`)
-        this.lx += dx
-        this.ly += dy
+    setCoords(coords:Coords, centerFactor:number) {
+        const dx = this.p5.width * centerFactor - this.p5.mouseX
+        const dy = this.p5.height * 0.5 - this.p5.mouseY
+        // console.log(`${dx}, ${dy}`)
+        this.x += dx
+        this.y += dy
+    }
+
+    zoom(coords:Coords, scaleFactor:number, absolute:boolean) {
+        let factor;
+        if(!absolute) {
+            factor = scaleFactor
+        } else {
+            factor = scaleFactor/this.scale
+        }
+        this.scale = this.scale * factor;
+        this.x = this.p5.mouseX - (this.p5.mouseX * factor) + (this.x * factor);
+        this.y = this.p5.mouseY - (this.p5.mouseY * factor) + (this.y * factor);
     }
 
     display(coords:Coords, cb:any) {
@@ -223,22 +247,27 @@ export class Camera {
             this.currentScale += lerp;
         } 
         // update map offset coordinates
-        this.lx -= coords.x; this.ly -= coords.y
+        this.x -= coords.x; this.y -= coords.y
         
         // lerp click changes
-        this.x += lerp(this.x, this.lx, 4);
-        this.y += lerp(this.y, this.ly, 4);
+        // this.x += lerp(this.x, this.lx, 4);
+        // this.y += lerp(this.y, this.ly, 4);
 
         // center of screen debug marker
-        // this.p5.circle(this.p5.width/2, this.p5.height/2, 10)
+        // this.p5.circle(this.p5.width*centerFactor, this.p5.height*0.5, 10)
+        let transformX = this.lx + ((this.x - this.lx)/4)
+        let transformY = this.ly + ((this.y - this.ly)/4)
+        // let lerpScale  = this.scale + ((this.scale - this.lscale)/4)
         
         this.p5.push();
-        this.p5.translate(this.x, this.y);
+        this.p5.translate(transformX, transformY);
         this.p5.scale(this.currentScale)
         cb();
         this.p5.pop();
         this.p5.fill(0)
         this.p5.text(`${this.x}, ${this.y}`, 20, this.p5.height - 25)
+
+        this.lx = transformX; this.ly = transformY; //this.lscale = lerpScale
     }
 }
 

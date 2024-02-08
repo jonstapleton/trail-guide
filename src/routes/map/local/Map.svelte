@@ -7,10 +7,12 @@
 
     const dispatch = createEventDispatcher()
 
-    function sendClick(data:any) {
+    let lastIndex:number|null = null
+    function sendClick(data:any, index:number) {
         dispatch('nodeSelect', {
-            data: data
-        })
+            data: data,
+            index: index
+        })        
     }
 
     interface Node {
@@ -30,10 +32,15 @@
     let canvas;
 
     export let data:Map
+    export let center:number = 0.5
+    export let interact = true
+
+    // $:console.log(interact)
 
     export let sketch = (p5:any) => {
         p5.setup = () => {
             p5.createCanvas(p5.displayWidth, p5.displayHeight*0.83)
+            
             mx = p5.mouseX
             my = p5.mouseY
             cursor = new Cursor(p5);
@@ -45,7 +52,7 @@
             p5.background(255);
 
             cursor.update();
-            const coords= cursor.getDrag()
+            const coords= cursor.getDrag(interact)
 
             camera.display(coords, () => {
                 carto.draw(data, cursor);
@@ -60,10 +67,20 @@
         }
 
         p5.mouseClicked = (e:any) => {
-            const selectedNode = cursor.click(data);
-            if(selectedNode) {
-                sendClick(selectedNode) // send data to UI
-                camera.setCoords({x: p5.mouseX, y: p5.mouseY});
+            if(!interact) { return }
+            const {node, index} = cursor.click(data);
+            if(node) {
+                let zoom
+                if(!node.selected) {
+                    zoom = 0.5
+                } else {
+                    zoom = 1.75
+                }
+                sendClick(node, index) // send data to UI
+                camera.zoom({x: camera.x, y: camera.y}, zoom, true)
+                camera.setCoords({x: p5.mouseX, y: p5.mouseY}, center);
+            } else {
+                console.log("No new node")
             }
         }
 
@@ -78,17 +95,29 @@
             }
         }
         p5.mouseWheel = (e:any) => {
-            camera.scale += e.delta / 1000
-            camera.scale = carto.scale < 0.125 ?  0.125:camera.scale
+            if(!interact) { return true }
+            // camera.scale += e.delta / 1000
+            // camera.scale = carto.scale < 0.125 ?  0.125:camera.scale
+            let scaleFactor = null;
+            const zoomSensitivity = 0.1
+            if (e.delta < 0) {
+                // Zoom in
+                scaleFactor = 1 + zoomSensitivity;
+            } else {
+                // Zoom out
+                scaleFactor = 1 - zoomSensitivity;
+            }
+            camera.zoom({x: camera.x, y: camera.y}, scaleFactor, false)
+            return false
         }
     }
 </script>
 
-<div class='canvas'>
+<div id='map' class='canvas'>
     <P5 {sketch} />
 </div>
 
-<style>
+<style lang='scss'>
     .canvas {
         z-index: -99;
     }
