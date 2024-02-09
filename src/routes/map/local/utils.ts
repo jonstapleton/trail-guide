@@ -129,16 +129,7 @@ export class Cartographer {
 
     draw(data:any, cursor:Cursor) {
 
-        // from https://www.reddit.com/r/p5js/comments/jo7ucf/clicking_on_a_translated_scaled_and_rotated_shape/
-        const matrix = this.p5.drawingContext.getTransform()
-        const localCoord = matrix
-            .inverse()
-            .transformPoint(
-                new DOMPoint(
-                    this.p5.mouseX * this.p5.pixelDensity(),
-                    this.p5.mouseY * this.p5.pixelDensity()
-                )
-            );
+        const localCoord = getLocalCoords(this.p5, {x: this.p5.mouseX, y: this.p5.mouseY});
         cursor.setTransformCoords(localCoord)
         
         
@@ -221,8 +212,8 @@ export class Camera {
     }
 
     setCoords(coords:Coords, centerFactor:number) {
-        const dx = this.p5.width * centerFactor - this.p5.mouseX
-        const dy = this.p5.height * 0.5 - this.p5.mouseY
+        const dx = this.p5.width * centerFactor - coords.x
+        const dy = this.p5.height * 0.5 - coords.y
         // console.log(`${dx}, ${dy}`)
         this.x += dx
         this.y += dy
@@ -236,8 +227,8 @@ export class Camera {
             factor = scaleFactor/this.scale
         }
         this.scale = this.scale * factor;
-        this.x = this.p5.mouseX - (this.p5.mouseX * factor) + (this.x * factor);
-        this.y = this.p5.mouseY - (this.p5.mouseY * factor) + (this.y * factor);
+        this.x = coords.x - (coords.x * factor) + (this.x * factor);
+        this.y = coords.y - (coords.y * factor) + (this.y * factor);
     }
 
     display(coords:Coords, cb:any) {
@@ -269,6 +260,25 @@ export class Camera {
 
         this.lx = transformX; this.ly = transformY; //this.lscale = lerpScale
     }
+    getScreenCoords(coords:Coords) {
+        let transformX = this.lx + ((this.x - this.lx)/4)
+        let transformY = this.ly + ((this.y - this.ly)/4)
+        // let lerpScale  = this.scale + ((this.scale - this.lscale)/4)
+        
+        this.p5.push();
+        this.p5.translate(transformX, transformY);
+        this.p5.scale(this.currentScale)
+        const matrix = this.p5.drawingContext.getTransform()
+        const scoords = matrix
+        .transformPoint(
+            new DOMPoint(
+                coords.x * this.p5.pixelDensity(),
+                coords.y * this.p5.pixelDensity()
+            )
+        );
+        this.p5.pop()
+        return scoords
+    }
 }
 
 function lerp(target:number, current:number, str:number):number {
@@ -276,4 +286,18 @@ function lerp(target:number, current:number, str:number):number {
         return (current - target) / str
     }
     return 0
+}
+
+export function getLocalCoords(p5:any, coords:Coords) {
+    // from https://www.reddit.com/r/p5js/comments/jo7ucf/clicking_on_a_translated_scaled_and_rotated_shape/
+    const matrix = p5.drawingContext.getTransform()
+    const localCoord = matrix
+        .inverse()
+        .transformPoint(
+            new DOMPoint(
+                coords.x * p5.pixelDensity(),
+                coords.y * p5.pixelDensity()
+            )
+        );
+    return localCoord
 }

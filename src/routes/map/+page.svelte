@@ -9,20 +9,26 @@
     import { SvelteComponent, onMount } from 'svelte';
     export let data
 
-    let panelData:any
-    let selectedIndex:number
     let selectedNode:object|null
-    let panelComponent:any
+    let map:any
 
     function closeLocationPanel() {
-        panelData = null;
-        data.nodes[selectedIndex].selected = false
+        console.log("Closing panel...")
+        selectedNode.selected = false
     }
     let openPanel:string|null = null
     function handleNodeSelect(e:any) {
+        console.log("Handling node select...")
+        if(selectedNode) { selectedNode.selected = false } // turn off the old node
+        e.detail.data.selected = true
+        selectedNode = e.detail.data
+        map.select(selectedNode) // Move the camera
+    }
+
+    function selectFromMap(e:any) {
+        console.log("Select from map...")
         if(e.detail.data.selected) {
-            selectedNode = e.detail.data;
-            selectedIndex = e.detail.index
+            selectedNode = e.detail.data
         } else {
             closeLocationPanel();
         }
@@ -31,10 +37,6 @@
     const options = {
         "Locations": LocationList
     }
-
-    // onMount(() => {
-    //     console.log(data)
-    // })
     let interactable = true;
     function handleCapture(e:any) {
         interactable = e.detail
@@ -46,19 +48,20 @@
         
         <div class='panels' role='none'>
             <PanelCard on:capture={handleCapture} title={openPanel} loaded={openPanel? true:false} on:close={() => openPanel = null}>
-                <svelte:component this={options[openPanel]} nodes={data.nodes} />
+                <svelte:component on:select={handleNodeSelect} this={options[openPanel]} nodes={data.nodes} />
             </PanelCard>
             
             
             <!-- Location panel is a special case since it gets input from the map -->
-            <PanelCard on:capture={handleCapture} title={selectedNode? selectedNode.frontmatter.title:'no title'} titleSize={'large'} loaded={selectedNode? true:false} on:close={closeLocationPanel}>
+            <PanelCard on:capture={handleCapture} title={selectedNode? selectedNode.frontmatter.title:'no title'} titleSize={'large'} loaded={selectedNode? selectedNode.selected : false} on:close={closeLocationPanel}>
                 <LocationCard node={selectedNode} />
             </PanelCard>
         </div>
     </div>
     <div class='hero-body m-0 p-0'>
-        <Map    
-            on:nodeSelect={handleNodeSelect} 
+        <Map
+            bind:this={map}    
+            on:nodeSelect={selectFromMap} 
             data={data}
             center={openPanel? 0.66 : 0.5}
             interact={interactable} 

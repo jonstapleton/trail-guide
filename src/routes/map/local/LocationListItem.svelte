@@ -2,13 +2,18 @@
     import { onMount } from "svelte";
     import { faArrowUpRightFromSquare, faBoxOpen, faSearch } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
+    import { createEventDispatcher } from "svelte";
 
     export let node:object = {
         frontmatter: { title: "no title" }
     }
 
+    const dispatch = createEventDispatcher();
     function focus() {
-        console.log(`Focus on ${node.frontmatter.title}`)
+        // console.log(`Focus on ${node.frontmatter.title}`)
+        dispatch('select', {
+            data: node
+        })
     }
 </script>
 

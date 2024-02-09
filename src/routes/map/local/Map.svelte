@@ -4,6 +4,7 @@
     import { Camera, Cartographer, Cursor } from './utils';
     import { createEventDispatcher } from 'svelte'
     import { faCameraRetro } from '@fortawesome/free-solid-svg-icons';
+    import type { Coords } from './types';
 
     const dispatch = createEventDispatcher()
 
@@ -34,6 +35,16 @@
     export let data:Map
     export let center:number = 0.5
     export let interact = true
+
+    export function select(node:object) {
+        console.log("Moving camera to node...")
+        
+        // get screen coordinates for pan
+        const coords = {x: node.x/2, y: node.y/2}
+        const scoords = camera.getScreenCoords(coords)
+        camera.zoom(scoords, 1.75, true)
+        camera.setCoords(scoords, center);
+    }
 
     // $:console.log(interact)
 
@@ -77,7 +88,8 @@
                     zoom = 1.75
                 }
                 sendClick(node, index) // send data to UI
-                camera.zoom({x: camera.x, y: camera.y}, zoom, true)
+                // handle camera work
+                camera.zoom({x: p5.mouseX, y: p5.mouseY}, zoom, true)
                 camera.setCoords({x: p5.mouseX, y: p5.mouseY}, center);
             } else {
                 console.log("No new node")

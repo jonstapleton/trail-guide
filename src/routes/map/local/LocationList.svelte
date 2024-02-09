@@ -1,11 +1,21 @@
 <script lang='ts'>
     import LocationListItem from "./LocationListItem.svelte";
+    import { createEventDispatcher } from "svelte";
 
     export let nodes:object[] = []
 
     let term = ''
     $: filter(term)
     let filteredNodes:object[] = []
+
+    const dispatch = createEventDispatcher();
+
+    function select(e:any) {
+        console.log("Sending select...")
+        dispatch('select', {
+            data: e.detail.data
+        })
+    }
 
     function filter(term:string) {
         filteredNodes = nodes.filter((node)=> {
@@ -23,7 +33,7 @@
     </div>
     <!-- // List of nodes -->
     {#each filteredNodes as node, i}
-    <LocationListItem node={node} />
+    <LocationListItem on:select={select} node={node} />
     {/each}
 </div>
 
