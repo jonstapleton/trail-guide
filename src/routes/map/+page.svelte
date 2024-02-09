@@ -48,7 +48,7 @@
         
         <div class='panels' role='none'>
             <PanelCard on:capture={handleCapture} title={openPanel} loaded={openPanel? true:false} on:close={() => openPanel = null}>
-                <svelte:component on:select={handleNodeSelect} this={options[openPanel]} nodes={data.nodes} />
+                <svelte:component on:select={handleNodeSelect} this={options[openPanel]} nodes={data.nodes} selectedNode={selectedNode} />
             </PanelCard>
             
             

@@ -36,6 +36,7 @@ export async function GET({ params }) {
     return json({
         path: params.path,
         content: file.value,
-        frontmatter: frontmatter
+        frontmatter: frontmatter,
+        completed: false // TODO: this is going to have to change when we load data
     })
 }

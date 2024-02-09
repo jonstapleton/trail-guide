@@ -3,6 +3,7 @@
     import { createEventDispatcher } from "svelte";
 
     export let nodes:object[] = []
+    export let selectedNode:object;
 
     let term = ''
     $: filter(term)
@@ -19,7 +20,9 @@
 
     function filter(term:string) {
         filteredNodes = nodes.filter((node)=> {
-            return node.frontmatter.title.toLowerCase().includes(term.toLowerCase()) || term.length == 0
+            return  node.frontmatter.title.toLowerCase().includes(term.toLowerCase())
+                    || term.length == 0 //||
+                    // selectedNode.path == node.path
         })
     }
 </script>
@@ -33,7 +36,7 @@
     </div>
     <!-- // List of nodes -->
     {#each filteredNodes as node, i}
-    <LocationListItem on:select={select} node={node} />
+    <LocationListItem on:select={select} node={node} selected={selectedNode} />
     {/each}
 </div>
 
