@@ -4,6 +4,8 @@ import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import remarkFrontmatter from 'remark-frontmatter'
+import { img } from '$lib/components/directives/img'
+import remarkDirective from 'remark-directive'
 import remarkGfm from 'remark-gfm'
 import {read} from 'to-vfile'
 import {unified} from 'unified'
@@ -24,13 +26,15 @@ export async function GET({ params }) {
             }
         })
         .use(remarkGfm)
+        .use(remarkDirective)
         .use(remarkRehype)
+        .use(img)
         .use(rehypeFormat)
         .use(rehypeStringify)
         // TODO: this is going to cause problems for us! Paths, etc.
         .process(await read(`../modules/${params.path.replace('.json', '')}`))
     
-    console.log(file, frontmatter)
+    // console.log(file, frontmatter)
     frontmatter.title = frontmatter.title? frontmatter.title :  `../modules/${params.path.replace('.json', '')}`
 
     return json({

@@ -203,8 +203,8 @@ export class Camera {
                 if(data.nodes[i].y < minY) { minY = data.nodes[i].y }
             } 
             console.log(`MinX: ${minX}, MinY: ${minY}`)
-            this.lx -= minX
-            this.ly -= minY/4
+            this.lx -= minX/2
+            this.ly -= minY
             this.x = this.lx
             this.y = this.ly
         }
