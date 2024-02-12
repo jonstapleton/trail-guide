@@ -195,20 +195,23 @@ export class Camera {
     offsetX:number = 0; offsetY:number = 0
 
     constructor(p5:any, data:object, scale:number) {
-        this.scale = scale;
-        if(data && data.nodes) {
-            let minX = 0; let minY = 0;
-            for(let i=0;i<data.nodes.length;i++) {
-                if(data.nodes[i].x < minX) { minX = data.nodes[i].x }
-                if(data.nodes[i].y < minY) { minY = data.nodes[i].y }
-            } 
-            console.log(`MinX: ${minX}, MinY: ${minY}`)
-            this.lx -= minX/2
-            this.ly -= minY
-            this.x = this.lx
-            this.y = this.ly
-        }
         this.p5 = p5;
+        this.scale = scale;
+        this.currentScale = this.scale
+        if(data && data.nodes) {
+            let ysum = 0; let xsum = 0
+            for(let i=0;i<data.nodes.length;i++) {
+                ysum += data.nodes[i].y
+                xsum += data.nodes[i].x
+            } 
+            const avgY = ysum/data.nodes.length
+            const avgX = xsum/data.nodes.length
+            const coords = {x: avgX/2, y: avgY/2}
+            const scoords = this.getScreenCoords(coords)
+            // this.zoom(scoords, 1.75, true)
+            this.setCoords(scoords, 0.5);
+        }
+        
     }
 
     setCoords(coords:Coords, centerFactor:number) {
