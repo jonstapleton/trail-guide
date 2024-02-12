@@ -10,3 +10,10 @@
     <p>No content in file</p>
     {/if}
 </div>
+<!-- 
+<style>
+    .location-card {
+        height: 20rem;
+        overflow: hidden;
+    }
+</style> -->

@@ -22,7 +22,7 @@
         <Fa icon={faLocationDot} size='2x' />
         <span class='button-text'>Locations</span>
     </a>
-    <!-- <div class='bottom'>
+    <div class='bottom'>
         <a class='button round'>
             <Fa icon={faUpload} size='1.5x' />
             <span class='button-text'>Load</span>
@@ -35,7 +35,7 @@
             <Fa icon={faGear} size='1.5x' />
             <span class='button-text'>Settings</span>
         </a>
-    </div> -->
+    </div>
 </div>
 
 <style lang='scss'>

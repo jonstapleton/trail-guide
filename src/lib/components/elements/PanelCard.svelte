@@ -48,6 +48,8 @@
         margin: 2rem;
         min-width: 20rem;
         max-width: 30%;
+        max-height: 85vh;
+        overflow-y: scroll;
         background-color: white;
         display: inline-block;
         position: relative;

@@ -36,7 +36,7 @@
     export let center:number = 0.5
     export let interact = true
 
-    export function select(node:object) {
+    export function select(node:Node) {
         console.log("Moving camera to node...")
         
         // get screen coordinates for pan

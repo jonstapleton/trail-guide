@@ -5,6 +5,7 @@ import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import remarkFrontmatter from 'remark-frontmatter'
 import { img } from '$lib/components/directives/img'
+import { a } from '$lib/components/directives/a'
 import remarkDirective from 'remark-directive'
 import remarkGfm from 'remark-gfm'
 import {read} from 'to-vfile'
@@ -29,6 +30,7 @@ export async function GET({ params }) {
         .use(remarkDirective)
         .use(remarkRehype)
         .use(img)
+        .use(a)
         .use(rehypeFormat)
         .use(rehypeStringify)
         // TODO: this is going to cause problems for us! Paths, etc.
