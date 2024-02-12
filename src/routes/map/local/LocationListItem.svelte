@@ -28,18 +28,22 @@
 </script>
 
 <div class='location-list-item'>
-    <div class='control'>
-        <label class='radio'>
-            <input type='checkbox' name='complete' bind:checked={node.completed}>
-        </label>
+    <div class='left'>
+        <div class='control'>
+            <label class='radio'>
+                <input type='checkbox' name='complete' bind:checked={node.completed}>
+            </label>
+        </div>
+        <a on:click={focus}>{node.frontmatter.title}</a>
     </div>
-    <a on:click={focus}>{node.frontmatter.title}</a>
-    <span class='hoverable'>
-        <Fa icon={faArrowUpRightFromSquare} />
-    </span>
-    <span class={selected && selected.selected && node.path == selected.path ? "visible": "invisible"}>
-        <Fa icon={faLocationDot} />
-    </span>
+    <div class='right'>
+        <span class='hoverable'>
+            <Fa icon={faArrowUpRightFromSquare} />
+        </span>
+        <span class={selected && selected.selected && node.path == selected.path ? "visible": "invisible"}>
+            <Fa icon={faLocationDot} />
+        </span>
+    </div>
 </div>
 
 <style lang='scss'>
@@ -48,10 +52,7 @@
         border-bottom-style: solid;
         border-bottom-color: whitesmoke;
         padding: 1rem 1rem;
-        
-        & > * {
-            display: inline-block;
-        }
+        display: flex;
         &:hover {
             background-color: whitesmoke;
             cursor: pointer;
@@ -60,13 +61,21 @@
             }
         }
         span {
-            float:right;
-            margin-left: 1rem;
-            color: black;
-            &.hoverable {
-                visibility: hidden;
-            }
+            visibility: hidden;
         }
+    }
+    .left {
+        display: inline-flex;
+        flex-grow: 1;
+        // background-color: pink;
+    }
+    .right {
+        display: inline-flex;
+        // background-color: lightblue;
+        span {
+            margin-left: 0.75rem;
+        }
+        margin-left: auto;
     }
     .control {
         margin-right: 0.5rem;

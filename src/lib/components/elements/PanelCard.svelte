@@ -47,7 +47,7 @@
     .panel-card {
         margin: 2rem;
         min-width: 20rem;
-        max-width: 30%;
+        max-width: 33rem;
         max-height: 85vh;
         overflow-y: scroll;
         background-color: white;
