@@ -27,9 +27,13 @@
             map.select(selectedNode) // Move the camera
         } else {
             // Highlight a series of nodes
-            console.log("Highlighting nodes...")
+            console.log("Event: ", e.detail)
             const nodeList = e.detail.select ? e.detail.data.frontmatter.nodes : []
             map.highlight(nodeList, e.detail.showInfo)
+            if(!e.detail.showInfo && e.detail.select) {
+                // zoom out if deselecting from trail menu
+                map.zoom(data.nodes)
+            }
             trailData = e.detail.showInfo ? e.detail.data : null
         }
         

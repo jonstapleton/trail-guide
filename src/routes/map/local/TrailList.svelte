@@ -23,6 +23,7 @@
         filteredNodes = nodes.filter((node)=> {
             return  node.frontmatter.title.toLowerCase().includes(term.toLowerCase())
                     || term.length == 0 //||
+                    || node.selected
                     // selectedNode.path == node.path
         })
     }
@@ -37,7 +38,7 @@
     </div>
     <!-- // List of nodes -->
     {#each filteredNodes as node, i}
-    <TrailListItem on:select={select} node={node} selected={selectedNode} />
+    <TrailListItem on:select={select} node={node} />
     {/each}
 </div>
 

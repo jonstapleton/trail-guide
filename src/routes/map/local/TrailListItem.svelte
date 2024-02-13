@@ -7,10 +7,10 @@
 
     export let node:object = {
         frontmatter: { title: "no title", nodes: [] },
+        selected: false
     }
-    let selected:boolean = false
 
-    $: console.log(`Trail ${node.frontmatter.title} select status is ${selected}`)
+    $: console.log(`Trail ${node.frontmatter.title} select status is ${node.selected}`)
 
     const dispatch = createEventDispatcher();
     function focus(select:boolean) {
@@ -19,7 +19,7 @@
             dispatch('select', {
                 data: node,
                 select: select,
-                showInfo: selected
+                showInfo: node.selected
             })
         }
     }
@@ -27,17 +27,17 @@
     function handleFocus(e:any) {
         switch(e.type) {
             case 'mouseenter':
-                if(!selected) {
+                if(!node.selected) {
                     focus(true)
                 }
                 break
             case 'mouseleave':
-                if(!selected) {
+                if(!node.selected) {
                     focus(false)
                 }
                 break
             case 'click':
-                selected = !selected
+                node.selected = !node.selected
                 focus(true)
                 break
         }
@@ -46,14 +46,14 @@
     let iconsref = {
         selected: {
             icon: faLocationDot,
-            condition: selected
+            condition: node.selected
         },
         showing: ["selected"]
     }
 </script>
 
-<div on:mouseenter={handleFocus} on:mouseleave={handleFocus} class='trail-list-item {selected? 'selected' : ''}'>
-    <div class='trail-list-row {selected? 'selected' : ''}'>
+<div on:mouseenter={handleFocus} on:mouseleave={handleFocus} class='trail-list-item {node.selected? 'selected' : ''}'>
+    <div class='trail-list-row {node.selected? 'selected' : ''}'>
         <div class='left'>
             <div class='control'>
                 <label class='radio'>
@@ -63,15 +63,15 @@
             <a on:click={handleFocus}>{node.frontmatter.title}</a>
         </div>
         <div class='right'>
-            <span class='hoverable {selected? "selected":""}'>
+            <span class='hoverable {node.selected? "selected":""}'>
                 <Fa icon={faArrowUpRightFromSquare} />
             </span>
-            <span class={selected ? "visible": "invisible"}>
+            <span class={node.selected ? "visible": "invisible"}>
                 <Fa icon={faLocationDot} />
             </span>
         </div>
     </div>
-    {#if selected}
+    {#if node.selected}
     <div class='description'>
         {@html node.content}
     </div>

@@ -51,6 +51,7 @@
         camera.setCoords(scoords, center);
     }
     export function highlight(nodes:Node[], zoom:boolean) {
+        console.log("handling highlight...")
         let sumX = 0; let sumY = 0; let count = 0
         for(let i=0;i<data.nodes.length;i++) {
             data.nodes[i].highlighted = nodes.includes('./'+data.nodes[i].file) ? true : false;
