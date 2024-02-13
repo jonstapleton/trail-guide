@@ -13,6 +13,10 @@
 
     const dispatch = createEventDispatcher();
 
+    function select(e:any) {
+        dispatch('select', e.detail)
+    }
+
     $: filter(term)
 
     function filter(term:string) {
@@ -24,7 +28,7 @@
     }
 </script>
 
-<div class='location-list'>
+<div class='trail-list'>
     <!-- Search Bar -->
     <div class='field'>
         <div class='control'>
@@ -33,14 +37,14 @@
     </div>
     <!-- // List of nodes -->
     {#each filteredNodes as node, i}
-    <TrailListItem node={node} selected={selectedNode} />
+    <TrailListItem on:select={select} node={node} selected={selectedNode} />
     {/each}
 </div>
 
 <style lang='scss'>
     .location-list {
-        max-height:40rem;
+        // max-height:40rem;
         overflow-y: scroll;
-        pointer-events: all;
+        // pointer-events: all;
     }
 </style>

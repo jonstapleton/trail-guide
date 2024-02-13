@@ -8,6 +8,7 @@
     export let title = "No Title";
     export let loaded = true;
     export let titleSize = ''
+    export let layout = 'horizontal'
 
     let frontmatter = {
         title: 'No Title!'
@@ -29,7 +30,7 @@
 </script>
 
 {#if loaded}
-<article bind:this={el} on:mouseenter={() => capture(false)} on:mouseleave={() => capture(true)} transition:slide class='panel-card card'>
+<article bind:this={el} on:mouseenter={() => capture(false)} on:mouseleave={() => capture(true)} transition:slide class='panel-card card {layout}'>
     <header class='card-header'>
         <h2 class='card-header-title mb-3 pb-0'>{title}</h2>
         <button on:click={sendClose} class="card-header-icon" aria-label="close">
@@ -44,7 +45,7 @@
 </article>
 {/if}
 <style lang='scss'>
-    .panel-card {
+    .panel-card.horizontal {
         margin: 2rem;
         min-width: 20rem;
         max-width: 33rem;

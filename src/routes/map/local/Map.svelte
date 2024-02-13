@@ -18,7 +18,11 @@
 
     interface Node {
         x:number,
-        y:number
+        y:number,
+        frontmatter:object,
+        selected?:boolean,
+        highlighted?:boolean,
+        file:string
     }
 
     interface Map {
@@ -45,6 +49,39 @@
         const scoords = camera.getScreenCoords(coords)
         camera.zoom(scoords, 1.75, true)
         camera.setCoords(scoords, center);
+    }
+    export function highlight(nodes:Node[], zoom:boolean) {
+        let sumX = 0; let sumY = 0; let count = 0
+        for(let i=0;i<data.nodes.length;i++) {
+            data.nodes[i].highlighted = nodes.includes('./'+data.nodes[i].file) ? true : false;
+            if(data.nodes[i].highlighted) {
+                sumX += data.nodes[i].x
+                sumY += data.nodes[i].y
+                count++
+            }
+        }
+        
+        if(nodes.length > 0 && zoom) {
+            const avgX = sumX/count
+            const avgY = sumY/count
+            const coords = {x: avgX/2, y: avgY/2}
+            const scoords = camera.getScreenCoords(coords)
+            camera.zoom(scoords, 0.5, true)
+            camera.setCoords(scoords, 0.66)
+        }
+    }
+    export function zoom(nodes:Nodes[]) {
+        let ysum = 0; let xsum = 0
+        for(let i=0;i<nodes.length;i++) {
+            ysum += nodes[i].y
+            xsum += nodes[i].x
+        } 
+        const avgY = ysum/nodes.length
+        const avgX = xsum/nodes.length
+        const coords = {x: avgX/2, y: avgY/2}
+        const scoords = camera.getScreenCoords(coords)
+        // this.zoom(scoords, 1.75, true)
+        camera.setCoords(scoords, 0.5);
     }
 
     // $:console.log(interact)
@@ -94,6 +131,7 @@
                 camera.setCoords({x: p5.mouseX, y: p5.mouseY}, center);
             } else {
                 console.log("No new node")
+                // highlight([])
             }
         }
 

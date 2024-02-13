@@ -141,10 +141,10 @@ export class Cartographer {
             // if mouse is hovering over a node, highlight it
             // let the cursor know it's in a hover state
             cursor.overNode = false;
-            if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= 50) {
+            if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= 50 || node.highlighted) {
                 this.p5.fill(this.p5.color(255, 0, 0))
-                this.p5.circle(node.x/2, node.y/2, 60);
-                cursor.overNode = true
+                this.p5.circle(node.x/2, node.y/2, 68);
+                // cursor.overNode = true
             }
             // Draw node
             // TODO: we need to see a lot more information about the node without having to interact with it
@@ -173,8 +173,22 @@ export class Cartographer {
                 x: node2.x + controlPointKeyX[edge.toSide],
                 y: node2.y + controlPointKeyY[edge.toSide]
             }
-            // this.p5.line(node1.x/2, node1.y/2, node2.x/2, node2.y/2);
+            
             this.p5.fill('rgba(0, 0, 0, 0)')
+            
+            // If the edge is selected, draw a bolder line as well
+            if(node1.highlighted && node2.highlighted) {
+                this.p5.stroke(this.p5.color(255, 0, 0));
+                this.p5.strokeWeight(18);
+                this.p5.bezier(
+                    node1.x/2, node1.y/2,
+                    controlPoint1.x/2, controlPoint2.y/2,
+                    controlPoint2.x/2, controlPoint2.y/2,
+                    node2.x/2, node2.y/2
+                )
+            }
+            this.p5.stroke(this.p5.color(0, 0, 0));
+            this.p5.strokeWeight(1);
             this.p5.bezier(
                 node1.x/2, node1.y/2,
                 controlPoint1.x/2, controlPoint2.y/2,

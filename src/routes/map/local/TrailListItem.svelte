@@ -3,51 +3,83 @@
     import { faArrowUpRightFromSquare, faBoxOpen, faLocationDot, faLocationPin, faSearch } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { createEventDispatcher } from "svelte";
+    import TrailCard from "$lib/components/trail/TrailCard.svelte";
 
     export let node:object = {
-        frontmatter: { title: "no title" }
+        frontmatter: { title: "no title", nodes: [] },
     }
-    export let selected:object;
+    let selected:boolean = false
+
+    $: console.log(`Trail ${node.frontmatter.title} select status is ${selected}`)
 
     const dispatch = createEventDispatcher();
-    function focus() {
-        // console.log(`Focus on ${node.frontmatter.title}`)
-        dispatch('select', {
-            data: node
-        })
+    function focus(select:boolean) {
+        // console.log(`Focus on nodes ${node.frontmatter.nodes}`)
+        if(node.frontmatter.nodes) {
+            dispatch('select', {
+                data: node,
+                select: select,
+                showInfo: selected
+            })
+        }
+    }
+
+    function handleFocus(e:any) {
+        switch(e.type) {
+            case 'mouseenter':
+                if(!selected) {
+                    focus(true)
+                }
+                break
+            case 'mouseleave':
+                if(!selected) {
+                    focus(false)
+                }
+                break
+            case 'click':
+                selected = !selected
+                focus(true)
+                break
+        }
     }
 
     let iconsref = {
         selected: {
             icon: faLocationDot,
-            condition: selected && node.path == selected.path
+            condition: selected
         },
         showing: ["selected"]
     }
-    $:console.log(selected && node.path == selected.path)
 </script>
 
-<div class='location-list-item'>
-    <div class='left'>
-        <div class='control'>
-            <label class='radio'>
-                <input type='checkbox' name='complete' bind:checked={node.completed}>
-            </label>
+<div on:mouseenter={handleFocus} on:mouseleave={handleFocus} class='trail-list-item {selected? 'selected' : ''}'>
+    <div class='trail-list-row {selected? 'selected' : ''}'>
+        <div class='left'>
+            <div class='control'>
+                <label class='radio'>
+                    <input type='checkbox' name='complete' bind:checked={node.completed}>
+                </label>
+            </div>
+            <a on:click={handleFocus}>{node.frontmatter.title}</a>
         </div>
-        <a on:click={focus}>{node.frontmatter.title}</a>
+        <div class='right'>
+            <span class='hoverable {selected? "selected":""}'>
+                <Fa icon={faArrowUpRightFromSquare} />
+            </span>
+            <span class={selected ? "visible": "invisible"}>
+                <Fa icon={faLocationDot} />
+            </span>
+        </div>
     </div>
-    <div class='right'>
-        <span class='hoverable'>
-            <Fa icon={faArrowUpRightFromSquare} />
-        </span>
-        <span class={selected && selected.selected && node.path == selected.path ? "visible": "invisible"}>
-            <Fa icon={faLocationDot} />
-        </span>
+    {#if selected}
+    <div class='description'>
+        {@html node.content}
     </div>
+    {/if}
 </div>
 
 <style lang='scss'>
-    .location-list-item {
+    .trail-list-row {
         border-bottom-width: 1px;
         border-bottom-style: solid;
         border-bottom-color: whitesmoke;
@@ -60,9 +92,20 @@
                 visibility: visible;
             }
         }
-        span {
+        span.hoverable {
             visibility: hidden;
         }
+        span.hoverable.selected {
+            visibility: visible;
+        }
+    }
+    .trail-list-row.selected {
+        background-color: whitesmoke;
+    }
+    .trail-list-item.selected {
+        border-color: red;
+        border-style: solid;
+        border-width: 3px;
     }
     .left {
         display: inline-flex;
@@ -85,6 +128,14 @@
     }
     .visible {
         visibility: visible;
+    }
+    .description {
+        display: block;
+        position: static;
+        padding: 1rem 1rem;
+    }
+    .trail-list-item {
+        display: block
     }
 </style>
 

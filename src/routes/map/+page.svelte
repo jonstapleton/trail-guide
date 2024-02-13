@@ -5,6 +5,7 @@
     import PanelCard from '$lib/components/elements/PanelCard.svelte';
     import TrailList from './local/TrailList.svelte';
     import LocationList from './local/LocationList.svelte';
+    import TrailInfo from './local/TrailInfo.svelte';
     export let data
 
     let selectedNode:object|null
@@ -15,12 +16,23 @@
         selectedNode.selected = false
     }
     let openPanel:string|null = null
+    let trailData:object;
     function handleNodeSelect(e:any) {
-        console.log("Handling node select...")
+        // console.log("Handling node select...", e.detail.data)
         if(selectedNode) { selectedNode.selected = false } // turn off the old node
-        e.detail.data.selected = true
-        selectedNode = e.detail.data
-        map.select(selectedNode) // Move the camera
+        if(!e.detail.data.frontmatter.nodes) {
+            // Select a node
+            e.detail.data.selected = true
+            selectedNode = e.detail.data
+            map.select(selectedNode) // Move the camera
+        } else {
+            // Highlight a series of nodes
+            console.log("Highlighting nodes...")
+            const nodeList = e.detail.select ? e.detail.data.frontmatter.nodes : []
+            map.highlight(nodeList, e.detail.showInfo)
+            trailData = e.detail.showInfo ? e.detail.data : null
+        }
+        
     }
 
     function selectFromMap(e:any) {
@@ -47,14 +59,23 @@
     function handleCapture(e:any) {
         interactable = e.detail
     }
+
+    function closePanel() {
+        map.highlight([])
+        openPanel = null
+    }
 </script>
 <section class='map hero is-fullheight-with-navbar'>
     <div  class='ui'>
         <MapPanel  bind:selected={openPanel} />
         
         <div class='panels' role='none'>
-            <PanelCard on:capture={handleCapture} title={openPanel} loaded={openPanel? true:false} on:close={() => openPanel = null}>
+            <PanelCard on:capture={handleCapture} title={openPanel} loaded={openPanel? true:false} on:close={closePanel}>
+                <!-- {#if trailData}
+                <TrailInfo trail={trailData} />
+                {/if} -->
                 <svelte:component on:select={handleNodeSelect} this={options[openPanel].obj} nodes={options[openPanel].data} selectedNode={selectedNode} />
+                
             </PanelCard>
             
             
