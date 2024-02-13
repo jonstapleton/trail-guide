@@ -23,7 +23,8 @@
 
     interface Map {
         nodes:Node[],
-        edges:object[]
+        edges:object[],
+        projects:object[]
     }
     let space = false
     let mx:number, my:number

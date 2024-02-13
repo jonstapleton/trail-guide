@@ -2,6 +2,7 @@
     import SearchBar from "$lib/components/elements/SearchBar.svelte";
     import LocationListItem from "./LocationListItem.svelte";
     import { createEventDispatcher } from "svelte";
+    import TrailListItem from "./TrailListItem.svelte";
 
     export let nodes:object[] = []
     export let selectedNode:object;
@@ -11,13 +12,6 @@
     let filteredNodes:object[] = []
 
     const dispatch = createEventDispatcher();
-
-    function select(e:any) {
-        console.log("Sending select...")
-        dispatch('select', {
-            data: e.detail.data
-        })
-    }
 
     $: filter(term)
 
@@ -39,7 +33,7 @@
     </div>
     <!-- // List of nodes -->
     {#each filteredNodes as node, i}
-    <LocationListItem on:select={select} node={node} selected={selectedNode} />
+    <TrailListItem node={node} selected={selectedNode} />
     {/each}
 </div>
 

@@ -1,12 +1,10 @@
 <script lang='ts'>
 	import LocationCard from '$lib/components/location/LocationCard.svelte';
-    import TrailPanel from '$lib/components/trail/TrailPanel.svelte';
     import Map from './local/Map.svelte'
     import MapPanel from './local/MapPanel.svelte';
-    import LocationPanel from './local/LocationPanel.svelte';
     import PanelCard from '$lib/components/elements/PanelCard.svelte';
+    import TrailList from './local/TrailList.svelte';
     import LocationList from './local/LocationList.svelte';
-    import { SvelteComponent, onMount } from 'svelte';
     export let data
 
     let selectedNode:object|null
@@ -35,8 +33,16 @@
     }
 
     const options = {
-        "Locations": LocationList
+        "Locations": {
+            obj: LocationList,
+            data: data.nodes
+        },
+        "Trails": {
+            obj: TrailList,
+            data: data.projects
+        }
     }
+
     let interactable = true;
     function handleCapture(e:any) {
         interactable = e.detail
@@ -48,7 +54,7 @@
         
         <div class='panels' role='none'>
             <PanelCard on:capture={handleCapture} title={openPanel} loaded={openPanel? true:false} on:close={() => openPanel = null}>
-                <svelte:component on:select={handleNodeSelect} this={options[openPanel]} nodes={data.nodes} selectedNode={selectedNode} />
+                <svelte:component on:select={handleNodeSelect} this={options[openPanel].obj} nodes={options[openPanel].data} selectedNode={selectedNode} />
             </PanelCard>
             
             
