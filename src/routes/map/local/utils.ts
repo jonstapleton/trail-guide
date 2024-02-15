@@ -1,6 +1,6 @@
 import { text } from "@sveltejs/kit";
 import type { Coords } from "./types";
-import type { Map } from "./mapNodes";
+import type { Edge, Map, Tutorial } from "./mapNodes";
 
 export class Cursor {
     overNode = false
@@ -132,10 +132,35 @@ export class Cartographer {
 
         const localCoord = getLocalCoords(this.p5, {x: this.p5.mouseX, y: this.p5.mouseY});
         cursor.setTransformCoords(localCoord)
+        // Edges
+        for(let i=0;i<data.edges.length;i++) {
+            const edge:Edge = data.edges[i]
+            const node1:Tutorial = data.nodeObj[edge.fromNode]
+            const node2:Tutorial = data.nodeObj[edge.toNode]
+            this.p5.fill('rgba(0, 0, 0, 0)')
+            
+            // If the edge is selected, draw a bolder line as well
+            if(edge.highlighted) {
+                this.p5.stroke(this.p5.color(255, 0, 0));
+                this.p5.strokeWeight(18);
+                this.p5.bezier(
+                    node1.x/2, node1.y/2,
+                    edge.c1.x/2, edge.c1.y/2,
+                    edge.c2.x/2, edge.c2.y/2,
+                    node2.x/2, node2.y/2
+                )
+            }
+            this.p5.stroke(this.p5.color(0, 0, 0));
+            this.p5.strokeWeight(1);
+            this.p5.bezier(
+                node1.x/2, node1.y/2,
+                edge.c1.x/2, edge.c1.y/2,
+                edge.c2.x/2, edge.c2.y/2,
+                node2.x/2, node2.y/2
+            )
+        } 
         
-        
-        // Nodes
-        let nodeObj:any = {}
+        // Draw Nodes
         for(let i=0;i<data.nodes.length;i++) {
             const node = data.nodes[i]
             
@@ -155,52 +180,9 @@ export class Cartographer {
             // TODO: we need to see a lot more information about the node without having to interact with it
             const color = node.selected? this.p5.color(0, 255, 0) : 255            
             this.p5.fill(color)
-            this.p5.circle(node.x/2, node.y/2, 50)
-            
-            // this.p5.fill(0)
-            // this.p5.text(`${node.x/2}, ${node.y/2}`, node.x/2, node.y/2)
-            // TODO: you can optimize by moving this iteration & the creation of nodeObj to setup()
-            nodeObj[node.id] = node // create the nodeObj object to help with drawing edges    
+            this.p5.circle(node.x/2, node.y/2, 50)    
         }
-        // Edges
-        for(let i=0;i<data.edges.length;i++) {
-            const edge = data.edges[i]
-            const node1 = nodeObj[edge.fromNode]
-            const controlPointKeyX = {"left":-300,"right":300,"top":0,"bottom":0}
-            const controlPointKeyY = {"left":0,"right":0,"top":-300,"bottom":300}
-            const controlPoint1 = {
-                x: node1.x + controlPointKeyX[edge.fromSide],
-                y: node1.y + controlPointKeyY[edge.fromSide]
-            }
-
-            const node2 = nodeObj[edge.toNode]
-            const controlPoint2 = {
-                x: node2.x + controlPointKeyX[edge.toSide],
-                y: node2.y + controlPointKeyY[edge.toSide]
-            }
-            
-            this.p5.fill('rgba(0, 0, 0, 0)')
-            
-            // If the edge is selected, draw a bolder line as well
-            if(node1.highlighted && node2.highlighted) {
-                this.p5.stroke(this.p5.color(255, 0, 0));
-                this.p5.strokeWeight(18);
-                this.p5.bezier(
-                    node1.x/2, node1.y/2,
-                    controlPoint1.x/2, controlPoint2.y/2,
-                    controlPoint2.x/2, controlPoint2.y/2,
-                    node2.x/2, node2.y/2
-                )
-            }
-            this.p5.stroke(this.p5.color(0, 0, 0));
-            this.p5.strokeWeight(1);
-            this.p5.bezier(
-                node1.x/2, node1.y/2,
-                controlPoint1.x/2, controlPoint2.y/2,
-                controlPoint2.x/2, controlPoint2.y/2,
-                node2.x/2, node2.y/2
-            )
-        }        
+               
     }
 }
 

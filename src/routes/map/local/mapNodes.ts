@@ -16,43 +16,84 @@ interface resNode extends Document {
     id:string
 }
 
+interface Coords {
+    x:number,
+    y:number
+}
+
 export interface MapDataResponse {
     nodes:resNode[],
     edges:object[],
     projects:Document[]
 }
 
-export class Edge {
-    id:string = ''
-    fromSide:string
-    toSide:string
-    toNode:Tutorial
-    fromNode:Tutorial
-    highlighted:boolean = false
-    constructor() {
-
-    }
-}
-
 export class Map {
     nodes:Tutorial[] = []
-    edges:object[] = []
+    nodeObj:any = {}
+    edges:Edge[] = []
     projects:Project[] = []
     selectedNode:Tutorial|null = null
 
     constructor(res:MapDataResponse) {
         for(let i=0;i<res.nodes.length;i++) {
-            this.nodes.push(new Tutorial(res.nodes[i]))
+            const tut = new Tutorial(res.nodes[i])
+            this.nodes.push(tut)
+            this.nodeObj[res.nodes[i].id] = tut // create the nodeObj object to help with drawing edges
         }
-        this.edges = res.edges
-        this.projects = this.constructProjects(res, this.nodes)
+        // this.edges = res.edges
+
+        for(let i=0;i<res.edges.length;i++) {
+            const edge = new Edge(res.edges[i], this)
+            this.edges.push(edge)
+            // if(this.nodeObj[edge.toNode]) {
+            //     this.nodeObj[edge.toNode].edges.push(edge.id)
+            // }
+            // if(this.nodeObj[edge.fromNode]) {
+            //     this.nodeObj[edge.fromNode].edges.push(edge.id)
+            // }
+        }
+        this.projects = this.constructProjects(res, this.nodes, this.edges)
+        
     }
-    constructProjects(res:MapDataResponse, nodes:Tutorial[]):Project[] {
+    constructProjects(res:MapDataResponse, nodes:Tutorial[], edges:Edge[]):Project[] {
         let objs:Project[] = []
         for(let i=0;i<res.projects.length;i++) {
-            objs.push(new Project(res.projects[i], nodes))
+            objs.push(new Project(res.projects[i], nodes, edges))
         }
         return objs
+    }
+}
+
+export class Edge {
+    c1:Coords
+    c2:Coords
+    toNode:string
+    fromNode:string
+    fromSide:("left"|"right"|"top"|"bottom")
+    toSide:("left"|"right"|"top"|"bottom")
+    id:string
+    highlighted = false
+    constructor(resEdge:any, data:Map) {
+        this.toNode = resEdge.toNode
+        this.fromNode = resEdge.fromNode
+        this.toSide = resEdge.toSide
+        this.fromSide = resEdge.fromSide
+        this.id = resEdge.id
+        const node1 = data.nodeObj[this.fromNode]
+        const controlPointKeyX = {"left":-300,"right":300,"top":0,"bottom":0}
+        const controlPointKeyY = {"left":0,"right":0,"top":-300,"bottom":300}
+        const controlPoint1:Coords = {
+            x: node1.x + controlPointKeyX[this.fromSide],
+            y: node1.y + controlPointKeyY[this.fromSide]
+        }
+
+        const node2 = data.nodeObj[this.toNode]
+        const controlPoint2:Coords = {
+            x: node2.x + controlPointKeyX[this.toSide],
+            y: node2.y + controlPointKeyY[this.toSide]
+        }
+        this.c1 = controlPoint1
+        this.c2 = controlPoint2
     }
 }
 
@@ -87,6 +128,7 @@ export class Tutorial extends MapNode {
     highlighted:boolean = false
     completed:boolean = false
     selected:boolean = false
+    edges:string[] = []
     constructor(obj:resNode) {
         super(obj)
     }
@@ -98,20 +140,33 @@ export class Tutorial extends MapNode {
 
 export class Project extends Element {
     nodes:Tutorial[] = []
+    edges:Edge[] = []
     selected:boolean = false
     difficulty:number
-    constructor(obj:Document, nodeObjs:Tutorial[]) {
+    constructor(obj:Document, nodeObjs:Tutorial[], edges:Edge[]) {
         super(obj)
         this.difficulty = obj.frontmatter.difficulty ? obj.frontmatter.difficulty : 'N/A'
         if(!obj.frontmatter.nodes) { throw new Error(`Document ${obj.frontmatter.title} does not define nodes!`)}
+        let objIds:any[] = [...obj.frontmatter.nodes]
         let objArray:(string|Tutorial)[] = [...obj.frontmatter.nodes]
         for(let i=0;i<nodeObjs.length;i++) {
             const nodeFilePath = './'+nodeObjs[i].path
             if(objArray.includes(nodeFilePath)) {
-                objArray[objArray.indexOf(nodeFilePath)] = nodeObjs[i]
+                const index = objArray.indexOf(nodeFilePath)
+                objArray[index] = nodeObjs[i]
+                objIds[index] = nodeObjs[i].id
             }
         }
+        // this.nodes is an ordered list of the nodes in the trail
         this.nodes = objArray as Tutorial[]
+
+        this.edges = edges.filter((edge) => {
+            const to = objIds.indexOf(edge.toNode)
+            const from = objIds.indexOf(edge.fromNode)
+            const edgeInProject = (to != -1 && from != -1) && Math.abs(to - from) == 1
+            return edgeInProject
+        })
+        // console.log(`${this.frontmatter.title} edges:`, this.edges.length)
     }
 
     highlight() {
@@ -120,12 +175,18 @@ export class Project extends Element {
         for(let i=0;i<this.nodes.length;i++) {
             this.nodes[i].highlight()
         }
+        for(let i=0;i<this.edges.length;i++) {
+            this.edges[i].highlighted = true
+        }
     }
     dehighlight() {
         // TODO: fix edge dehighlight
         // console.log("highlighting", this.frontmatter.title)
         for(let i=0;i<this.nodes.length;i++) {
             this.nodes[i].highlighted = false || this.selected
+        }
+        for(let i=0;i<this.edges.length;i++) {
+            this.edges[i].highlighted = false || this.selected
         }
     }
 }
