@@ -1,19 +1,24 @@
-import type Map from './local/Map.svelte';
 import {read} from 'to-vfile'
 import {base} from '$app/paths'
+import type {MapDataResponse} from './local/mapNodes'
 
 export async function load({ fetch }) {
-    const blob = (await read('../modules/region-map.canvas')).toString()
-    const mapData = JSON.parse(blob)
-    for(let i=0;i<mapData.nodes.length;i++) {
-        const md = await (await fetch(`${base}/api/file/${mapData.nodes[i].file}.json`)).json()
-        mapData.nodes[i].content = md.content
-        mapData.nodes[i].frontmatter = md.frontmatter
-        mapData.nodes[i].path = md.path
-    }
-    mapData.projects = await (await fetch(`${base}/api/file/projects.json`)).json()
 
-    return mapData as Map
+    // construct MapResponse object
+    const blob = (await read('../modules/region-map.canvas')).toString()
+    const res = JSON.parse(blob)
+    for(let i=0;i<res.nodes.length;i++) {
+        const md = await (await fetch(`${base}/api/file/${res.nodes[i].file}.json`)).json()
+        res.nodes[i].content = md.content
+        res.nodes[i].frontmatter = md.frontmatter
+        res.nodes[i].path = md.path
+    }
+    res.projects = await (await fetch(`${base}/api/file/projects.json`)).json()
+
+    // const mapData = new Map(res)
+    return {
+        res: res as MapDataResponse
+    }
 }
 
 export const prerender = true;

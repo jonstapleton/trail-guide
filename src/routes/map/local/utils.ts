@@ -1,5 +1,6 @@
 import { text } from "@sveltejs/kit";
 import type { Coords } from "./types";
+import type { Map } from "./mapNodes";
 
 export class Cursor {
     overNode = false
@@ -127,7 +128,7 @@ export class Cartographer {
         this.offset.y = this.y
     }
 
-    draw(data:any, cursor:Cursor) {
+    draw(data:Map, cursor:Cursor) {
 
         const localCoord = getLocalCoords(this.p5, {x: this.p5.mouseX, y: this.p5.mouseY});
         cursor.setTransformCoords(localCoord)
@@ -141,10 +142,14 @@ export class Cartographer {
             // if mouse is hovering over a node, highlight it
             // let the cursor know it's in a hover state
             cursor.overNode = false;
-            if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= 50 || node.highlighted) {
+            if(node.highlighted) {
                 this.p5.fill(this.p5.color(255, 0, 0))
                 this.p5.circle(node.x/2, node.y/2, 68);
-                // cursor.overNode = true
+                cursor.overNode = true
+            }
+            if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= 50 || node.hover) {
+                this.p5.fill(this.p5.color(0, 0, 255))
+                this.p5.circle(node.x/2, node.y/2, 68)
             }
             // Draw node
             // TODO: we need to see a lot more information about the node without having to interact with it
@@ -222,7 +227,7 @@ export class Camera {
             const avgX = xsum/data.nodes.length
             const coords = {x: avgX/2, y: avgY/2}
             const scoords = this.getScreenCoords(coords)
-            // this.zoom(scoords, 1.75, true)
+            this.zoom(scoords, 0.4, true) // TODO: calculate the zoom level based on how big the map is
             this.setCoords(scoords, 0.5);
         }
         

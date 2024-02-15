@@ -1,11 +1,13 @@
 <script lang='ts'>
     import SearchBar from "$lib/components/elements/SearchBar.svelte";
     import LocationListItem from "./LocationListItem.svelte";
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import TrailListItem from "./TrailListItem.svelte";
+    import type { Nodes } from "rehype-format/lib";
 
     export let nodes:object[] = []
     export let selectedNode:object;
+    export let locs:object[] = []
 
     let term = ''
 

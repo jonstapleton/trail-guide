@@ -1,44 +1,43 @@
 <script lang='ts'>
 	import LocationCard from '$lib/components/location/LocationCard.svelte';
-    import Map from './local/Map.svelte'
+    import MapComponent from './local/Map.svelte'
     import MapPanel from './local/MapPanel.svelte';
     import PanelCard from '$lib/components/elements/PanelCard.svelte';
     import TrailList from './local/TrailList.svelte';
     import LocationList from './local/LocationList.svelte';
     import TrailInfo from './local/TrailInfo.svelte';
+    import { onMount } from 'svelte';
+    import { Map, Tutorial, type MapDataResponse } from './local/mapNodes';
+    import { mapData } from './store';
     export let data
 
-    let selectedNode:object|null
+    let options = {}
+    onMount(() => {
+        $mapData = new Map(data.res)
+        console.log(mapData)
+        options = {
+            "Tutorials": {
+                obj: LocationList,
+                data: $mapData.nodes
+            },
+            "Projects": {
+                obj: TrailList,
+                data: $mapData.projects
+            }
+        }
+    })
+
+    let selectedNode:Tutorial|null
     let map:any
 
     function closeLocationPanel() {
-        console.log("Closing panel...")
-        selectedNode.selected = false
+        if(selectedNode) {
+            selectedNode.selected = false
+            selectedNode = null
+            map.focus()
+        }
     }
     let openPanel:string|null = null
-    let trailData:object;
-    function handleNodeSelect(e:any) {
-        // console.log("Handling node select...", e.detail.data)
-        if(selectedNode) { selectedNode.selected = false } // turn off the old node
-        if(!e.detail.data.frontmatter.nodes) {
-            // Select a node
-            e.detail.data.selected = true
-            selectedNode = e.detail.data
-            map.select(selectedNode) // Move the camera
-        } else {
-            // Highlight a series of nodes
-            console.log("Event: ", e.detail)
-            const nodeList = e.detail.select ? e.detail.data.frontmatter.nodes : []
-            map.highlight(nodeList, e.detail.showInfo)
-            if(!e.detail.showInfo && e.detail.select) {
-                // zoom out if deselecting from trail menu
-                map.zoom(data.nodes)
-            }
-            trailData = e.detail.showInfo ? e.detail.data : null
-        }
-        
-    }
-
     function selectFromMap(e:any) {
         console.log("Select from map...")
         if(e.detail.data.selected) {
@@ -48,52 +47,62 @@
         }
     }
 
-    const options = {
-        "Locations": {
-            obj: LocationList,
-            data: data.nodes
-        },
-        "Trails": {
-            obj: TrailList,
-            data: data.projects
-        }
-    }
-
     let interactable = true;
     function handleCapture(e:any) {
         interactable = e.detail
     }
 
     function closePanel() {
-        map.highlight([])
         openPanel = null
+    }
+
+    function handlePanelSelect(e:any) {
+        console.log(e.detail.type)
+        if(e.detail.type == 'location') {
+            selectLocation(e)
+        } else if(e.detail.type == 'trail') {
+            selectTrail(e)
+        }
+    }
+    function selectLocation(e:any) {
+        selectedNode = e.detail.data
+        selectedNode.selected = true
+        // zoom into node
+        map.focus(selectedNode)
+    }
+    function selectTrail(e:any) {
+        e.detail.data.highlight()
     }
 </script>
 <section class='map hero is-fullheight-with-navbar'>
     <div  class='ui'>
         <MapPanel  bind:selected={openPanel} />
         
-        <div class='panels' role='none'>
+        <div class='panels'>
             <PanelCard on:capture={handleCapture} title={openPanel} loaded={openPanel? true:false} on:close={closePanel}>
-                <!-- {#if trailData}
-                <TrailInfo trail={trailData} />
-                {/if} -->
-                <svelte:component on:select={handleNodeSelect} this={options[openPanel].obj} nodes={options[openPanel].data} selectedNode={selectedNode} />
-                
+                <svelte:component
+                    this={options[openPanel].obj}
+                    nodes={options[openPanel].data}
+                    on:select={handlePanelSelect}
+                    bind:selectedNode={selectedNode}
+                />
             </PanelCard>
             
-            
-            <!-- Location panel is a special case since it gets input from the map -->
-            <PanelCard on:capture={handleCapture} title={selectedNode? selectedNode.frontmatter.title:'no title'} titleSize={'large'} loaded={selectedNode? selectedNode.selected : false} on:close={closeLocationPanel}>
+            <PanelCard on:capture={handleCapture}
+                title={selectedNode? selectedNode.frontmatter.title:'no title'} 
+                titleSize={'large'} 
+                loaded={selectedNode? selectedNode.selected : false} 
+                on:close={closeLocationPanel}
+            >
                 <LocationCard node={selectedNode} />
             </PanelCard>
         </div>
     </div>
     <div class='hero-body m-0 p-0'>
-        <Map
+        <MapComponent
             bind:this={map}    
             on:nodeSelect={selectFromMap} 
-            data={data}
+            data={$mapData}
             center={openPanel? 0.75 : 0.5}
             interact={interactable} 
         />

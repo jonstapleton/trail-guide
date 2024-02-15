@@ -5,6 +5,7 @@
     import { createEventDispatcher } from 'svelte'
     import { faCameraRetro } from '@fortawesome/free-solid-svg-icons';
     import type { Coords } from './types';
+    import type { Map } from './mapNodes';
 
     const dispatch = createEventDispatcher()
 
@@ -24,12 +25,6 @@
         highlighted?:boolean,
         file:string
     }
-
-    interface Map {
-        nodes:Node[],
-        edges:object[],
-        projects:object[]
-    }
     let space = false
     let mx:number, my:number
     let cursor:Cursor;
@@ -41,35 +36,43 @@
     export let center:number = 0.5
     export let interact = true
 
-    export function select(node:Node) {
-        console.log("Moving camera to node...")
-        
-        // get screen coordinates for pan
-        const coords = {x: node.x/2, y: node.y/2}
-        const scoords = camera.getScreenCoords(coords)
-        camera.zoom(scoords, 1.75, true)
-        camera.setCoords(scoords, center);
-    }
-    export function highlight(nodes:Node[], zoom:boolean) {
-        console.log("handling highlight...")
-        let sumX = 0; let sumY = 0; let count = 0
-        for(let i=0;i<data.nodes.length;i++) {
-            data.nodes[i].highlighted = nodes.includes('./'+data.nodes[i].file) ? true : false;
-            if(data.nodes[i].highlighted) {
-                sumX += data.nodes[i].x
-                sumY += data.nodes[i].y
-                count++
-            }
-        }
-        
-        if(nodes.length > 0 && zoom) {
-            const avgX = sumX/count
-            const avgY = sumY/count
-            const coords = {x: avgX/2, y: avgY/2}
+    export function focus(node?:Node) {
+        if(!node) {
+            camera.zoom({x: camera.p5.mouseX, y: camera.p5.mouseY}, 0.5, true)   // handle camera work
+            camera.setCoords({x: camera.p5.mouseX, y: camera.p5.mouseY}, center);
+        } else {
+            console.log("Moving camera to node...")
+            node.selected = true
+            // get screen coordinates for pan
+            const coords = {x: node.x/2, y: node.y/2}
             const scoords = camera.getScreenCoords(coords)
-            camera.zoom(scoords, 0.5, true)
-            camera.setCoords(scoords, 0.66)
+            camera.zoom(scoords, 1.75, true)
+            camera.setCoords(scoords, center);
         }
+    }
+    export function addHighlight(nodes:Node[], zoom:boolean) {
+        console.log("handling highlight...")
+        // let sumX = 0; let sumY = 0; let count = 0
+        // for(let i=0;i<data.nodes.length;i++) {
+        //     data.nodes[i].highlighted = nodes.includes('./'+data.nodes[i].file) ? true : false;
+        //     if(data.nodes[i].highlighted) {
+        //         sumX += data.nodes[i].x
+        //         sumY += data.nodes[i].y
+        //         count++
+        //     }
+        // }
+        
+        // if(nodes.length > 0 && zoom) {
+        //     const avgX = sumX/count
+        //     const avgY = sumY/count
+        //     const coords = {x: avgX/2, y: avgY/2}
+        //     const scoords = camera.getScreenCoords(coords)
+        //     camera.zoom(scoords, 0.4, true)
+        //     camera.setCoords(scoords, 0.66)
+        // }
+    }
+    export function removeHighlight(nodes:Node[], zoom:boolean) {
+
     }
     export function zoom(nodes:Nodes[]) {
         let ysum = 0; let xsum = 0
@@ -81,7 +84,7 @@
         const avgX = xsum/nodes.length
         const coords = {x: avgX/2, y: avgY/2}
         const scoords = camera.getScreenCoords(coords)
-        // this.zoom(scoords, 1.75, true)
+        // camera.zoom(scoords, 0.5, true)
         camera.setCoords(scoords, 0.5);
     }
 
@@ -100,20 +103,16 @@
 
         p5.draw = () => {
             p5.background(255);
-
             cursor.update();
             const coords= cursor.getDrag(interact)
-
             camera.display(coords, () => {
                 carto.draw(data, cursor);
             })
-            
             // TODO: If the cursor is over a node, draw the tooltip
             if(cursor.overNode) {
                 // What content should be in the tooltip?
                     // - description
             }
-
         }
 
         p5.mouseClicked = (e:any) => {
@@ -127,40 +126,26 @@
                     zoom = 1.75
                 }
                 sendClick(node, index) // send data to UI
-                // handle camera work
-                camera.zoom({x: p5.mouseX, y: p5.mouseY}, zoom, true)
+                camera.zoom({x: p5.mouseX, y: p5.mouseY}, zoom, true)   // handle camera work
                 camera.setCoords({x: p5.mouseX, y: p5.mouseY}, center);
             } else {
                 console.log("No new node")
                 // highlight([])
             }
         }
-
-        p5.keyPressed = (e:any) => {
-            if(e.key == ' ') {
-                cursor.addKey('space')
-            }
-        }
-        p5.keyReleased = (e:any) => {
-            if (e.key == ' ') {
-                cursor.removeKey('space')
-            }
-        }
         p5.mouseWheel = (e:any) => {
-            if(!interact) { return true }
-            // camera.scale += e.delta / 1000
-            // camera.scale = carto.scale < 0.125 ?  0.125:camera.scale
+            if(!interact) { 
+                return true // disable map scrolling, but allow the page to scroll 
+            }
             let scaleFactor = null;
             const zoomSensitivity = 0.1
             if (e.delta < 0) {
-                // Zoom in
-                scaleFactor = 1 + zoomSensitivity;
+                scaleFactor = 1 + zoomSensitivity; // Zoom in
             } else {
-                // Zoom out
-                scaleFactor = 1 - zoomSensitivity;
+                scaleFactor = 1 - zoomSensitivity; // Zoom out
             }
             camera.zoom({x: camera.x, y: camera.y}, scaleFactor, false)
-            return false
+            return false // disable scroll on page
         }
     }
 </script>

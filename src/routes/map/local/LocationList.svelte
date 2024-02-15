@@ -2,27 +2,19 @@
     import SearchBar from "$lib/components/elements/SearchBar.svelte";
     import LocationListItem from "./LocationListItem.svelte";
     import { createEventDispatcher } from "svelte";
+    import type { Tutorial } from "./mapNodes";
 
-    export let nodes:object[] = []
-    export let selectedNode:object;
+    export let nodes:Tutorial[] = []
+    export let selectedNode:Tutorial
 
     let term = ''
 
-    let filteredNodes:object[] = []
-
-    const dispatch = createEventDispatcher();
-
-    function select(e:any) {
-        console.log("Sending select...")
-        dispatch('select', {
-            data: e.detail.data
-        })
-    }
+    let filteredNodes:Tutorial[] = []
 
     $: filter(term)
 
     function filter(term:string) {
-        filteredNodes = nodes.filter((node)=> {
+        filteredNodes = nodes.filter((node) => {
             return  node.frontmatter.title.toLowerCase().includes(term.toLowerCase())
                     || term.length == 0 //||
                     // selectedNode.path == node.path
@@ -39,7 +31,7 @@
     </div>
     <!-- // List of nodes -->
     {#each filteredNodes as node, i}
-    <LocationListItem on:select={select} node={node} selected={selectedNode} />
+    <LocationListItem on:select bind:selected={selectedNode} node={node} />
     {/each}
 </div>
 

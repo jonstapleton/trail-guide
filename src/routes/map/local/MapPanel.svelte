@@ -14,13 +14,13 @@
 </script>
 
 <div class='map-panel'>
-    <a on:click={() => select('Trails') } class='button round {selected == 'Trails'? 'highlighted' : ''}'>
+    <a on:click={() => select('Projects') } class='button round {selected == 'Projects'? 'highlighted' : ''}'>
         <Fa icon={faMap} size='2x' />
-        <span class='button-text'>Trails</span>
+        <span class='button-text'>Projects</span>
     </a>
-    <a on:click={() => select('Locations') } class='button round {selected == 'Locations'? 'highlighted' : ''}'>
+    <a on:click={() => select('Tutorials') } class='button round {selected == 'Tutorials'? 'highlighted' : ''}'>
         <Fa icon={faLocationDot} size='2x' />
-        <span class='button-text'>Locations</span>
+        <span class='button-text'>Tutorials</span>
     </a>
     <div class='bottom'>
         <a class='button round'>

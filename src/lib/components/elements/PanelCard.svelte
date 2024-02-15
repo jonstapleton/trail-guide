@@ -31,7 +31,7 @@
 
 {#if loaded}
 <article bind:this={el} on:mouseenter={() => capture(false)} on:mouseleave={() => capture(true)} transition:slide class='panel-card card {layout}'>
-    <header class='card-header'>
+    <header class='card-header is-sticky'>
         <h2 class='card-header-title mb-3 pb-0'>{title}</h2>
         <button on:click={sendClose} class="card-header-icon" aria-label="close">
             <span class="icon">
@@ -49,8 +49,7 @@
         margin: 2rem;
         min-width: 20rem;
         max-width: 33rem;
-        max-height: 85vh;
-        overflow-y: scroll;
+        // max-height: 85vh;
         background-color: white;
         display: inline-block;
         position: relative;
@@ -61,5 +60,14 @@
     }
     h2.large {
         font-size: larger;
+    }
+    header {
+        position: relative;
+        z-index: 1;
+    }
+    section {
+        z-index: 0;
+        overflow-y: scroll;
+        max-height: 80vh;
     }
 </style>

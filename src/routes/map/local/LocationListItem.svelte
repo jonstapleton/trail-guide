@@ -3,17 +3,17 @@
     import { faArrowUpRightFromSquare, faBoxOpen, faLocationDot, faLocationPin, faSearch } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { createEventDispatcher } from "svelte";
+    import type { Tutorial } from "./mapNodes";
 
-    export let node:object = {
-        frontmatter: { title: "no title" }
-    }
-    export let selected:object;
+    export let node:Tutorial
+    export let selected:Tutorial;
 
     const dispatch = createEventDispatcher();
     function focus() {
-        // console.log(`Focus on ${node.frontmatter.title}`)
+        console.log(`Focus on ${node.frontmatter.title}`)
         dispatch('select', {
-            data: node
+            data: node,
+            type: 'location'
         })
     }
 
@@ -24,9 +24,11 @@
         },
         showing: ["selected"]
     }
-    $:console.log(selected && node.path == selected.path)
+    $: console.log(node.selected)
 </script>
 
+<!-- TODO: a11y stuff -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class='location-list-item'>
     <div class='left'>
         <div class='control'>
@@ -34,13 +36,16 @@
                 <input type='checkbox' name='complete' bind:checked={node.completed}>
             </label>
         </div>
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <!-- svelte-ignore a11y-missing-attribute -->
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
         <a on:click={focus}>{node.frontmatter.title}</a>
     </div>
     <div class='right'>
         <span class='hoverable'>
             <Fa icon={faArrowUpRightFromSquare} />
         </span>
-        <span class={selected && selected.selected && node.path == selected.path ? "visible": "invisible"}>
+        <span class="{selected && selected.path == node.path ? 'visible' : 'invisible'}">
             <Fa icon={faLocationDot} />
         </span>
     </div>
@@ -60,7 +65,7 @@
                 visibility: visible;
             }
         }
-        span {
+        span.hoverable {
             visibility: hidden;
         }
     }
