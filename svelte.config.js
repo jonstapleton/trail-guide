@@ -5,6 +5,9 @@ import { vitePreprocess } from "@sveltejs/kit/vite";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
+  compilerOptions: {
+    customElement: true
+  },
   extensions: [
     ".svelte"
   //  ...mdsvexConfig.extensions

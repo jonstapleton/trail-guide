@@ -2,10 +2,13 @@
     import { onMount } from "svelte";
     import type { Tutorial } from "../../../routes/map/local/mapNodes";
     import Video from "./Video.svelte";
-    import { faArrowUpRightFromSquare, faSquare, faSquareCheck } from "@fortawesome/free-solid-svg-icons";
+    import { faArrowUpRightFromSquare, faCircleQuestion, faGaugeSimpleHigh, faPenToSquare, faPencil, faSquare, faSquareCheck, faVideo } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { mapData } from "../../../routes/map/store";
     import QuickTake from "./QuickTake.svelte";
+    import PracticeQuestion from "./PracticeQuestion.svelte";
+    import Test from "../elements/Test.svelte";
+    import QuestionHost from "./QuestionHost.svelte";
 
     export let node:string|null;
 
@@ -17,10 +20,21 @@
     const tabs = ["Quick Take", "Video", "Practice", "Prompt"]
     let openTab = tabs[0]
     const objs:any = {
-        "Quick Take": QuickTake,
-        "Video": Video,
-        "Practice": null,
-        "Prompt": null
+        "Quick Take": {
+            component: QuickTake,
+            icon: faGaugeSimpleHigh
+        },
+        "Video": {
+            component: Video,
+            icon: faVideo
+        },
+        "Practice": {
+            component: QuestionHost,
+            icon: faCircleQuestion
+        },
+        "Prompt": {
+            icon: faPencil
+        }
     }
 
     function select(i:string) {
@@ -32,22 +46,29 @@
     <div class="tabs is-boxed is-fullwidth">
         <ul>
         {#each tabs as tab, i}
-            <li class={tab == openTab ? 'is-active' : ''}><a on:click={() => select(tab)}>{tabs[i]}</a></li>
+            <li class={tab == openTab ? 'is-active' : ''}>
+                <a on:click={() => select(tab)}>
+                    <Fa icon={objs[tab].icon} class='mr-2' />
+                    {tab}
+                </a>
+            </li>
         {/each}
         </ul>
       </div>
     <div class='body content'>
-        <svelte:component this={objs[openTab]} node={ node } />
+        <svelte:component this={objs[openTab].component} node={ node }>
+            {@html $mapData.nodeObj[node].content.practice}
+        </svelte:component>
     </div>
     <hr>
     {#if obj}
     <div class='buttons is-centered'>
         <button on:click={() => $mapData.nodeObj[node].completed = !$mapData.nodeObj[node].completed} class='button is-success'>
             <span class='icon mr-1'><Fa icon={$mapData.nodeObj[node].completed ? faSquareCheck : faSquare} /></span>
-            Mark as Complete
+            Mark as Completed
         </button>
         <button class='button'>
-            Open in New Tab
+            Read Detailed Tutorial
             <span class='icon ml-1'><Fa icon={faArrowUpRightFromSquare} /></span>
         </button>
     </div>

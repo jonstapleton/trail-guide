@@ -32,6 +32,7 @@ export interface MapDataResponse {
 export class Map {
     nodes:Tutorial[] = []
     nodeObj:any = {}
+    projectObj:any = {}
     edges:Edge[] = []
     projects:Project[] = []
     selectedNode:Tutorial|null = null
@@ -55,6 +56,9 @@ export class Map {
             // }
         }
         this.projects = this.constructProjects(res, this.nodes, this.edges)
+        for(let i=0;i<this.projects.length;i++) {
+            this.projectObj[this.projects[i].id] = this.projects[i]
+        }
         
     }
     constructProjects(res:MapDataResponse, nodes:Tutorial[], edges:Edge[]):Project[] {
@@ -135,7 +139,6 @@ export class Tutorial extends MapNode {
         super(obj)
     }
     highlight() {
-        console.log("highlighting", this.frontmatter.title)
         this.highlighted = true
     }
 }
@@ -145,6 +148,7 @@ export class Project extends Element {
     edges:Edge[] = []
     selected:boolean = false
     difficulty:number
+    id:string
     constructor(obj:Document, nodeObjs:Tutorial[], edges:Edge[]) {
         super(obj)
         this.difficulty = obj.frontmatter.difficulty ? obj.frontmatter.difficulty : 'N/A'
@@ -168,12 +172,11 @@ export class Project extends Element {
             const edgeInProject = (to != -1 && from != -1) && Math.abs(to - from) == 1
             return edgeInProject
         })
+        this.id = this.path
         // console.log(`${this.frontmatter.title} edges:`, this.edges.length)
     }
 
     highlight() {
-        // TODO: fix edge highlighting
-        console.log("highlighting", this.frontmatter.title)
         for(let i=0;i<this.nodes.length;i++) {
             this.nodes[i].highlight()
         }
@@ -182,8 +185,6 @@ export class Project extends Element {
         }
     }
     dehighlight() {
-        // TODO: fix edge dehighlight
-        // console.log("highlighting", this.frontmatter.title)
         for(let i=0;i<this.nodes.length;i++) {
             this.nodes[i].highlighted = false || this.selected
         }

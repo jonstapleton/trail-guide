@@ -12,12 +12,14 @@ import remarkGfm from 'remark-gfm'
 import {read} from 'to-vfile'
 import {unified} from 'unified'
 import YAML from 'yaml'
+import { practice } from './directives/practice'
 
 export async function parse(path:string) {
     let frontmatter:any = {
         title: "No title!"
     }
     let qt:string = ''
+    let qs:string = ''
     const file = await unified()
         .use(remarkParse)
         .use(remarkFrontmatter, ['yaml'])
@@ -37,6 +39,9 @@ export async function parse(path:string) {
         .use(() => (tree:any) => {
             qt = quick_take(tree)
         })
+        .use(() => (tree:any) => {
+            qs = practice(tree)
+        })
         .use(rehypeFormat)
         .use(rehypeStringify)
         // TODO: this is going to cause problems for us! Paths, etc.
@@ -48,6 +53,7 @@ export async function parse(path:string) {
     return {
         file: file,
         frontmatter: frontmatter,
-        quicktake: qt
+        quicktake: qt,
+        practice: qs
     }
 }

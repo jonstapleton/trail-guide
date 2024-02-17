@@ -4,25 +4,22 @@
     import { createEventDispatcher, onMount } from "svelte";
     import TrailListItem from "./TrailListItem.svelte";
     import type { Nodes } from "rehype-format/lib";
+    import { mapData } from "../store";
+    import type { Project } from "./mapNodes";
 
-    export let nodes:object[] = []
-    export let selectedNode:object;
+    export let selectedNode:string;
     export let locs:object[] = []
 
     let term = ''
 
-    let filteredNodes:object[] = []
+    let filteredNodes:Project[] = []
 
     const dispatch = createEventDispatcher();
-
-    function select(e:any) {
-        dispatch('select', e.detail)
-    }
 
     $: filter(term)
 
     function filter(term:string) {
-        filteredNodes = nodes.filter((node)=> {
+        filteredNodes = $mapData.projects.filter((node:Project)=> {
             return  node.frontmatter.title.toLowerCase().includes(term.toLowerCase())
                     || term.length == 0 //||
                     || node.selected
@@ -40,7 +37,7 @@
     </div>
     <!-- // List of nodes -->
     {#each filteredNodes as node, i}
-    <TrailListItem on:select={select} node={node} />
+    <TrailListItem on:select node={node.id} />
     {/each}
 </div>
 

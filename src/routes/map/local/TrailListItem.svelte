@@ -5,15 +5,21 @@
     import { createEventDispatcher } from "svelte";
     import TrailCard from "$lib/components/trail/TrailCard.svelte";
     import type { Project } from "./mapNodes";
+    import { mapData } from "../store";
 
-    export let node:Project
+    export let node:string
 
-    $: console.log(`Trail ${node.frontmatter.title} select status is ${node.selected}`)
+    let obj:Project
+    onMount(() => {
+        obj = $mapData.projectObj[node]
+    })
+
+    // $: console.log(`Trail ${node.frontmatter.title} select status is ${node.selected}`)
 
     const dispatch = createEventDispatcher();
     function focus(add:boolean) {
         // console.log(`Focus on nodes ${node.frontmatter.nodes}`)
-        if(node.frontmatter.nodes) {
+        if(obj.frontmatter.nodes) {
             dispatch('select', {
                 data: node,
                 type: 'trail'
@@ -24,14 +30,14 @@
     function handleFocus(e:any) {
         switch(e.type) {
             case 'mouseenter':
-                node.highlight()
+                $mapData.projectObj[node].highlight()
                 break
             case 'mouseleave':
-                node.dehighlight()
+                $mapData.projectObj[node].dehighlight()
                 break
             case 'click':
-                node.selected = !node.selected
-                console.log("Got click; status", node.selected)
+                $mapData.projectObj[node].selected = !$mapData.projectObj[node].selected
+                console.log("Got click; status", $mapData.projectObj[node].selected)
                 break
         }
     }
@@ -39,55 +45,55 @@
     let iconsref = {
         selected: {
             icon: faLocationDot,
-            condition: node.selected
+            condition: $mapData.projectObj[node].selected
         },
         showing: ["selected"]
     }
 </script>
 
-<div class='trail-item-wrapper {node.selected? "selected":""}'>
+<div class='trail-item-wrapper {$mapData.projectObj[node].selected? "selected":""}'>
     <!-- TODO: fix a11y stuff -->
     <!-- svelte-ignore a11y-missing-attribute -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <a class='trail-list-item {node.selected? 'selected' : ''}' aria-expanded="{node.selected}" aria-controls='project-description'
+    <a class='trail-list-item {$mapData.projectObj[node].selected? 'selected' : ''}' aria-expanded="{$mapData.projectObj[node].selected}" aria-controls='project-description'
         on:click={handleFocus} 
         on:keydown={handleFocus} 
         on:mouseenter={handleFocus} 
         on:mouseleave={handleFocus} 
     >
-        <div class='trail-list-row {node.selected? 'selected' : ''}'>
+        <div class='trail-list-row {$mapData.projectObj[node].selected? 'selected' : ''}'>
             <div class='left'>
                 <div class='control'>
                     <label class='radio'>
-                        <input type='checkbox' name='complete' bind:checked={node.completed}>
+                        <input type='checkbox' name='complete' bind:checked={$mapData.projectObj[node].completed}>
                     </label>
                 </div>
-                <p>{node.frontmatter.title}</p>
+                <p>{$mapData.projectObj[node].frontmatter.title}</p>
             </div>
             <div class='right'>
-                <span class='number { node.frontmatter.nodes? 'visible': 'invisible'}'>
-                    0/{node.frontmatter.nodes && node.frontmatter.nodes.length > 0? node.frontmatter.nodes.length : 0}
+                <span class='number { $mapData.projectObj[node].frontmatter.nodes? 'visible': 'invisible'}'>
+                    0/{$mapData.projectObj[node].frontmatter.nodes && $mapData.projectObj[node].frontmatter.nodes.length > 0? $mapData.projectObj[node].frontmatter.nodes.length : 0}
                     <Fa style='margin-left: 4px;' icon={faLocationDot} />
                 </span>
-                <span class='number {node.frontmatter.difficulty || node.frontmatter.difficulty == 0? 'visible':'invisible'}'>
-                    {node.frontmatter.difficulty || node.frontmatter.difficulty == 0? node.frontmatter.difficulty : ""}
+                <span class='number {$mapData.projectObj[node].frontmatter.difficulty || $mapData.projectObj[node].frontmatter.difficulty == 0? 'visible':'invisible'}'>
+                    {$mapData.projectObj[node].frontmatter.difficulty || $mapData.projectObj[node].frontmatter.difficulty == 0? $mapData.projectObj[node].frontmatter.difficulty : ""}
                     <Fa style='margin-left: 4px; color: darkorange;' icon={faFire} />
                 </span>
-                <button class='button is-small hoverable {node.selected? "selected":""}'>
+                <button class='button is-small hoverable {$mapData.projectObj[node].selected? "selected":""}'>
                     <span>Open</span>
                     <span class='icon'>
                         <Fa icon={faArrowUpRightFromSquare} />
                     </span>
                 </button>
-                <span class={node.selected ? "visible": "invisible"}>
+                <span class={$mapData.projectObj[node].selected ? "visible": "invisible"}>
                     <Fa icon={faLocationDot} />
                 </span>
             </div>
         </div>
     </a>
-    {#if node.selected}
+    {#if $mapData.projectObj[node].selected}
         <div id='project-description' class='description'>
-            {@html node.content}
+            {@html $mapData.projectObj[node].content.full}
         </div>
     {/if}
 </div>
