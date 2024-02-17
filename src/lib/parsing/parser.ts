@@ -5,7 +5,9 @@ import remarkRehype from 'remark-rehype'
 import remarkFrontmatter from 'remark-frontmatter'
 import { img } from '$lib/parsing/directives/img'
 import { a } from '$lib/parsing/directives/a'
+import { quick_take } from './directives/quick-take'
 import remarkDirective from 'remark-directive'
+import remarkDirectiveRehype from 'remark-directive-rehype'
 import remarkGfm from 'remark-gfm'
 import {read} from 'to-vfile'
 import {unified} from 'unified'
@@ -15,6 +17,7 @@ export async function parse(path:string) {
     let frontmatter:any = {
         title: "No title!"
     }
+    let qt:string = ''
     const file = await unified()
         .use(remarkParse)
         .use(remarkFrontmatter, ['yaml'])
@@ -27,9 +30,13 @@ export async function parse(path:string) {
         })
         .use(remarkGfm)
         .use(remarkDirective)
+        .use(remarkDirectiveRehype)
         .use(remarkRehype)
         .use(img)
         .use(a)
+        .use(() => (tree:any) => {
+            qt = quick_take(tree)
+        })
         .use(rehypeFormat)
         .use(rehypeStringify)
         // TODO: this is going to cause problems for us! Paths, etc.
@@ -37,8 +44,10 @@ export async function parse(path:string) {
     
     // console.log(file, frontmatter)
     frontmatter.title = frontmatter.title? frontmatter.title :  `../modules/${path.replace('.json', '')}`
+
     return {
         file: file,
-        frontmatter: frontmatter
+        frontmatter: frontmatter,
+        quicktake: qt
     }
 }

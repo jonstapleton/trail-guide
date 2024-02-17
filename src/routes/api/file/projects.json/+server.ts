@@ -11,10 +11,10 @@ export async function GET() {
     }); 
     let objs = []
     for(let i=0;i<paths.length;i++) {
-        const { file, frontmatter } = await parse(dir+paths[i])
+        const { file, frontmatter, quicktake } = await parse(dir+paths[i])
         objs.push({
             path: 'projects/'+paths[i].replace('.md', ''),
-            content: file.value,
+            content: {full: file.value, quick: quicktake},
             frontmatter: frontmatter,
             completed: false
         })

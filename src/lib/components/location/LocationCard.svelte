@@ -5,6 +5,7 @@
     import { faArrowUpRightFromSquare, faSquare, faSquareCheck } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { mapData } from "../../../routes/map/store";
+    import QuickTake from "./QuickTake.svelte";
 
     export let node:string|null;
 
@@ -16,7 +17,7 @@
     const tabs = ["Quick Take", "Video", "Practice", "Prompt"]
     let openTab = tabs[0]
     const objs:any = {
-        "Quick Take": null,
+        "Quick Take": QuickTake,
         "Video": Video,
         "Practice": null,
         "Prompt": null
