@@ -4,27 +4,20 @@
     import Fa from 'svelte-fa'
     import { createEventDispatcher } from "svelte";
     import type { Tutorial } from "./mapNodes";
+    import { mapData } from "../store";
 
-    export let node:Tutorial
+    export let node:string
     export let selected:Tutorial;
 
     const dispatch = createEventDispatcher();
     function focus() {
-        console.log(`Focus on ${node.frontmatter.title}`)
+        const n = $mapData.nodeObj[node]
+        console.log(`Focus on ${n.frontmatter.title}`)
         dispatch('select', {
-            data: node,
+            data: $mapData.nodeObj[node],
             type: 'location'
         })
     }
-
-    let iconsref = {
-        selected: {
-            icon: faLocationDot,
-            condition: selected && node.path == selected.path
-        },
-        showing: ["selected"]
-    }
-    $: console.log(node.selected)
 </script>
 
 <!-- TODO: a11y stuff -->
@@ -33,19 +26,19 @@
     <div class='left'>
         <div class='control'>
             <label class='radio'>
-                <input type='checkbox' name='complete' bind:checked={node.completed}>
+                <input type='checkbox' name='complete' bind:checked={$mapData.nodeObj[node].completed}>
             </label>
         </div>
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <!-- svelte-ignore a11y-missing-attribute -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <a on:click={focus}>{node.frontmatter.title}</a>
+        <a on:click={focus}>{$mapData.nodeObj[node].frontmatter.title}</a>
     </div>
     <div class='right'>
         <span class='hoverable'>
             <Fa icon={faArrowUpRightFromSquare} />
         </span>
-        <span class="{selected && selected.path == node.path ? 'visible' : 'invisible'}">
+        <span class="{selected && selected.path == $mapData.nodeObj[node].path ? 'visible' : 'invisible'}">
             <Fa icon={faLocationDot} />
         </span>
     </div>

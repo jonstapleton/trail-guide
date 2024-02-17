@@ -18,3 +18,7 @@
         border-radius: 6px;
     }
 }
+
+.is-loader {
+    @include loader;
+}

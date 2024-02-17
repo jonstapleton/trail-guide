@@ -7,7 +7,9 @@ interface Document {
 
 interface Frontmatter {
     title:string,
-    nodes?:string[]
+    nodes?:string[],
+    video?:string,
+    description?:string
 }
 
 interface resNode extends Document {

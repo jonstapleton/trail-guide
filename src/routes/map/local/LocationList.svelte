@@ -3,17 +3,18 @@
     import LocationListItem from "./LocationListItem.svelte";
     import { createEventDispatcher } from "svelte";
     import type { Tutorial } from "./mapNodes";
+    import { mapData } from "../store";
 
-    export let nodes:Tutorial[] = []
+    // let nodes:Tutorial[] = $mapData.nodes
     export let selectedNode:Tutorial
 
     let term = ''
 
     let filteredNodes:Tutorial[] = []
 
-    $: filter(term)
+    $: filter(term, $mapData.nodes)
 
-    function filter(term:string) {
+    function filter(term:string, nodes:Tutorial[]) {
         filteredNodes = nodes.filter((node) => {
             return  node.frontmatter.title.toLowerCase().includes(term.toLowerCase())
                     || term.length == 0 //||
@@ -31,7 +32,7 @@
     </div>
     <!-- // List of nodes -->
     {#each filteredNodes as node, i}
-    <LocationListItem on:select bind:selected={selectedNode} node={node} />
+    <LocationListItem on:select bind:selected={selectedNode} node={node.id} />
     {/each}
 </div>
 

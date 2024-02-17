@@ -25,14 +25,15 @@
                 data: $mapData.projects
             }
         }
+        // setInterval(() => {$mapData.nodes[0].completed = !$mapData.nodes[0].completed}, 1000)
     })
 
-    let selectedNode:Tutorial|null
+    let selectedNode:string|null
     let map:any
 
     function closeLocationPanel() {
         if(selectedNode) {
-            selectedNode.selected = false
+            $mapData.nodeObj[selectedNode].selected = false
             selectedNode = null
             map.focus()
         }
@@ -41,7 +42,7 @@
     function selectFromMap(e:any) {
         console.log("Select from map...")
         if(e.detail.data.selected) {
-            selectedNode = e.detail.data
+            selectedNode = e.detail.data.id
         } else {
             closeLocationPanel();
         }
@@ -65,10 +66,10 @@
         }
     }
     function selectLocation(e:any) {
-        selectedNode = e.detail.data
-        selectedNode.selected = true
+        selectedNode = e.detail.data.id
+        $mapData.nodeObj[selectedNode].selected = true
         // zoom into node
-        map.focus(selectedNode)
+        map.focus(e.detail.data)
     }
     function selectTrail(e:any) {
         e.detail.data.highlight()
@@ -82,16 +83,15 @@
             <PanelCard on:capture={handleCapture} title={openPanel} loaded={openPanel? true:false} on:close={closePanel}>
                 <svelte:component
                     this={options[openPanel].obj}
-                    nodes={options[openPanel].data}
                     on:select={handlePanelSelect}
-                    bind:selectedNode={selectedNode}
+                    bind:selectedNode={$mapData.nodeObj[selectedNode]}
                 />
             </PanelCard>
             
             <PanelCard on:capture={handleCapture}
-                title={selectedNode? selectedNode.frontmatter.title:'no title'} 
+                title={selectedNode? $mapData.nodeObj[selectedNode].frontmatter.title:'no title'} 
                 titleSize={'large'} 
-                loaded={selectedNode? selectedNode.selected : false} 
+                loaded={selectedNode? $mapData.nodeObj[selectedNode].selected : false} 
                 on:close={closeLocationPanel}
             >
                 <LocationCard node={selectedNode} />

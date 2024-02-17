@@ -39,7 +39,7 @@
             </span>
         </button>
     </header>
-    <section class='card-content content'>
+    <section class='card-content'>
         <slot />
     </section>
 </article>
