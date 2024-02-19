@@ -36,3 +36,25 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+## practice-question
+
+The `practice-question` directive allows authors to include multiple-choice questions in `Tutorials`. Here's an example practice question:
+
+```markdown
+:::practice-question{title="An Example Question"}
+Here's some question text, posing a question for the reader to answer
+
+a. [x] this is the correct answer
++ Feedback to be displayed when the reader answers correctly selects this option
+b. [ ] this is a distractor
+- Feedback to display when the reader incorrectly selects this option
+c. [ ] this is a distractor
+:::
+```
+
+The parser does several things with these questions:
+
+1. Adds the questions and their data to the `Tutorial` frontmatter
+2. Converts the slotted HTML content into props to pass to the `practice-question` custom element, which will render the question in the body of `Tutorial` pages
+3. TODO: registers the `practice-question` data with the API, generating an endpoint and metadata about the question

@@ -1,6 +1,9 @@
-<p>Hello</p>
+<svelte:options customElement='test-element'></svelte:options>
 
-<slot />
+<div class='box'>
+    <p>Hello</p>
+    <slot />
+</div>
 
 <style>
     p {

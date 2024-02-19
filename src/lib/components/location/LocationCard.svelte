@@ -6,15 +6,15 @@
     import Fa from 'svelte-fa'
     import { mapData } from "../../../routes/map/store";
     import QuickTake from "./QuickTake.svelte";
-    import PracticeQuestion from "./PracticeQuestion.svelte";
-    import Test from "../elements/Test.svelte";
     import QuestionHost from "./QuestionHost.svelte";
+    import { base } from '$app/paths'
 
     export let node:string|null;
 
     let obj:Tutorial
     onMount(() => {
         obj = $mapData.nodeObj[node]
+        console.log(obj)
     })
 
     const tabs = ["Quick Take", "Video", "Practice", "Prompt"]
@@ -57,20 +57,21 @@
       </div>
     <div class='body content'>
         <svelte:component this={objs[openTab].component} node={ node }>
-            {@html $mapData.nodeObj[node].content.practice}
+            <!-- {@html $mapData.nodeObj[node].content.practice} -->
         </svelte:component>
     </div>
     <hr>
     {#if obj}
-    <div class='buttons is-centered'>
-        <button on:click={() => $mapData.nodeObj[node].completed = !$mapData.nodeObj[node].completed} class='button is-success'>
+    <div class='buttons is-centered is-fullwidth'>
+        <a href={base+'tutorials/'+obj.path.replace('.md', '')} target='_blank' class='button is-fullwidth'>
+            Read Detailed Tutorial
+            <span class='icon ml-1'><Fa icon={faArrowUpRightFromSquare} /></span>
+        </a>
+        <button on:click={() => $mapData.nodeObj[node].completed = !$mapData.nodeObj[node].completed} class='button is-success is-fullwidth'>
             <span class='icon mr-1'><Fa icon={$mapData.nodeObj[node].completed ? faSquareCheck : faSquare} /></span>
             Mark as Completed
         </button>
-        <button class='button'>
-            Read Detailed Tutorial
-            <span class='icon ml-1'><Fa icon={faArrowUpRightFromSquare} /></span>
-        </button>
+        
     </div>
     {/if}
 </div>

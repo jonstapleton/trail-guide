@@ -19,7 +19,7 @@ export async function parse(path:string) {
         title: "No title!"
     }
     let qt:string = ''
-    let qs:string = ''
+    let qs:object[] = []
     const file = await unified()
         .use(remarkParse)
         .use(remarkFrontmatter, ['yaml'])
@@ -40,7 +40,8 @@ export async function parse(path:string) {
             qt = quick_take(tree)
         })
         .use(() => (tree:any) => {
-            qs = practice(tree)
+            const q = practice(tree)
+            qs.push(...q)
         })
         .use(rehypeFormat)
         .use(rehypeStringify)
@@ -49,6 +50,8 @@ export async function parse(path:string) {
     
     // console.log(file, frontmatter)
     frontmatter.title = frontmatter.title? frontmatter.title :  `../modules/${path.replace('.json', '')}`
+
+    console.log(frontmatter.title, qs)
 
     return {
         file: file,
