@@ -17,6 +17,6 @@
 
 <div class='quiz'>
     {#each questions as question}
-    <PracticeQuestion question={question} node={node} />
+    <PracticeQuestion boxed={false} question={question} node={node} />
     {/each}
 </div>

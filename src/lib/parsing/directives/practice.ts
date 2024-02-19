@@ -40,8 +40,11 @@ export function practice(tree:any):object[] {
                 }
             }
             content.push(obj)
-            // node.properties.question = obj
-            // node.children = []
+            node.properties.title = obj.title
+            node.properties.text = obj.text
+            node.properties.question = JSON.stringify(obj)
+
+            node.children = []
             // remove(tree, (node:any) => node.tagName == 'practice-question')
         }
     })

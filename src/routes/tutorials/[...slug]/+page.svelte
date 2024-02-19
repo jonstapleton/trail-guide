@@ -1,6 +1,7 @@
 <script lang='ts'>
     import { onMount } from 'svelte';
     import Header from './Header.svelte';
+    import PracticeQuestion from '$lib/components/location/PracticeQuestion.svelte';
 
     export let data;
     onMount(() => {
@@ -15,6 +16,6 @@
         <Header />
     </div>
     <div class='section'>
-        {@html test}
+        {@html data.content.full}
     </div>
 </div>

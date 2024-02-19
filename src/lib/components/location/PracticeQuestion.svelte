@@ -5,6 +5,7 @@
     import Fa from 'svelte-fa'
 
     export let question:Question
+    export let boxed = true
 
     let answer:number|null = null
 
@@ -14,11 +15,13 @@
     let correctAnswer:number
 
     onMount(() => {
+        // console.log(question)
         for(let i=0;i<question.options.length;i++) {
             if(question.options[i].correct) {
                 correctAnswer = i
             }
         }
+        // question.title = question.title ? question.title : title
     })
     function checkAnswer() {
         if(buttonText != 'Check Answer') {
@@ -42,11 +45,18 @@
     }
 </script>
 
-<svelte:options customElement="practice-question" />
+<svelte:options customElement={{
+    tag: 'practice-question',
+    shadow: 'none',
+    props: {
+        title: { reflect: true, type: 'String' },
+        question: {reflect: true, type: 'Object'}
+    }
+}} />
 
-<article class='practice-question'>
-    <!-- <header class='question-header {buttonClass}'>
-        <h3>{ question.title }</h3>
+<article class='practice-question {boxed ? 'box' : ''}'>
+    <header class='question-header {buttonClass}'>
+        <h3 class='my-0'>{ question.title }</h3>
     </header>
     <section class='question-body'>
         {@html question.text}
@@ -65,13 +75,11 @@
             <Fa class='mr-2' icon={buttonIcon} />
             {buttonText}
         </button>
-    </div> -->
-    <p>Practice Question</p>
-    <slot />
+    </div>
+    <!-- <slot /> -->
 </article>
 
 <style lang='scss'>
-    @import "../../../app.scss";
     label {
         margin-left: 2rem;
         margin-bottom: 1rem;
