@@ -4,7 +4,7 @@ import {remove} from 'unist-util-remove'
 import {h} from 'hastscript'
 
 export interface Question {
-    title:string,
+    name:string,
     text:string,
     options:Option[]
 }
@@ -29,7 +29,7 @@ export function practice(tree:any):object[] {
             console.log("Found practice question!")
             // generate hast tree for practice questions from children of practice element
             node.tagName = 'practice-question'
-            if(node.properties.title) { obj.title = node.properties.title }
+            if(node.properties.name) { obj.name = node.properties.name }
             for(let i=0;i<node.children.length;i++) {
                 const child = node.children[i]
                 if(child.tagName == 'p') { // this is content that comes before the options
@@ -40,7 +40,7 @@ export function practice(tree:any):object[] {
                 }
             }
             content.push(obj)
-            node.properties.title = obj.title
+            node.properties.name = obj.name
             node.properties.text = obj.text
             node.properties.question = JSON.stringify(obj)
 

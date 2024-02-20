@@ -1,6 +1,9 @@
 /* Write your global styles here, in SCSS syntax. Variables and mixins from the src/variables.scss file are available here without importing */ /* Import only what you need from Bulma */
 $container-max-width: 1024px;
 
+$tabs-boxed-link-hover-background-color: white;
+$tabs-boxed-link-active-background-color: whitesmoke;
+
 @import "bulma/sass/utilities/_all";
 @import "bulma/sass/base/_all";
 @import "bulma/sass/elements/_all";
@@ -23,4 +26,53 @@ $container-max-width: 1024px;
 
 .is-loader {
     @include loader;
+}
+
+.content pre {
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    border-width: 1px;
+    padding: 0 0;
+    margin: 0 0;
+}
+// .content .passage .has-tabs pre {
+//     border-color: lightgray;
+//     border-style: solid;
+//     border-top-width: 0px;
+// }
+pre {
+    code.hljs, code {
+        margin: 0 0;
+        background-color: transparent;
+    }
+    &.hidden {
+        display: none;
+    }
+    &.visible {
+        display: block;
+    }
+}
+
+pre code {
+    display: block;
+    padding: 1em;
+}
+
+pre.has-tabs {
+    border: 1px solid $border;
+    border-top: none;
+}
+
+.tutorial hr {
+    margin-bottom: 5rem;
+}
+
+.tutorial img {
+    border-radius: 8px;
+    border: 2px dashed black;
+    margin-right: auto;
+    margin-left: auto;
 }

@@ -56,7 +56,7 @@
 
 <article class='practice-question {boxed ? 'box' : ''}'>
     <header class='question-header {buttonClass}'>
-        <h3 class='my-0'>{ question.title }</h3>
+        <h3 class='my-0'>{ question.name }</h3>
     </header>
     <section class='question-body'>
         {@html question.text}
@@ -80,6 +80,9 @@
 </article>
 
 <style lang='scss'>
+    article {
+        margin: 3rem 2rem;
+    }
     label {
         margin-left: 2rem;
         margin-bottom: 1rem;

@@ -1,7 +1,7 @@
 <script lang='ts'>
     import { onMount } from 'svelte';
     import Header from './Header.svelte';
-    import PracticeQuestion from '$lib/components/location/PracticeQuestion.svelte';
+    import *  as directives from '$lib/components/location/directives'
 
     export let data;
     onMount(() => {
@@ -11,7 +11,7 @@
     const test = `<test-element>Something</test-element>`
 </script>
 
-<div class='container content'>
+<div class='container content tutorial'>
     <div class='section'>
         <Header />
     </div>
