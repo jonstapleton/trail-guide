@@ -10,14 +10,17 @@
     import { base } from '$app/paths'
 
     export let node:string|null;
-
+    let tabs = ["Quick Take"]
     let obj:Tutorial
     onMount(() => {
         obj = $mapData.nodeObj[node]
         console.log(obj)
+        if(obj.frontmatter.video)   { tabs = [...tabs, "Video"]    }
+        if(obj.content.practice)    { tabs = [...tabs, "Practice"] }
+        if(obj.content.prompt)      { tabs = [...tabs, "Prompt"]   }
+        console.log(tabs)
     })
 
-    const tabs = ["Quick Take", "Video", "Practice", "Prompt"]
     let openTab = tabs[0]
     const objs:any = {
         "Quick Take": {
@@ -43,6 +46,7 @@
 </script>
 
 <div class='location-card'>
+    {#if tabs.length > 1}
     <div class="tabs is-boxed is-fullwidth">
         <ul>
         {#each tabs as tab, i}
@@ -54,11 +58,10 @@
             </li>
         {/each}
         </ul>
-      </div>
+    </div>
+    {/if}
     <div class='body content'>
-        <svelte:component this={objs[openTab].component} node={ node }>
-            <!-- {@html $mapData.nodeObj[node].content.practice} -->
-        </svelte:component>
+        <svelte:component this={objs[openTab].component} node={ node }></svelte:component>
     </div>
     <hr>
     {#if obj}

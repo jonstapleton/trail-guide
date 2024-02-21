@@ -44,7 +44,7 @@
     {/if}
     <section class='card-content'>
         <div class='columns is-tablet'>
-            <div class='code column {src ? "is-half" : ""} m-0 {tabs.length <= 1 ? 'no-border' : ''}'>
+            <div class='code column m-0 {tabs.length <= 1 ? 'no-border' : ''}'>
                 {#if tabs.length > 1}
                 <div class='tabs is-boxed m-0'>
                     <ul>

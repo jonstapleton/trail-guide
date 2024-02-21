@@ -31,7 +31,7 @@
 
 {#if loaded}
 <article bind:this={el} on:mouseenter={() => capture(false)} on:mouseleave={() => capture(true)} transition:slide class='panel-card card {layout}'>
-    <header class='card-header is-sticky'>
+    <header class='card-header is-dark is-sticky'>
         <h2 class='card-header-title mb-3 pb-0'>{title}</h2>
         <button on:click={sendClose} class="card-header-icon" aria-label="close">
             <span class="icon">

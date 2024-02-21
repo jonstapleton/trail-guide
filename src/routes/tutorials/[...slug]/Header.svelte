@@ -10,7 +10,7 @@
     export let frontmatter:Frontmatter;
 </script>
 
-<div class='tutorial-header box p-5'>
+<div class='tutorial-header p-5'>
     <div class='columns'>
         <div class='column content'>
             <h1>{frontmatter.title}</h1>
@@ -31,6 +31,10 @@
     .video {
         // padding: 5rem 5rem;
         position: relative;
+    }
+
+    h1 {
+        font-size: 36pt;
     }
 
     .video iframe {

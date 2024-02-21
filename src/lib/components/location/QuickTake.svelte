@@ -3,6 +3,7 @@
     import { mapData } from "../../../routes/map/store";
     import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
+    import * as components from '$lib/components/location/directives'
 
     export let node:string = ''
     let full:string = ''

@@ -128,6 +128,12 @@ class MapNode extends Element {
         this.y = obj.y
         this.id = obj.id
     }
+    rehover() {
+        this.hover = true
+    }
+    dehover() {
+        this.hover = false
+    }
 }
 
 export class Tutorial extends MapNode {
@@ -140,6 +146,9 @@ export class Tutorial extends MapNode {
     }
     highlight() {
         this.highlighted = true
+    }
+    dehighlight() {
+        this.highlighted = false
     }
 }
 
