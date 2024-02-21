@@ -1,8 +1,10 @@
 /* Write your global styles here, in SCSS syntax. Variables and mixins from the src/variables.scss file are available here without importing */ /* Import only what you need from Bulma */
 $container-max-width: 1024px;
 
-$tabs-boxed-link-hover-background-color: white;
-$tabs-boxed-link-active-background-color: whitesmoke;
+// $tabs-boxed-link-hover-background-color: white;
+// $tabs-boxed-link-active-background-color: whitesmoke;
+
+
 
 @import "bulma/sass/utilities/_all";
 @import "bulma/sass/base/_all";
@@ -62,8 +64,11 @@ pre code {
 }
 
 pre.has-tabs {
-    border: 1px solid $border;
-    border-top: none;
+    border: none;
+    &.has-tabs {
+        border: 1px solid $border;
+        border-top: none;
+    }
 }
 
 .tutorial hr {
@@ -75,4 +80,6 @@ pre.has-tabs {
     border: 2px dashed black;
     margin-right: auto;
     margin-left: auto;
+    display:block;
 }
+

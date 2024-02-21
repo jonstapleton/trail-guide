@@ -13,7 +13,7 @@
 
 <div class='container content tutorial'>
     <div class='section'>
-        <Header />
+        <Header frontmatter={data.frontmatter} />
     </div>
     <div class='section'>
         {@html data.content.full}

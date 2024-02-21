@@ -76,7 +76,7 @@
     {/if}
 </div>
 
-<style>
+<style lang='scss'>
     li {
         border-bottom: 1px solid hsl(0, 0%, 86%);
     }

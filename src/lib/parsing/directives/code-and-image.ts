@@ -3,6 +3,7 @@ import { h } from 'hastscript'
 
 export function code_and_image() {
     return function (tree:any) {
+        let index = 0;
         visit(tree, function (node:any) {
             if(node.tagName == 'code-and-image') {
                 let tabTitles:string[] = []
@@ -15,20 +16,21 @@ export function code_and_image() {
                         // 3. That if the language is not set, the class is `language-undefined`
 
                         // Get the tab titles
-                        let title = 'none'
+                        let title = 'none-'+index
                         if(child.children[0].properties.className && child.children[0].properties.className.length > 1) {
-                            title= child.children[0].properties.className[1].substring('language-'.length)
+                            title= child.children[0].properties.className[1].substring('language-'.length)+"-"+String(index)
                         }
                         child.properties.name = title
                         child.properties.id = title
                         child.properties.className = ['code-and-image']
-                        if(title != 'none') {
+                        if(title != 'none-'+index) {
                             child.properties.className.push('has-tabs')
                         }
                         if (title != 'undefined') {
                             // Cast first letter as uppercase
                             tabTitles = [...tabTitles, title] //.charAt(0).toUpperCase() + title.slice(1)]
                         }
+                        index += 1
                     }
                 }
                 node.properties.tabs = JSON.stringify(tabTitles)

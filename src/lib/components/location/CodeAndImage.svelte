@@ -36,7 +36,7 @@
     }
 }} />
 
-<article class='card'>
+<article class='card code-and-image-card'>
     {#if name}
     <header class='card-header code-example pl-5 pt-2 pb-0'>
         <h4>{name}</h4>
@@ -44,12 +44,12 @@
     {/if}
     <section class='card-content'>
         <div class='columns is-tablet'>
-            <div class='code column m-0 {tabs.length <= 1 ? 'no-border' : ''}'>
+            <div class='code column {src ? "is-half" : ""} m-0 {tabs.length <= 1 ? 'no-border' : ''}'>
                 {#if tabs.length > 1}
                 <div class='tabs is-boxed m-0'>
                     <ul>
                         {#each tabs as tab, i}
-                        <li class={i == selected ? 'is-active' : ''}><a href='#/' on:click={() => {changeTab(i)}}>{tab}</a></li>
+                        <li class={i == selected ? 'is-active' : ''}><a href='#/' on:click={() => {changeTab(i)}}>{tab.substring(0, tab.indexOf('-'))}</a></li>
                         {/each}
                     </ul>
                 </div>
@@ -57,7 +57,7 @@
                 <slot />
             </div>
             {#if src}
-            <div class='column is-half has-text-centered m-0'>
+            <div class='column has-text-centered m-0'>
                 <img src="{base}{src}" alt={alt}>
             </div>
             {/if}
@@ -66,6 +66,9 @@
 </article>
 
 <style lang='scss'>
+    $tabs-boxed-link-hover-background-color: white;
+    $tabs-boxed-link-active-background-color: whitesmoke;
+
     @import "../../../app.scss";
 
     .card-header.code-example {

@@ -15,15 +15,16 @@ export function img() {
             //         <img alt="${alt}" src="${base}/images${src}" />
             //     </figure>
             // </div>`
-            const html= h('div', { style: 'margin-left: auto; margin-right: auto;'}, 
-                            h('figure.image.is-inline-block',
-                                h('img', { alt: alt, src: `${base}/images${src}` })
-                            )
-                        )
-            node.tagName = 'div'
-            node.properties.class = 'has-text-centered, parsed'
-            node.children = html.children
-            return SKIP
+            // const html= h('div', { classList: 'has-text-centered', style: 'margin-left: auto; margin-right: auto;'}, 
+            //                 h('figure.image.is-inline-block',
+            //                     h('img', { alt: alt, src: `${base}/images${src}` })
+            //                 )
+            //             )
+            // node.tagName = 'div'
+            // node.properties.class = 'has-text-centered, parsed'
+            // node.children = html.children
+            node.properties.src = `${base}/images${src}`
+            // return SKIP
         }
       })
     }
