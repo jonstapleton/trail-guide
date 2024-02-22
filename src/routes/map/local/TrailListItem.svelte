@@ -111,7 +111,7 @@
                     on:click={() => focus(i)}
                     on:mouseenter={()=>node.rehover()} 
                     on:mouseleave={()=>node.dehover()} 
-                    class='{i == trailLength-1 ? "last" : ""}'
+                    class='{i == trailLength-1 ? "last" : ""} {obj.optionalTutorialMask[i]}'
                 >
                         {node.frontmatter.title}
                 </li>
@@ -124,6 +124,7 @@
 </div>
 
 <style lang='scss'>
+    $dark: hsl(0, 0%, 21%);
     .wrap {
         display: block;
     }
@@ -144,13 +145,21 @@
             width: 100%;
             font-size: 9pt;
             display: block;
-            background-color: hsl(0, 0%, 21%);
+            background-color: $dark;
             color: white;
             font-weight: bold;
             border-radius: 4px;
             margin-bottom: 1rem;
             padding: 0.5em 0.5em;
             cursor: pointer;
+            &.true {
+                background-color: white;
+                border: 2px dashed $dark;
+                color: $dark;
+                &:hover {
+                    background-color: whitesmoke;
+                }
+            }
             &.last {
                 margin-bottom: 0;
             }

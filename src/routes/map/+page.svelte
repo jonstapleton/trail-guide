@@ -20,7 +20,7 @@
                 obj: LocationList,
                 data: $mapData.nodes
             },
-            "Projects": {
+            "Maps": {
                 obj: TrailList,
                 data: $mapData.projects
             }

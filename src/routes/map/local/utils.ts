@@ -128,36 +128,69 @@ export class Cartographer {
         this.offset.y = this.y
     }
 
+    bezier(p0:Coords, p1:Coords, p2:Coords, p3:Coords, t:number) {
+        let o = 0
+        for(let i=0;i<1.0001;i+=t) {
+            const v = this.cubic(p0,p1,p2,p3,i)
+            if(o % 2 == 0) {
+                this.p5.beginShape()
+                this.p5.vertex(v.x,v.y)
+            } else {
+                this.p5.vertex(v.x,v.y)
+                this.p5.endShape()
+            }
+            o++
+        }
+    }
+
+    cubic(p0:Coords, p1:Coords, p2:Coords, p3:Coords, t:number):Coords {
+        const v1 = this.quadratic(p0,p1,p2,t)
+        const v2 = this.quadratic(p1,p2,p3,t)
+        const x = this.p5.lerp(v1.x, v2.x, t)
+        const y = this.p5.lerp(v1.y, v2.y, t)
+        return this.p5.createVector(x, y)
+    }
+
+    quadratic(p0:Coords, p1:Coords, p2:Coords, t:number):Coords {
+        const x1 = this.p5.lerp(p0.x, p1.x, t)
+        const y1 = this.p5.lerp(p0.y, p1.y, t)
+        const x2 = this.p5.lerp(p1.x, p2.x, t)
+        const y2 = this.p5.lerp(p1.y, p2.y, t)
+        const x = this.p5.lerp(x1, x2, t)
+        const y = this.p5.lerp(y1, y2, t)
+        return this.p5.createVector(x,y)
+    }
+
     draw(data:Map, cursor:Cursor) {
 
         const localCoord = getLocalCoords(this.p5, {x: this.p5.mouseX, y: this.p5.mouseY});
         cursor.setTransformCoords(localCoord)
-        // Edges
+        // Draw Edges
         for(let i=0;i<data.edges.length;i++) {
             const edge:Edge = data.edges[i]
             const node1:Tutorial = data.nodeObj[edge.fromNode]
             const node2:Tutorial = data.nodeObj[edge.toNode]
+            
             this.p5.fill('rgba(0, 0, 0, 0)')
             
-            // If the edge is selected, draw a bolder line as well
+            const p0 = this.p5.createVector(node1.x/2, node1.y/2)
+            const p1 = this.p5.createVector(edge.c1.x/2, edge.c1.y/2)
+            const p2 = this.p5.createVector(edge.c2.x/2, edge.c2.y/2)
+            const p3 = this.p5.createVector(node2.x/2, node2.y/2)
+
+            // If the edge is highlighted, draw a bolder line as well
             if(edge.highlighted) {
                 this.p5.stroke(this.p5.color(255, 0, 0));
                 this.p5.strokeWeight(18);
-                this.p5.bezier(
-                    node1.x/2, node1.y/2,
-                    edge.c1.x/2, edge.c1.y/2,
-                    edge.c2.x/2, edge.c2.y/2,
-                    node2.x/2, node2.y/2
-                )
+                if(edge.highlighted == 'dashed') {
+                    this.bezier(p0,p1,p2,p3,0.1) // TODO: set `t` based on how far apart the nodes are
+                } else {
+                    this.p5.bezier(p0.x,p0.y,p1.x,p1.y,p2.x,p2.y,p3.x,p3.y)
+                }
             }
             this.p5.stroke(this.p5.color(0, 0, 0));
             this.p5.strokeWeight(1);
-            this.p5.bezier(
-                node1.x/2, node1.y/2,
-                edge.c1.x/2, edge.c1.y/2,
-                edge.c2.x/2, edge.c2.y/2,
-                node2.x/2, node2.y/2
-            )
+            this.p5.bezier(p0.x, p0.y ,p1.x, p1.y ,p2.x, p2.y, p3.x, p3.y) 
         } 
         
         // Draw Nodes
