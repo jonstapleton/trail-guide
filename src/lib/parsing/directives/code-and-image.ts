@@ -16,14 +16,14 @@ export function code_and_image() {
                         // 3. That if the language is not set, the class is `language-undefined`
 
                         // Get the tab titles
-                        let title = 'none-'+index
+                        let title = 'none_'+index
                         if(child.children[0].properties.className && child.children[0].properties.className.length > 1) {
-                            title= child.children[0].properties.className[1].substring('language-'.length)+"-"+String(index)
+                            title= child.children[0].properties.className[1].substring('language-'.length)+"_"+String(index)
                         }
                         child.properties.name = title
                         child.properties.id = title
                         child.properties.className = ['code-and-image']
-                        if(title != 'none-'+index) {
+                        if(title != 'none_'+index) {
                             child.properties.className.push('has-tabs')
                         }
                         if (title != 'undefined') {

@@ -43,25 +43,23 @@
     </header>
     {/if}
     <section class='card-content'>
-        <div class='columns is-tablet'>
-            <div class='code column m-0 {tabs.length <= 1 ? 'no-border' : ''}'>
-                {#if tabs.length > 1}
-                <div class='tabs is-boxed m-0'>
-                    <ul>
-                        {#each tabs as tab, i}
-                        <li class={i == selected ? 'is-active' : ''}><a href='#/' on:click={() => {changeTab(i)}}>{tab.substring(0, tab.indexOf('-'))}</a></li>
-                        {/each}
-                    </ul>
-                </div>
-                {/if}
-                <slot />
-            </div>
-            {#if src}
-            <div class='column has-text-centered m-0'>
-                <img src="{base}{src}" alt={alt}>
+        <div class='cell code m-0 {tabs.length <= 1 ? 'no-border' : ''}'>
+            {#if tabs.length > 1}
+            <div class='tabs is-boxed m-0'>
+                <ul>
+                    {#each tabs as tab, i}
+                    <li class={i == selected ? 'is-active' : ''}><a href='#/' on:click={() => {changeTab(i)}}>{tab.substring(0, tab.indexOf('_'))}</a></li>
+                    {/each}
+                </ul>
             </div>
             {/if}
+            <slot />
         </div>
+        {#if src}
+        <div class='cell has-text-centered m-0'>
+            <img src="{base}{src}" alt={alt}>
+        </div>
+        {/if}
     </section>
 </article>
 
@@ -88,7 +86,12 @@
         border-radius: 8px;
         border: 2px dashed black;
     }
+    // section {
+    //     display: grid;
+    //     gap: 1rem;
+    //     grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+    // }
     article {
-        margin: 3rem 2rem;
+        margin: 3rem 0;
     }
 </style>
