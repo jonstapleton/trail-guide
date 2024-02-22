@@ -5,6 +5,9 @@ $container-max-width: 1024px;
 // $tabs-boxed-link-active-background-color: whitesmoke;
 
 
+$tooltip-radius: 6px;
+$tooltip-animation-duration: 1s;
+
 
 @import "bulma/sass/utilities/_all";
 @import "bulma/sass/base/_all";
@@ -14,6 +17,7 @@ $container-max-width: 1024px;
 @import "bulma/sass/grid/_all";
 @import "bulma/sass/helpers/_all";
 @import "bulma/sass/layout/_all";
+@import '@creativebulma/bulma-tooltip';
 
 .node {
     color: red;

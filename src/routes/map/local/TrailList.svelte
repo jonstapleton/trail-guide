@@ -18,12 +18,18 @@
 
     $: filter(term)
 
+    
+
     function filter(term:string) {
+        
         filteredNodes = $mapData.projects.filter((node:Project)=> {
             return  node.frontmatter.title.toLowerCase().includes(term.toLowerCase())
                     || term.length == 0 //||
                     || node.selected
                     // selectedNode.path == node.path
+        })
+        filteredNodes = filteredNodes.toSorted((a:Project,b:Project) => {
+            return a.difficulty - b.difficulty
         })
     }
 </script>

@@ -25,6 +25,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@creativebulma/bulma-tooltip": "^1.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "hast-util-to-html": "^9.0.0",
     "hastscript": "^9.0.0",

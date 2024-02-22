@@ -1,11 +1,12 @@
 <script lang='ts'>
     import { onMount } from "svelte";
-    import { faArrowUpRightFromSquare, faBoxOpen, faFire, faLocationDot, faLocationPin, faSearch } from "@fortawesome/free-solid-svg-icons";
+    import { faArrowUpRightFromSquare, faBoxOpen, faFire, faLocationDot, faLocationPin, faSearch, faStar } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { createEventDispatcher } from "svelte";
     import TrailCard from "$lib/components/trail/TrailCard.svelte";
     import type { Project } from "./mapNodes";
     import { mapData } from "../store";
+    import {base} from '$app/paths'
 
     export let node:string
 
@@ -74,22 +75,25 @@
                     </label>
                 </div>
                 <p>{$mapData.projectObj[node].frontmatter.title}</p>
+                {#if $mapData.projectObj[node].frontmatter.recommended}
+                <span style='color: gold' class='ml-2'><Fa icon={faStar} /></span>
+                {/if}
             </div>
             <div class='right'>
-                <span class='number { $mapData.projectObj[node].frontmatter.nodes? 'visible': 'invisible'}'>
+                <span data-tooltip="Completed Tutorials" class='has-tooltip-arrow number { $mapData.projectObj[node].frontmatter.nodes? 'visible': 'invisible'}'>
                     {nodesCompleted}/{$mapData.projectObj[node].frontmatter.nodes && $mapData.projectObj[node].frontmatter.nodes.length > 0? $mapData.projectObj[node].frontmatter.nodes.length : 0}
                     <Fa style='margin-left: 4px;' icon={faLocationDot} />
                 </span>
-                <span class='number {$mapData.projectObj[node].frontmatter.difficulty || $mapData.projectObj[node].frontmatter.difficulty == 0? 'visible':'invisible'}'>
+                <span data-tooltip="Difficulty" class='has-tooltip-arrow number {$mapData.projectObj[node].frontmatter.difficulty || $mapData.projectObj[node].frontmatter.difficulty == 0? 'visible':'invisible'}'>
                     {$mapData.projectObj[node].frontmatter.difficulty || $mapData.projectObj[node].frontmatter.difficulty == 0? $mapData.projectObj[node].frontmatter.difficulty : ""}
                     <Fa style='margin-left: 4px; color: darkorange;' icon={faFire} />
                 </span>
-                <button class='button is-small hoverable {$mapData.projectObj[node].selected? "selected":""}'>
+                <a href="{base}/{$mapData.projectObj[node].path}" class='button is-small hoverable {$mapData.projectObj[node].selected? "selected":""}'>
                     <span>Open</span>
                     <span class='icon'>
                         <Fa icon={faArrowUpRightFromSquare} />
                     </span>
-                </button>
+                </a>
                 <span class={$mapData.projectObj[node].selected ? "visible": "invisible"}>
                     <Fa icon={faLocationDot} />
                 </span>
@@ -187,14 +191,14 @@
         &:hover {
             background-color: whitesmoke;
             cursor: pointer;
-            span.hoverable, button.hoverable {
+            span.hoverable, a.hoverable {
                 visibility: visible;
             }
         }
-        span.hoverable, button.hoverable {
+        span.hoverable, a.hoverable {
             visibility: hidden;
         }
-        span.hoverable.selected, button.hoverable.selected {
+        span.hoverable.selected, a.hoverable.selected {
             visibility: visible;
         }
     }
@@ -215,10 +219,10 @@
     .right {
         display: inline-flex;
         // background-color: lightblue;
-        span, button {
+        span, a {
             margin-left: 0.75rem;
         }
-        button {
+        a {
             // margin-top: -2px;
             span {
                 margin: 0 0;
