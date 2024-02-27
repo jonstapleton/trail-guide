@@ -27,7 +27,7 @@
         <span class='button-text'>Tutorials</span>
     </a>
     <div class='bottom'>
-        <a class='button round'>
+        <!-- <a class='button round'>
             <Fa icon={faUpload} size='1.5x' />
             <span class='button-text'>Load</span>
         </a>
@@ -38,7 +38,7 @@
         <a class='button round'>
             <Fa icon={faGear} size='1.5x' />
             <span class='button-text'>Settings</span>
-        </a>
+        </a> -->
     </div>
 </div>
 

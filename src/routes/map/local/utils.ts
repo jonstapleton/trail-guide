@@ -108,6 +108,7 @@ export class Cartographer {
     p5:any
     x:number = 0;
     y:number = 0;
+    font:any
     offset:Coords = {
         x: 0, y: 0
     }
@@ -200,20 +201,29 @@ export class Cartographer {
             // if mouse is hovering over a node, highlight it
             // let the cursor know it's in a hover state
             cursor.overNode = false;
+
+            let box = this.font.textBounds(node.frontmatter.title, node.x/2, node.y/2)
+            const w = 200 > box.w + 25 ? box.w + 25 : 200
+            const h = (Math.floor(box.w / 140)+1) * (box.h + this.p5.textLeading())
+
             if(node.highlighted) {
                 this.p5.fill(this.p5.color(255, 0, 0))
-                this.p5.circle(node.x/2, node.y/2, 68);
+                this.p5.circle(node.x/2, node.y/2, w + 18);
                 cursor.overNode = true
             }
-            if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= 50 || node.hover) {
+            if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= w || node.hover) {
                 this.p5.fill(this.p5.color(0, 0, 255))
-                this.p5.circle(node.x/2, node.y/2, 68)
+                this.p5.circle(node.x/2, node.y/2, w + 18)
             }
+
             // Draw node
-            // TODO: we need to see a lot more information about the node without having to interact with it
             const color = node.selected? this.p5.color(0, 255, 0) : 255            
             this.p5.fill(color)
-            this.p5.circle(node.x/2, node.y/2, 50)    
+            // this.p5.rect(node.x/2-(w/2), node.y/2-(h/2), w, h)
+            this.p5.circle(node.x/2, node.y/2, w)
+            
+            this.p5.fill(0)
+            this.p5.text(node.frontmatter.title, node.x/2-150/2, node.y/2, 150)
         }
                
     }
@@ -293,7 +303,7 @@ export class Camera {
         cb();
         this.p5.pop();
         this.p5.fill(0)
-        this.p5.text(`${this.x}, ${this.y}`, 20, this.p5.height - 25)
+        // this.p5.text(`${this.x}, ${this.y}`, 20, this.p5.height - 25)
 
         this.lx = transformX; this.ly = transformY; //this.lscale = lerpScale
     }

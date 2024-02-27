@@ -89,8 +89,11 @@
     }
 
     // $:console.log(interact)
-
+    let font:any;
     export let sketch = (p5:any) => {
+        p5.preload = () => {
+            font = p5.loadFont('/Raleway-Regular.ttf')
+        }
         p5.setup = () => {
             const c = p5.createCanvas(p5.displayWidth, p5.displayHeight*0.83)
             
@@ -98,7 +101,13 @@
             my = p5.mouseY
             cursor = new Cursor(p5);
             carto = new Cartographer(p5);
+            carto.font = font
             camera = new Camera(p5, data, 0.5)
+
+            p5.textFont(font)
+            p5.textSize(28)
+            p5.textWrap('WORD')
+            p5.textAlign(p5.CENTER, p5.CENTER)
         };
 
         p5.draw = () => {
