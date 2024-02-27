@@ -5,7 +5,7 @@
     import { createEventDispatcher } from "svelte";
     import TrailCard from "$lib/components/trail/TrailCard.svelte";
     import type { Project } from "./mapNodes";
-    import { mapData } from "../store";
+    import { mapData } from "../../store";
     import {base} from '$app/paths'
 
     export let node:string

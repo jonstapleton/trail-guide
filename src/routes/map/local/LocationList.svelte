@@ -3,7 +3,7 @@
     import LocationListItem from "./LocationListItem.svelte";
     import { createEventDispatcher } from "svelte";
     import type { Tutorial } from "./mapNodes";
-    import { mapData } from "../store";
+    import { mapData } from "../../store";
 
     // let nodes:Tutorial[] = $mapData.nodes
     export let selectedNode:Tutorial

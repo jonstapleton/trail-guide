@@ -1,6 +1,6 @@
 <script lang='ts'>
     import { onMount } from "svelte";
-    import { mapData } from "../../../routes/map/store";
+    import { mapData } from "../../../routes/store";
     import PracticeQuestion from "./PracticeQuestion.svelte";
 
     export let node:string

@@ -4,22 +4,32 @@
     import Video from "./Video.svelte";
     import { faArrowUpRightFromSquare, faCircleQuestion, faGaugeSimpleHigh, faPenToSquare, faPencil, faSquare, faSquareCheck, faVideo } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
-    import { mapData } from "../../../routes/map/store";
+    import { mapData } from "../../../routes/store";
     import QuickTake from "./QuickTake.svelte";
     import QuestionHost from "./QuestionHost.svelte";
     import { base } from '$app/paths'
 
     export let node:string|null;
+    export let exclude:string[] = []
     let tabs = ["Quick Take"]
     let obj:Tutorial
+    let tabClass = 'onMap'
+
     onMount(() => {
-        obj = $mapData.nodeObj[node]
-        console.log(obj)
-        if(obj.frontmatter.video)   { tabs = [...tabs, "Video"]    }
-        if(obj.content.practice)    { tabs = [...tabs, "Practice"] }
-        if(obj.content.prompt)      { tabs = [...tabs, "Prompt"]   }
-        console.log(tabs)
+        loadCard(node as string)
     })
+
+    function loadCard(node:string) {
+        obj = $mapData.nodeObj[node]
+        // console.log(obj)
+        tabs = ["Quick Take"]
+        if(obj.frontmatter.video && !exclude.includes("Video"))   { tabs = [...tabs, "Video"]    }
+        if(obj.content.practice && !exclude.includes("Practice"))    { tabs = [...tabs, "Practice"] }
+        if(obj.content.prompt && !exclude.includes("Prompt"))      { tabs = [...tabs, "Prompt"]   } 
+        console.log(tabs)
+    }
+
+    $: loadCard(node as string)
 
     let openTab = tabs[0]
     const objs:any = {
@@ -48,9 +58,9 @@
 <div class='location-card'>
     {#if tabs.length > 1}
     <div class="tabs is-boxed is-fullwidth">
-        <ul>
+        <ul class='m-0'>
         {#each tabs as tab, i}
-            <li class={tab == openTab ? 'is-active' : ''}>
+            <li class="{tab == openTab ? 'is-active' : ''} {tabClass}">
                 <a on:click={() => select(tab)}>
                     <Fa icon={objs[tab].icon} class='mr-2' />
                     {tab}
@@ -80,7 +90,7 @@
 </div>
 
 <style lang='scss'>
-    li {
+    li.on-map {
         border-bottom: 1px solid hsl(0, 0%, 86%);
     }
 </style>

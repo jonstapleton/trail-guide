@@ -1,6 +1,6 @@
 <script lang='ts'>
     import { onMount } from "svelte";
-    import { mapData } from "../../../routes/map/store";
+    import { mapData } from "../../../routes/store";
     import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import * as components from '$lib/components/location/directives'
@@ -9,8 +9,14 @@
     let full:string = ''
     let quick:string = ''
     onMount(() => {
-        ({full, quick} = $mapData.nodeObj[node].content)
+        loadContent(node as string)
     })
+
+    function loadContent(node:string) {
+        ({full, quick} = $mapData.nodeObj[node].content)
+    }
+
+    $: loadContent(node as string)
 </script>
 
 <div class='quick-take'>

@@ -4,7 +4,7 @@
     import Fa from 'svelte-fa'
     import { createEventDispatcher } from "svelte";
     import type { Tutorial } from "./mapNodes";
-    import { mapData } from "../store";
+    import { mapData } from "../../store";
 
     export let node:string
     export let selected:Tutorial;

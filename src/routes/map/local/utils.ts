@@ -211,7 +211,7 @@ export class Cartographer {
                 this.p5.circle(node.x/2, node.y/2, w + 18);
                 cursor.overNode = true
             }
-            if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= w || node.hover) {
+            if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= w/2 || node.hover) {
                 this.p5.fill(this.p5.color(0, 0, 255))
                 this.p5.circle(node.x/2, node.y/2, w + 18)
             }
