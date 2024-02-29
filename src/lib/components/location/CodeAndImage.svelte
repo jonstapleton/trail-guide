@@ -56,7 +56,7 @@
             <slot />
         </div>
         {#if src}
-        <div class='cell has-text-centered m-0'>
+        <div class='cell has-text-centered my-3'>
             <img src="{base}{src}" alt={alt}>
         </div>
         {/if}

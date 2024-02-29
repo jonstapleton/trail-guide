@@ -13,7 +13,7 @@
     export let exclude:string[] = []
     let tabs = ["Quick Take"]
     let obj:Tutorial
-    let tabClass = 'onMap'
+    export let tabClass = 'onMap'
 
     onMount(() => {
         loadCard(node as string)
@@ -90,7 +90,7 @@
 </div>
 
 <style lang='scss'>
-    li.on-map {
+    li.onMap {
         border-bottom: 1px solid hsl(0, 0%, 86%);
     }
 </style>

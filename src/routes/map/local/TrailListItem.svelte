@@ -1,6 +1,6 @@
 <script lang='ts'>
-    import { onMount } from "svelte";
-    import { faArrowUpRightFromSquare, faBoxOpen, faFire, faLocationDot, faLocationPin, faSearch, faStar } from "@fortawesome/free-solid-svg-icons";
+    import { onDestroy, onMount } from "svelte";
+    import { faArrowUpRightFromSquare, faBoxOpen, faFire, faLocationDot, faLocationPin, faSearch, faStar, faCheck } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { createEventDispatcher } from "svelte";
     import TrailCard from "$lib/components/trail/TrailCard.svelte";
@@ -16,6 +16,11 @@
         obj = $mapData.projectObj[node]
         console.log(obj)
         trailLength = obj.nodes.length
+    })
+
+    onDestroy(() => {
+        console.log("Destroying", obj.frontmatter.title)
+        $mapData.projectObj[node].deselect()
     })
 
     // $: console.log(`Trail ${node.frontmatter.title} select status is ${node.selected}`)
@@ -61,12 +66,9 @@
     <!-- TODO: fix a11y stuff -->
     <!-- svelte-ignore a11y-missing-attribute -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <a class='trail-list-item {$mapData.projectObj[node].selected? 'selected' : ''}' aria-expanded="{$mapData.projectObj[node].selected}" aria-controls='project-description'
-        on:click={handleFocus} 
-        on:keydown={handleFocus} 
-        on:mouseenter={handleFocus} 
-        on:mouseleave={handleFocus} 
-    >
+    <a class='trail-list-item {$mapData.projectObj[node].selected? 'selected' : ''}' 
+    on:mouseenter={handleFocus} 
+    on:mouseleave={handleFocus}>
         <div class='trail-list-row {$mapData.projectObj[node].selected? 'selected' : ''}'>
             <div class='left'>
                 <div class='control'>
@@ -74,7 +76,11 @@
                         <input type='checkbox' name='complete' bind:checked={$mapData.projectObj[node].completed}>
                     </label>
                 </div>
-                <p>{$mapData.projectObj[node].frontmatter.title}</p>
+                <a aria-expanded="{$mapData.projectObj[node].selected}" 
+                aria-controls='project-description'
+                on:click={handleFocus} 
+                on:keydown={handleFocus}
+                >{$mapData.projectObj[node].frontmatter.title}</a>
                 {#if $mapData.projectObj[node].frontmatter.recommended}
                 <span style='color: gold' class='ml-2'><Fa icon={faStar} /></span>
                 {/if}
@@ -88,7 +94,7 @@
                     {$mapData.projectObj[node].frontmatter.difficulty || $mapData.projectObj[node].frontmatter.difficulty == 0? $mapData.projectObj[node].frontmatter.difficulty : ""}
                     <Fa style='margin-left: 4px; color: darkorange;' icon={faFire} />
                 </span>
-                <a href="{base}/{$mapData.projectObj[node].path}" class='button is-small hoverable {$mapData.projectObj[node].selected? "selected":""}'>
+                <a target="_blank" href="{base}/{$mapData.projectObj[node].path}" class='button is-small hoverable {$mapData.projectObj[node].selected? "selected":""}'>
                     <span>Open</span>
                     <span class='icon'>
                         <Fa icon={faArrowUpRightFromSquare} />
@@ -118,6 +124,9 @@
                     class='{i == trailLength-1 ? "last" : ""} {obj.optionalTutorialMask[i]}'
                 >
                         {node.frontmatter.title}
+                        {#if node.completed}
+                        <span class='completed-icon'><Fa size="3x" icon={faCheck} /></span>
+                        {/if}
                 </li>
                 {/each}
             </ul>
@@ -129,6 +138,12 @@
 
 <style lang='scss'>
     $dark: hsl(0, 0%, 21%);
+    .completed-icon {
+        position: absolute;
+        color: hsl(141, 53%, 53%);
+        top: -10px;
+        right: -8px;
+    }
     .wrap {
         display: block;
     }
@@ -156,6 +171,7 @@
             margin-bottom: 1rem;
             padding: 0.5em 0.5em;
             cursor: pointer;
+            position: relative;
             &.true {
                 background-color: white;
                 border: 2px dashed $dark;
@@ -205,11 +221,10 @@
     .trail-list-row.selected {
         background-color: whitesmoke;
     }
-    .trail-item-wrapper.selected {
-        border-color: red;
-        border-style: solid;
-        border-width: 3px;
-    }
+    // .trail-item-wrapper.selected {
+    //     border-style: solid;
+    //     border-width: 3px;
+    // }
     .left {
         display: inline-flex;
         flex-grow: 1;

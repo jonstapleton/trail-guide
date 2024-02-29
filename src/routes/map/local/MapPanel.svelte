@@ -20,7 +20,7 @@
     </a> -->
     <a on:click={() => select('Maps') } class='button round {selected == 'Maps'? 'highlighted' : ''}'>
         <Fa icon={faMap} size='2x' />
-        <span class='button-text'>Maps</span>
+        <span class='button-text'>Projects</span>
     </a>
     <a on:click={() => select('Tutorials') } class='button round {selected == 'Tutorials'? 'highlighted' : ''}'>
         <Fa icon={faLocationDot} size='2x' />

@@ -224,6 +224,21 @@ export class Cartographer {
             
             this.p5.fill(0)
             this.p5.text(node.frontmatter.title, node.x/2-150/2, node.y/2, 150)
+            
+            // Icons
+            if(node.completed) {
+                let cx = node.x/2 + w/3
+                let cy = node.y/2 - w/3
+                this.p5.strokeWeight(24)
+                this.p5.line(cx, cy, cx - 25, cy - 25)
+                this.p5.line(cx, cy, cx + 50, cy - 50)
+                this.p5.stroke('rgb(72, 199, 116)');
+                this.p5.strokeWeight(18)
+                this.p5.line(cx, cy, cx - 25, cy - 25)
+                this.p5.line(cx, cy, cx + 50, cy - 50)
+                this.p5.strokeWeight(1)
+                this.p5.stroke(0)
+            }
         }
                
     }

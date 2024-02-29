@@ -251,4 +251,13 @@ export class Project extends Element {
             }
         }
     }
+    deselect() {
+        this.selected = false
+        for(let i=0;i<this.nodes.length;i++) {
+            this.nodes[i].highlighted = false
+        }
+        for(let i=0;i<this.edges.length;i++) {
+            this.edges[i].dehighlight()
+        }
+    }
 }

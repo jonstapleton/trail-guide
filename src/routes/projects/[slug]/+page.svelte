@@ -53,7 +53,7 @@
             <Header titleSize="24" node={data.frontmatter.nodes[selectedNode]} />
             <hr>
             <div class='p-5'>
-                <LocationCard exclude={["Video"]} node={data.frontmatter.nodes[selectedNode].id} />
+                <LocationCard tabClass={'onTrail'} exclude={["Video"]} node={data.frontmatter.nodes[selectedNode].id} />
             </div>
         </div>
     </div>
