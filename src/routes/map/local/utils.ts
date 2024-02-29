@@ -109,6 +109,7 @@ export class Cartographer {
     x:number = 0;
     y:number = 0;
     font:any
+    tick:number = 0
     offset:Coords = {
         x: 0, y: 0
     }
@@ -163,7 +164,7 @@ export class Cartographer {
     }
 
     draw(data:Map, cursor:Cursor) {
-
+        this.tick++
         const localCoord = getLocalCoords(this.p5, {x: this.p5.mouseX, y: this.p5.mouseY});
         cursor.setTransformCoords(localCoord)
         // Draw Edges
@@ -237,8 +238,19 @@ export class Cartographer {
                 this.p5.line(cx, cy, cx - 25, cy - 25)
                 this.p5.line(cx, cy, cx + 50, cy - 50)
                 this.p5.strokeWeight(1)
-                this.p5.stroke(0)
             }
+
+            // Add "start here" callout
+            if(node.frontmatter.start && !node.completed) {
+                let offsetY = Math.abs((this.tick/3) % 30 - 15)
+                this.p5.triangle(node.x/2 - 125/2, (node.y/2 - w*1.5) + offsetY, node.x/2 + 125/2, (node.y/2 - w*1.5) + offsetY, node.x/2, (node.y/2 - w*1.5+125) + offsetY)
+                this.p5.circle(node.x/2, (node.y/2 - w*1.5) + offsetY, 125)
+                this.p5.fill(255)
+                this.p5.stroke(255)
+                this.p5.text("Start Here", node.x/2 - 48, (node.y/2 - w*1.5) + offsetY, 100)
+            }
+            this.p5.stroke(0)
+            
         }
                
     }
