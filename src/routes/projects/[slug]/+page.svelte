@@ -1,5 +1,5 @@
 <script lang='ts'>
-    import { faFire, faLocationDot, faMap, faStar } from "@fortawesome/free-solid-svg-icons";
+    import { faCheck, faFire, faLocationDot, faMap, faStar } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { onMount } from "svelte";
     import {base } from '$app/paths'
@@ -8,58 +8,88 @@
     import PanelCard from "$lib/components/elements/PanelCard.svelte";
     import Header from "$lib/components/location/Header.svelte";
     import QuickTake from "$lib/components/location/QuickTake.svelte";
+    import { mapData } from "../../store";
     
     export let data
     let selectedNode = 0;
+    let obj:any = data
+    const id = 'projects/'+data.path
     onMount(() => {
-        console.log(data)
+        console.log('Project ID is', data.path)
+        if($mapData.projectObj[id]) {
+            console.log("Found project in mapData")
+            obj = $mapData.projectObj[id]
+            // console.log(obj.frontmatter.nodes)
+        }
     })
+    let completed = 0;
+    function countCompleted(map:any) {
+        const completedNodes = map.projectObj[id].nodes.filter((obj:any) => {
+            return obj.completed
+        })
+        return completedNodes.length
+    }
+
+    $: completed = countCompleted($mapData)
+    
 </script>
 
 <div class='container'>
     <div class='section content'>
         <h1 class='title'>
             <label class='checkbox'>
-                <input class='checkbox' type='checkbox'>
-                {data.frontmatter.title}<span class='ml-2 rec'><Fa icon={faStar} /></span>
+                <input bind:value={$mapData.projectObj[id].completed} class='checkbox' type='checkbox'>
+                {obj.frontmatter.title}
+                {#if obj.frontmatter.recommended}
+                <span class='ml-2 rec'><Fa icon={faStar} /></span>
+                {/if}
             </label>
         </h1>
         <div class='meta'>
             <span class='tag'>
                 <span style="margin-right: 0.5rem;">Difficulty:</span> 
-                {#each {length: data.frontmatter.difficulty} as _}
+                {#each {length: obj.frontmatter.difficulty} as _}
                     <span class='diff-icon'><Fa icon={faFire} /></span>
                 {/each}
             </span>
             <span class='tag'>
-                Completed: 0 / {data.frontmatter.nodes.length}
+                Completed: {completed} / {obj.frontmatter.nodes.length}
             </span>
             <a class='tag' target="_blank" href="{base}/map">View on Map<span class='ml-2'><Fa icon={faMap} /></span></a>
         </div>
         <div class='content'>
-            {@html data.content.full}
+            {@html obj.content.full}
         </div>
         <div class='level nodes'>
-            {#each data.frontmatter.nodes as node, i}
-            <div class='level-item {i == 0? 'first':''} {i==data.frontmatter.nodes.length-1? "last":''}'>
+            {#each $mapData.projectObj[id].nodes as node, i}
+            <div class='level-item {i == 0? 'first':''} {i==obj.frontmatter.nodes.length-1? "last":''}'>
                 {#if selectedNode == i}
                     <span class='select-icon'><Fa size="2x" icon={faLocationDot} /></span>
                 {/if}
                 <a on:click={() => selectedNode = i}>{node.frontmatter.title}</a>
+                {#if node.completed}
+                <span class='completed-icon'><Fa size="3x" icon={faCheck} /></span>
+                {/if}
             </div>
             {/each}
         </div>
         <div class='cards'>
-            <Header titleSize="24" node={data.frontmatter.nodes[selectedNode]} />
+            <Header titleSize="24" node={obj.nodes[selectedNode].id} />
             <hr>
             <div class='p-5'>
-                <LocationCard tabClass={'onTrail'} exclude={["Video"]} node={data.frontmatter.nodes[selectedNode].id} />
+                <LocationCard tabClass={'onTrail'} exclude={["Video"]} node={obj.nodes[selectedNode].id} />
             </div>
         </div>
     </div>
 </div>
 
 <style lang='scss'>
+    .completed-icon {
+        position: absolute;
+        color: hsl(141, 53%, 53%);
+        top: -1.75rem;
+        right: -10px;
+    }
     .select-icon {
         position: absolute;
         color: hsl(0, 0%, 21%);

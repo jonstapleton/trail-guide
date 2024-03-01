@@ -1,5 +1,7 @@
 <script lang='ts'>
     import { base } from '$app/paths'
+    import { onMount } from 'svelte';
+    import { mapData } from '../../../routes/store';
 
     interface Frontmatter {
         title:string,
@@ -7,8 +9,15 @@
         video?:string,
         description?:string
     }
-    export let node:any
+    export let node:string
     export let titleSize = 36;
+
+    let obj
+    let loaded = false
+    onMount(() => {
+        obj = $mapData.nodeObj[node]
+        loaded = true
+    })
 </script>
 
 <div class='tutorial-header p-5'>
@@ -16,19 +25,19 @@
         <div class='column content'>
             <h1 style="font-size: {titleSize}pt;" class='title control'>
                 <label class='checkbox'>
-                    <input style="width: {titleSize}px; height: {titleSize}px;" type='checkbox' name='complete' bind:checked={node.completed}>
-                    {node.frontmatter.title}
+                    <input style="width: {titleSize}px; height: {titleSize}px;" type='checkbox' name='complete' bind:checked={$mapData.nodeObj[node].completed}>
+                    {$mapData.nodeObj[node].frontmatter.title}
                 </label>
             </h1>
             <!-- <h1>{node.frontmatter.title}</h1> -->
-            <blockquote class='is-italic'>{node.frontmatter.description}</blockquote>
-            {#if node.frontmatter.video}
+            <blockquote class='is-italic'>{$mapData.nodeObj[node].frontmatter.description}</blockquote>
+            {#if $mapData.nodeObj[node].frontmatter.video}
             <p>Watch the video to see someone demonstrate the basics, or read on to work through it on your own. This concept is a part of several projects; check them out on <a href="{base}/map">the map</a>!</p>
             {/if}
         </div>
-        {#if node.frontmatter.video}
+        {#if $mapData.nodeObj[node].frontmatter.video}
         <div class='video column is-half'>
-            <iframe src="{node.frontmatter.video}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe src="{$mapData.nodeObj[node].frontmatter.video}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
         {/if}
     </div>

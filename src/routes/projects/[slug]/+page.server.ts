@@ -15,19 +15,19 @@ export async function load({ params, fetch }) {
     for(let i=0;i<nodes.length;i++) {
         nodeIdsByPath["./"+nodes[i].file] = nodes[i].id
     }
-
-    console.log(nodeIdsByPath)
-
+    const memberNodes = []
     for(let i=0;i<frontmatter.nodes.length;i++) {
         const id = nodeIdsByPath[frontmatter.nodes[i]]
-        frontmatter.nodes[i] = await (await fetch(`${base}/api/file/${frontmatter.nodes[i]}.json`)).json()
-        frontmatter.nodes[i].id = id
+        const obj = await (await fetch(`${base}/api/file/${frontmatter.nodes[i]}.json`)).json()
+        obj.id = id
+        memberNodes.push(obj)
     }
 
     return {
         path: params.slug,
         content: {full: file.value, quick: quicktake, practice: practice},
         frontmatter: frontmatter,
+        nodes: memberNodes,
         completed: false // TODO: this is going to have to change when we load data
     }
 }
