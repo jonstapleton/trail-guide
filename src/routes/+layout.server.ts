@@ -2,6 +2,8 @@ import { loadConfig } from "$lib/config"
 import {read} from 'to-vfile'
 import {base} from '$app/paths'
 import type {MapDataResponse} from './map/local/mapNodes'
+import { mapData } from './store'
+import { browser } from '$app/environment'
 
 export async function load({ fetch }) {
 
@@ -13,12 +15,15 @@ export async function load({ fetch }) {
         res.nodes[i].frontmatter = md.frontmatter
         res.nodes[i].path = md.path
     }
+
     res.projects = await (await fetch(`${base}/api/file/projects.json`)).json()
+
+    let local;
     
     const config = await loadConfig()
     return {
         config: config,
-        res: res as MapDataResponse
+        map: local ? JSON.parse(local) : res as MapDataResponse
     }
 }
 

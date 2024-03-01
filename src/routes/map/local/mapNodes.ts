@@ -2,7 +2,8 @@ interface Document {
     frontmatter:Frontmatter,
     file:string,
     path:string,
-    content:string
+    content:string,
+    completed:boolean
 }
 
 interface Frontmatter {
@@ -39,6 +40,7 @@ export class Map {
     selectedNode:Tutorial|null = null
 
     constructor(res:MapDataResponse) {
+        
         for(let i=0;i<res.nodes.length;i++) {
             const tut = new Tutorial(res.nodes[i])
             this.nodes.push(tut)
@@ -68,6 +70,14 @@ export class Map {
             objs.push(new Project(res.projects[i], nodes, edges))
         }
         return objs
+    }
+    toRes():MapDataResponse {
+        let res:MapDataResponse = {
+            nodes: this.nodes,
+            edges: this.edges,
+            projects: this.projects
+        }
+        return res
     }
 }
 
@@ -123,6 +133,11 @@ class Element {
         this.file = obj.file
         this.path = obj.path
         this.content = obj.content
+        this.completed = obj.completed ? obj.completed : false
+
+        if(obj.completed == true) {
+            console.log("Constructing completed Element", obj.file)
+        }
     }
 }
 
@@ -147,7 +162,7 @@ class MapNode extends Element {
 
 export class Tutorial extends MapNode {
     highlighted:boolean = false
-    completed:boolean = false
+    // completed:boolean = false
     selected:boolean = false
     edges:string[] = []
     constructor(obj:resNode) {
