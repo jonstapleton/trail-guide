@@ -41,6 +41,7 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.0",
     "svelte-fa": "^4.0.1",
+    "svelte-file-dropzone": "^2.0.4",
     "to-vfile": "^8.0.0",
     "unified": "^11.0.4",
     "unist-util-remove": "^4.0.0",

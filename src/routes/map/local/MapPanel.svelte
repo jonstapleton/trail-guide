@@ -2,6 +2,10 @@
     import Fa from 'svelte-fa'
     import { faMap, faLocationDot, faDownload, faGear, faUpload, faBagShopping, faFolder } from '@fortawesome/free-solid-svg-icons'
     import { createEventDispatcher } from 'svelte'
+    import Save from './Save.svelte';
+    import Load from './Load.svelte';
+    import { mapData } from '../../store';
+    import Map from './Map.svelte';
     
     export let selected:string|null
     function select (name:string) {
@@ -10,6 +14,14 @@
         } else {
             selected = name
         }
+    }
+
+    let active = false
+
+    function loadMap(e:any) {
+        console.log("Loading map...")
+        console.log(e.detail)
+        // TODO: $mapData = new Map(e.detail)
     }
 </script>
 
@@ -27,18 +39,22 @@
         <span class='button-text'>Tutorials</span>
     </a>
     <div class='bottom'>
-        <!-- <a class='button round'>
+        <button on:click={() => active = true} class='button round'>
             <Fa icon={faUpload} size='1.5x' />
             <span class='button-text'>Load</span>
-        </a>
-        <a class='button round'>
+        </button>
+        <button class='button round'>
             <Fa icon={faDownload} size='1.5x' />
             <span class='button-text'>Save</span>
-        </a>
-        <a class='button round'>
+        </button>
+        <!-- <a class='button round'>
             <Fa icon={faGear} size='1.5x' />
             <span class='button-text'>Settings</span>
         </a> -->
+    </div>
+    <div class="modal {active? 'is-active' : ''}">
+        <div on:click={() => active = false} class="modal-background"></div>
+        <Load on:load={loadMap} on:close={() => active = false} />
     </div>
 </div>
 
