@@ -6,7 +6,8 @@ import {h} from 'hastscript'
 export interface Question {
     name:string,
     text:string,
-    options:Option[]
+    options:Option[],
+    completed:boolean
 }
 
 export interface Option {
@@ -39,6 +40,7 @@ export function practice(tree:any):object[] {
                     obj.options = getOptions(child)
                 }
             }
+            obj.completed = false
             content.push(obj)
             node.properties.name = obj.name
             node.properties.text = obj.text

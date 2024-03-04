@@ -8,7 +8,7 @@
     let questions:any[] = []
     onMount(() => {
         obj = $mapData.nodeObj[node]
-        console.log(obj)
+        // console.log(obj)
         if(obj) {
             questions = obj.content.practice
         }
@@ -16,7 +16,7 @@
 </script>
 
 <div class='quiz'>
-    {#each questions as question}
-    <PracticeQuestion boxed={false} question={question} node={node} />
+    {#each $mapData.nodeObj[node].content.practice as question, i}
+    <PracticeQuestion boxed={false} question={question} node={node} index={i} />
     {/each}
 </div>

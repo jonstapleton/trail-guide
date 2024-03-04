@@ -1,11 +1,14 @@
 <script lang='ts'>
     import type { Question } from "$lib/parsing/directives/practice";
-    import { faCheck, faPenToSquare, faQuestion, faX } from "@fortawesome/free-solid-svg-icons";
+    import { faCheck, faPenToSquare, faX , faXmark} from "@fortawesome/free-solid-svg-icons";
     import { onMount } from "svelte";
     import Fa from 'svelte-fa'
+    import { mapData } from "../../../routes/store";
 
     export let question:Question
     export let boxed = true
+    export let node:string
+    export let index:number
 
     let answer:number|null = null
 
@@ -16,10 +19,15 @@
 
     onMount(() => {
         // console.log(question)
+        // console.log(node)
         for(let i=0;i<question.options.length;i++) {
             if(question.options[i].correct) {
                 correctAnswer = i
             }
+        }
+        if($mapData.nodeObj[node].content.practice[index].completed) {
+            answer = correctAnswer
+            checkAnswer()
         }
         // question.title = question.title ? question.title : title
     })
@@ -30,10 +38,12 @@
             buttonClass = 'is-success'
             buttonText = "Correct!"
             buttonIcon = faCheck
+            $mapData.nodeObj[node].content.practice[index].completed = true
         } else {
             buttonClass = 'is-danger'
             buttonText = "Incorrect..."
-            buttonIcon = faX
+            buttonIcon = faXmark
+            $mapData.nodeObj[node].content.practice[index].completed = false
         }
     }
 
@@ -42,6 +52,7 @@
         buttonClass = ''
         buttonText = "Check Answer"
         buttonIcon = faPenToSquare
+        $mapData.nodeObj[node].content.practice[index].completed = false
     }
 </script>
 
@@ -57,6 +68,7 @@
 <article class='practice-question {boxed ? 'box' : ''}'>
     <header class='question-header {buttonClass}'>
         <h3 class='my-0'>{ question.name }</h3>
+        <span class='question-status {buttonClass}'><Fa size="2x" icon={buttonIcon} /></span>
     </header>
     <section class='question-body'>
         {@html question.text}
@@ -80,8 +92,25 @@
 </article>
 
 <style lang='scss'>
+    .question-status  {
+        position: absolute;
+        right: 1rem;
+        top: 0.5rem;
+        visibility: hidden;
+        &.is-success {
+            color: hsl(141, 53%, 53%);
+            visibility: visible;
+        }
+        &.is-danger {
+            color: hsl(348, 100%, 61%);
+            visibility: visible;
+        }
+    }
+    header {
+        position: relative;
+    }
     article {
-        margin: 3rem 2rem;
+        // margin: 3rem 2rem;
     }
     label {
         margin-left: 2rem;

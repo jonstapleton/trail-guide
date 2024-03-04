@@ -1,12 +1,14 @@
 <script lang='ts'>
     import { base } from '$app/paths'
-    import { faLocationDot, faSearch, faVideo } from '@fortawesome/free-solid-svg-icons';
+    import { faArrowUpRightFromSquare, faFire, faLocationDot, faMap, faSearch, faVideo } from '@fortawesome/free-solid-svg-icons';
     import Fa from 'svelte-fa'
     import { mapData } from '../store';
     import { onMount } from 'svelte';
     import type { Project } from '../map/local/mapNodes';
+    import ProjectCard from './ProjectCard.svelte';
 
     let term = ''
+    let completedNodes = 0
 
     $: filter(term)
 
@@ -42,32 +44,7 @@
         </div>
         <hr>
         {#each nodes as node}
-        <article class='box'>
-            <div class='columns'>
-                {#if node.frontmatter.video}
-                <div class='column mr-5 is-one-third is-hidden-mobile'>
-                    <div class='video-wrap'>
-                        <iframe src="{node.frontmatter.video}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        <!-- <span class='video-icon'><Fa icon={faVideo} size="2x" /></span> -->
-                    </div>
-                </div>
-                {/if}
-                <div class='column'>
-                    <heading class='subtitle'>
-                        <label class='checkbox'>
-                            <input type="checkbox">
-                            {node.frontmatter.title}
-                            <!-- <span class='ml-2'><Fa icon={icon} /></span> -->
-                            <!-- <span class='type is-italic'>Tutorial</span> -->
-                        </label>
-                    </heading>
-                    <section class='description py-3'>
-                        <p>{node.frontmatter.description}</p>
-                    </section>
-                </div>
-            </div>
-            
-        </article>
+        <ProjectCard node={node} />
         {/each}
     </div>
 </div>
