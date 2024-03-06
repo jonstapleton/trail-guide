@@ -55,7 +55,7 @@ export async function parse(path:string) {
     // console.log(file, frontmatter)
     frontmatter.title = frontmatter.title? frontmatter.title :  `../modules/${path.replace('.json', '')}`
 
-    // console.log(frontmatter.title, qs)
+    console.log(frontmatter.title,)
 
     return {
         file: file,

@@ -8,7 +8,7 @@
     let questions:any[] = []
     onMount(() => {
         obj = $mapData.nodeObj[node]
-        // console.log(obj)
+        console.log(obj)
         if(obj) {
             questions = obj.content.practice
         }

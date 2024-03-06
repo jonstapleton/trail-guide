@@ -24,7 +24,7 @@
       }
   });
  
-  if(local) {
+  if(data.config.local && local) {
     console.log("Got localStorage!")
     $mapData = new Map(JSON.parse(local))
   } else {

@@ -2,6 +2,7 @@ import { visit } from 'unist-util-visit'
 import {toHtml} from 'hast-util-to-html'
 import {remove} from 'unist-util-remove'
 import {h} from 'hastscript'
+import { linear } from 'svelte/easing'
 
 export interface Question {
     name:string,
@@ -39,6 +40,11 @@ export function practice(tree:any):object[] {
                 if(child.tagName == 'ul' || child.tagName == 'ol') {
                     obj.options = getOptions(child)
                 }
+                // Feedback
+                if(child.tagName == 'feedback') {
+                    // console.log("Found feedback")
+                    // console.log(child)
+                }
             }
             obj.completed = false
             content.push(obj)
@@ -58,27 +64,71 @@ function getOptions(node:any):Option[] {
     for(let i=0;i<node.children.length;i++) {
         let opt:Option;
         if(node.children[i].tagName == 'li') {
+            // Found a list item, time to parse its children/peers
             opt = getOption(node.children[i])
             options.push(opt)
         }
     }
+    console.log("#### Got options ####")
+    console.log(options)
     return options
 }
 
+// It's either something like this
+
+// > li
+//     > text
+//     > text (the text I'm looking for)
+//     > text
+
+// ...or something like this:
+
+// > li
+//     > text
+//     > p
+//         > the content I'm looking for
+//     > feedback
+//     > text
+
+
 function getOption(node:any):Option {
     let option:Option = { text: '', correct: false }
-    for(let i=0;i<node.children.length;i++) {
-        const child = node.children[i]
-        if(child.tagName == 'input' && child.properties.checked) {
-            option.correct = true
+    let foundInput = false
+    let feedback = ''
+    // Each list item should include at least an input and a text child element
+    const children = node.children.filter((obj:any) => {
+        if(obj.tagName == 'input') {
+            option.correct = obj.properties.checked? true : false
+            foundInput = true
         }
-        if(child.type == 'text' && child.value.replaceAll(' ').length > 0) {
-            option.text+=child.value
-        } else if(child.tagName == 'ul') {
-            // get the feedback from this list
-            option.feedback = getFeedback(child)
+        if(obj.tagName == 'feedback') {
+            feedback += toHtml(obj.children)
         }
+        return obj.tagName != 'feedback' && obj.tagName != 'input'
+    })
+    if(!foundInput) {
+        // the input is in a paragraph tag in `children`
+        const paragraph = children.filter((obj:any) => {
+            return obj.tagName == 'p' && obj.children
+        })
+        // console.log("Found <p> with children:",paragraph[0].children.length)
+        // console.log(paragraph[0].children[i])
+        const text = paragraph[0].children.filter((obj:any) => {
+            if(obj.tagName == 'input') {
+                foundInput = true
+                option.correct = obj.properties.checked? true : false
+            }
+            if(obj.tagName == 'feedback') {
+                feedback += toHtml(obj.children)
+            }
+            return obj.tagName != 'input'
+        })
+        option.text += toHtml(text)
+    } else {
+        option.text += toHtml(children)
     }
+    option.feedback = feedback
+    console.log('-------------------------------------------------')
     return option
 }
 

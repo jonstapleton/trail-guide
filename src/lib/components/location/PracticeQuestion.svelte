@@ -82,12 +82,22 @@
             {/each}
         </div>
     </section>
-    <div class='ui has-text-right'>
-        <button on:click={checkAnswer} disabled={!answer && answer != 0} class='button {buttonClass}'>
-            <Fa class='mr-2' icon={buttonIcon} />
-            {buttonText}
-        </button>
-    </div>
+    
+    <section class='feedback'>
+        {#if (answer || answer == 0) && buttonClass.length > 0 && question.options[answer].feedback.length > 0}
+        <div class='feedback-text {buttonClass}'>
+            <!-- <span class='has-text-weight-bold'>Feedback:</span> -->
+            {@html question.options[answer].feedback}
+        </div>
+        {/if}
+        <div class='ui has-text-right'>
+            <button on:click={checkAnswer} disabled={!answer && answer != 0} class='button {buttonClass}'>
+                <Fa class='mr-2' icon={buttonIcon} />
+                {buttonText}
+            </button>
+        </div>
+    </section>
+    
     <!-- <slot /> -->
 </article>
 
@@ -110,7 +120,8 @@
         position: relative;
     }
     article {
-        // margin: 3rem 2rem;
+        margin: 0 0;
+        margin-bottom: 4rem;
     }
     label {
         margin-left: 2rem;
@@ -128,13 +139,26 @@
             font-weight: bold;
         }
     }
-    .question-header.is-danger {
-        // background-color: pink;
-    }
-    .question-header.is-success {
-        // background-color: lightgreen;
-    }
+    // .question-header.is-danger {
+    //     background-color: hsl(347, 90%, 96%);
+    // }
+    // .question-header.is-success {
+    //     background-color: hsl(142, 52%, 96%);
+    // }
     .question-body {
-        padding: 1rem 1rem;
+        margin: 1rem 1rem;
+    }
+    .feedback-text {
+        padding: 0.5rem 0.5rem;
+        margin: 0 0;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        font-size: 10pt;
+        &.is-success {
+            background-color: hsl(142, 52%, 96%);
+        }
+        &.is-danger {
+            background-color: hsl(347, 90%, 96%);
+        }
     }
 </style>
