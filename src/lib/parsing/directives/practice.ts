@@ -23,12 +23,13 @@ export interface Feedback {
 }
 
 // This directive takes the slotted content of the custom element and generates props to insert into the PracticeQuestion component
-export function practice(tree:any):object[] {
+export function practice(tree:any, path:string):object[] {
     let content:Question[] = []
     visit(tree, function (node:any) {
+        let index = 0
         if(node.tagName == 'practice-question' && node.children) {
             const obj:any = { text: '' }
-            console.log("Found practice question!")
+            console.log("Found practice question at", path)
             // generate hast tree for practice questions from children of practice element
             node.tagName = 'practice-question'
             if(node.properties.name) { obj.name = node.properties.name }
@@ -51,6 +52,9 @@ export function practice(tree:any):object[] {
             node.properties.name = obj.name
             node.properties.text = obj.text
             node.properties.question = JSON.stringify(obj)
+            node.properties.path = path
+            node.properties.index = index
+            index++
 
             node.children = []
             // remove(tree, (node:any) => node.tagName == 'practice-question')
@@ -69,8 +73,8 @@ function getOptions(node:any):Option[] {
             options.push(opt)
         }
     }
-    console.log("#### Got options ####")
-    console.log(options)
+    // console.log("#### Got options ####")
+    // console.log(options)
     return options
 }
 
@@ -128,7 +132,7 @@ function getOption(node:any):Option {
         option.text += toHtml(children)
     }
     option.feedback = feedback
-    console.log('-------------------------------------------------')
+    // console.log('-------------------------------------------------')
     return option
 }
 

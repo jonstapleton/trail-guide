@@ -43,7 +43,7 @@ export async function parse(path:string) {
             qt = quick_take(tree)
         })
         .use(() => (tree:any) => {
-            const q = practice(tree)
+            const q = practice(tree, path)
             qs.push(...q)
         })
         .use(code_and_image)

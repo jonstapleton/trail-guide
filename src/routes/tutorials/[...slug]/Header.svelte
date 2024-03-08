@@ -1,5 +1,6 @@
 <script lang='ts'>
     import { base } from '$app/paths'
+    import QuickTake from '$lib/components/location/QuickTake.svelte';
 
     interface Frontmatter {
         title:string,
@@ -13,7 +14,7 @@
 <div class='tutorial-header p-5'>
     <div class='columns'>
         <div class='column content'>
-            <h1>{frontmatter.title}</h1>
+            <!-- <h1>{frontmatter.title}</h1> -->
             <blockquote class='is-italic'>{frontmatter.description}</blockquote>
             {#if frontmatter.video}
             <p>Watch the video to see someone demonstrate the basics, or read on to work through it on your own. This concept is a part of several projects; check them out on <a href="{base}/map">the map</a>!</p>

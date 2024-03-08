@@ -34,6 +34,7 @@ export interface MapDataResponse {
 export class Map {
     nodes:Tutorial[] = []
     nodeObj:any = {}
+    nodesByPath:any = {}
     projectObj:any = {}
     edges:Edge[] = []
     projects:Project[] = []
@@ -45,6 +46,7 @@ export class Map {
             const tut = new Tutorial(res.nodes[i])
             this.nodes.push(tut)
             this.nodeObj[res.nodes[i].id] = tut // create the nodeObj object to help with drawing edges
+            this.nodesByPath[res.nodes[i].path] = tut
         }
         // this.edges = res.edges
 

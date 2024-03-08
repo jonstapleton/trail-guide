@@ -4,31 +4,51 @@
     import { onMount } from "svelte";
     import Fa from 'svelte-fa'
     import { mapData } from "../../../routes/store";
+    import type { Map } from "../../../routes/map/local/mapNodes";
 
     export let question:Question
     export let boxed = true
     export let node:string
     export let index:number
+    export let path:string
 
     let answer:number|null = null
+    let id:string;
 
     let buttonClass = ''
     let buttonText = 'Check Answer'
     let buttonIcon = faPenToSquare
     let correctAnswer:number
 
+    $: if(!loaded) {loadProgress($mapData)}
+
+    let loaded = false
+    function loadProgress(map:Map) {
+        console.log("loading question status from mapData...")
+        if(!id && map) {
+            // find the id from the map. This sucks--I should have just used the path for the nodeObj instead. Temporary fix?
+            id = map.nodesByPath[path].id
+            console.log(`Got ${id} from node with path ${path}`)
+        }
+        if(id && map && map.nodeObj[id].content.practice[index].completed) {
+            answer = correctAnswer
+            checkAnswer()
+            loaded = true
+        } else if(id && map) {
+            loaded = true
+        }
+    }
+
     onMount(() => {
-        // console.log(question)
-        // console.log(node)
+        // Find the node ID if not passed as prop
+        // console.log(path)
+        
         for(let i=0;i<question.options.length;i++) {
             if(question.options[i].correct) {
                 correctAnswer = i
             }
         }
-        if($mapData.nodeObj[node].content.practice[index].completed) {
-            answer = correctAnswer
-            checkAnswer()
-        }
+        if(node) { id = node }
         // question.title = question.title ? question.title : title
     })
     function checkAnswer() {
@@ -38,12 +58,12 @@
             buttonClass = 'is-success'
             buttonText = "Correct!"
             buttonIcon = faCheck
-            $mapData.nodeObj[node].content.practice[index].completed = true
+            $mapData.nodeObj[id].content.practice[index].completed = true
         } else {
             buttonClass = 'is-danger'
             buttonText = "Incorrect..."
             buttonIcon = faXmark
-            $mapData.nodeObj[node].content.practice[index].completed = false
+            $mapData.nodeObj[id].content.practice[index].completed = false
         }
     }
 
@@ -52,7 +72,7 @@
         buttonClass = ''
         buttonText = "Check Answer"
         buttonIcon = faPenToSquare
-        $mapData.nodeObj[node].content.practice[index].completed = false
+        $mapData.nodeObj[id].content.practice[index].completed = false
     }
 </script>
 
