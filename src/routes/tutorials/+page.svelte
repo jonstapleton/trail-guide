@@ -1,6 +1,6 @@
 <script lang='ts'>
     import { base } from '$app/paths'
-    import { faLocationDot, faSearch, faVideo } from '@fortawesome/free-solid-svg-icons';
+    import { faArrowUpRightFromSquare, faLocationDot, faMap, faSearch, faVideo } from '@fortawesome/free-solid-svg-icons';
     import Fa from 'svelte-fa'
     import { mapData } from '../store';
     import { onMount } from 'svelte';
@@ -30,11 +30,11 @@
     <div class='section'>
         <div class='field has-addons'>
             <div class='control is-expanded'>
-                <input bind:value={term} placeholder="Search by Tutorial Name..." class='input'>
+                <input bind:value={term} placeholder="Search by Tutorial Name..." class='is-large input'>
             </div>
             <div class='control'>
                 <!-- TODO: update path based on search terms -->
-                <button class='button has-icon is-dark'>
+                <button class='button has-icon is-dark is-large'>
                     Search
                     <span class='icon ml-2'><Fa icon={faSearch} /></span>
                 </button>
@@ -52,11 +52,12 @@
                     </div>
                 </div>
                 {/if}
-                <div class='column'>
+                <div class='column ml-4 mr-2'>
                     <heading class='subtitle'>
                         <label class='checkbox'>
-                            <input type="checkbox">
-                            {node.frontmatter.title}
+                            <input bind:checked={$mapData.nodesByPath[node.path].completed} type="checkbox">
+                            
+                            <a href="{base}/tutorials/{node.path.replace('.md','')}" target="_blank">{node.frontmatter.title}</a>
                             <!-- <span class='ml-2'><Fa icon={icon} /></span> -->
                             <!-- <span class='type is-italic'>Tutorial</span> -->
                         </label>
@@ -65,8 +66,16 @@
                         <p>{node.frontmatter.description}</p>
                     </section>
                 </div>
+                
             </div>
-            
+            <div class='field is-grouped mt-4'>
+                <div class='control is-expanded'>
+                    <a href="{base}/{node.path}" target="_blank" class='button is-fullwidth is-dark'>Read Detailed Tutorial<span class='ml-2'><Fa icon={faArrowUpRightFromSquare} /></span></a>
+                </div>
+                <div class='control is-expanded'>
+                    <a href="{base}/map" target="_blank" class='button is-fullwidth'>View on the Map<span class='ml-2'><Fa icon={faMap} /></span></a>
+                </div>
+            </div>
         </article>
         {/each}
     </div>

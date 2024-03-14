@@ -56,7 +56,7 @@
             <slot />
         </div>
         {#if src}
-        <div class='cell has-text-centered my-3'>
+        <div class='cell has-text-centered'>
             <img src="{base}{src}" alt={alt}>
         </div>
         {/if}
@@ -86,11 +86,11 @@
         border-radius: 8px;
         border: 2px dashed black;
     }
-    // section {
-    //     display: grid;
-    //     gap: 1rem;
-    //     grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
-    // }
+    section {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+    }
     article {
         margin: 3rem 0;
     }

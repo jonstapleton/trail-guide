@@ -15,6 +15,13 @@
     function filter(term:string) {
         nodes = $mapData.projects.filter((obj:Project) => {
             return obj.frontmatter.title.toLowerCase().includes(term.toLowerCase())
+        }).sort((a:Project,b:Project) => {
+            if(a.frontmatter.recommended && b.frontmatter.recommended) { return 0 }
+            else if(a.frontmatter.recommended) { return -1 }
+            else if(b.frontmatter.recommended) { return  1 }
+            else {
+                return a.frontmatter.difficulty - b.frontmatter.difficulty
+            }
         })
     }
     let nodes:Project[] = []
@@ -28,21 +35,21 @@
         <h1>Projects</h1>
         <p>Check out the projects below for fun story ideas to create with Twine!</p>
         <p>Each of the projects listed below contain several tutorials. Search our whole library of tutorials on the <a href='{base}/tutorials'>Tutorials</a> page, or browse all of the trail guide resources on the <a href="{base}/map">Map</a>.</p>
-    </div>
-    <div class='section'>
-        <div class='field has-addons'>
+        <div class='field has-addons mt-5'>
             <div class='control is-expanded'>
-                <input bind:value={term} placeholder="Search by Project Name..." class='input'>
+                <input bind:value={term} placeholder="Search by Project Name..." class='input is-large'>
             </div>
             <div class='control'>
                 <!-- TODO: update path based on search terms -->
-                <button class='button has-icon is-dark'>
+                <button class='button has-icon is-dark is-large'>
                     Search
                     <span class='icon ml-2'><Fa icon={faSearch} /></span>
                 </button>
             </div>
         </div>
-        <hr>
+    </div>
+    <div class='section'>
+        
         {#each nodes as node}
         <ProjectCard node={node} />
         {/each}

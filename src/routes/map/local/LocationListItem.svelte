@@ -19,11 +19,18 @@
             type: 'location'
         })
     }
+
+    function hover() {
+        $mapData.nodeObj[node].rehover()
+    }
+    function dehover() {
+        $mapData.nodeObj[node].dehover()
+    }
 </script>
 
 <!-- TODO: a11y stuff -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class='location-list-item'>
+<div on:mouseenter={hover} on:mouseleave={dehover} class='location-list-item'>
     <div class='left'>
         <div class='control'>
             <label class='radio'>

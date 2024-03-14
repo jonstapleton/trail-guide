@@ -62,15 +62,15 @@
         </div>
         <div class='level nodes'>
             {#each $mapData.projectObj[id].nodes as node, i}
-            <div class='level-item {i == 0? 'first':''} {i==obj.frontmatter.nodes.length-1? "last":''}'>
+            <a on:click={() => selectedNode = i} class='level-item {i == 0? 'first':''} {i==obj.frontmatter.nodes.length-1? "last":''}'>
                 {#if selectedNode == i}
                     <span class='select-icon'><Fa size="2x" icon={faLocationDot} /></span>
                 {/if}
-                <a on:click={() => selectedNode = i}>{node.frontmatter.title}</a>
+                <p>{node.frontmatter.title}</p>
                 {#if node.completed}
                 <span class='completed-icon'><Fa size="3x" icon={faCheck} /></span>
                 {/if}
-            </div>
+            </a>
             {/each}
         </div>
         <div class='cards'>
@@ -112,7 +112,7 @@
         background: linear-gradient(to bottom, white calc(50% - 3px), black calc(50% - 3px) calc(50% + 3px), white calc(50% + 3px));
         margin-top: 5rem;
         margin-bottom: 4rem;
-        & > div {
+        & > a {
             background-color: hsl(0, 0%, 21%);
             color: white;
             margin: 0.5rem 0.5rem;
@@ -120,7 +120,7 @@
             height: 3rem;
             border: 3px solid hsl(0, 0%, 21%);
             position: relative;
-            a {
+            p {
                 color: white
             }
             &.first { margin-left: 0 }
@@ -130,7 +130,7 @@
                 color: black;
                 border: 3px dashed black;
                 cursor: pointer;
-                a {
+                p {
                     color: black;
                 }
             }
@@ -139,7 +139,7 @@
     @media screen and (max-width: 768px) {
         .nodes {
             background: linear-gradient(#000, #000) no-repeat center/6px 100%;
-            & > div.first, & > div.last {
+            & > a.first, & > a.last {
                 margin: 0.5rem 0.5rem;
             }
         }

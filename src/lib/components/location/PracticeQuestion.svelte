@@ -1,7 +1,7 @@
 <script lang='ts'>
     import type { Question } from "$lib/parsing/directives/practice";
     import { faCheck, faPenToSquare, faX , faXmark} from "@fortawesome/free-solid-svg-icons";
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import Fa from 'svelte-fa'
     import { mapData } from "../../../routes/store";
     import type { Map } from "../../../routes/map/local/mapNodes";
@@ -27,7 +27,7 @@
         console.log("loading question status from mapData...")
         if(!id && map) {
             // find the id from the map. This sucks--I should have just used the path for the nodeObj instead. Temporary fix?
-            id = map.nodesByPath[path].id
+            id = node ? node : map.nodesByPath[path].id
             console.log(`Got ${id} from node with path ${path}`)
         }
         if(id && map && map.nodeObj[id].content.practice[index].completed) {
@@ -41,7 +41,7 @@
 
     onMount(() => {
         // Find the node ID if not passed as prop
-        // console.log(path)
+        console.log("Mounting practice question...")
         
         for(let i=0;i<question.options.length;i++) {
             if(question.options[i].correct) {
@@ -85,13 +85,15 @@
     }
 }} />
 
-<article class='practice-question {boxed ? 'box' : ''}'>
+<article class='practice-question {boxed ? 'box my-5' : ''}'>
     <header class='question-header {buttonClass}'>
         <h3 class='my-0'>{ question.name }</h3>
         <span class='question-status {buttonClass}'><Fa size="2x" icon={buttonIcon} /></span>
     </header>
     <section class='question-body'>
-        {@html question.text}
+        <div class='content'>
+            {@html question.text}
+        </div>
         <div on:click={reset} on:keypress={reset} role='presentation' class='field'>
             {#each question.options as option, i}
             <label class='radio'>
@@ -103,7 +105,7 @@
         </div>
     </section>
     
-    <section class='feedback'>
+    <section class='feedback mb-3'>
         {#if (answer || answer == 0) && buttonClass.length > 0 && question.options[answer].feedback.length > 0}
         <div class='feedback-text {buttonClass}'>
             <!-- <span class='has-text-weight-bold'>Feedback:</span> -->
@@ -141,7 +143,7 @@
     }
     article {
         margin: 0 0;
-        margin-bottom: 4rem;
+        // margin-bottom: 4rem;
     }
     label {
         margin-left: 2rem;

@@ -1,7 +1,7 @@
 <script>
     import {base} from '$app/paths';
     import CodeVA from '$lib/assets/CodeVA_Logo_Primary_White.png'
-    import { faHammer, faHome, faLocationDot, faMap } from '@fortawesome/free-solid-svg-icons';
+    import { faHammer, faHome, faLocationDot, faMap, faRoute } from '@fortawesome/free-solid-svg-icons';
     import Fa from 'svelte-fa'
     
     let burger = {
@@ -38,7 +38,7 @@
             <a class="navbar-item"
                 href='{base}/projects'
             >
-                <Fa icon={faHammer} /><span class='ml-3'>Projects</span>
+                <Fa icon={faRoute} /><span class='ml-3'>Projects</span>
             </a>
             <a class="navbar-item"
                 href='{base}/tutorials'

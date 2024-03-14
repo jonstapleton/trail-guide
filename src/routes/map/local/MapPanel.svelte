@@ -1,6 +1,6 @@
 <script lang='ts'>
     import Fa from 'svelte-fa'
-    import { faMap, faLocationDot, faDownload, faGear, faUpload, faBagShopping, faFolder } from '@fortawesome/free-solid-svg-icons'
+    import { faMap, faLocationDot, faDownload, faGear, faUpload, faBagShopping, faFolder, faRoute } from '@fortawesome/free-solid-svg-icons'
     import { createEventDispatcher } from 'svelte'
     import Save from './Save.svelte';
     import Load from './Load.svelte';
@@ -31,7 +31,7 @@
         <span class='button-text'>Projects</span>
     </a> -->
     <a on:click={() => select('Maps') } class='button round {selected == 'Maps'? 'highlighted' : ''}'>
-        <Fa icon={faMap} size='2x' />
+        <Fa icon={faRoute} size='2.5x' />
         <span class='button-text'>Projects</span>
     </a>
     <a on:click={() => select('Tutorials') } class='button round {selected == 'Tutorials'? 'highlighted' : ''}'>

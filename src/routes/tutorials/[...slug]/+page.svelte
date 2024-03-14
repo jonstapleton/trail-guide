@@ -4,6 +4,8 @@
     import * as components from '$lib/components/location/directives' // This is what enables custom elements in tutorial bodies
     import QuickTake from '$lib/components/location/QuickTake.svelte';
     import { onMount } from 'svelte';
+    import QuestionHost from '$lib/components/location/QuestionHost.svelte';
+    import QuestionCarousel from '$lib/components/location/QuestionCarousel.svelte';
     
     export let data;
 
@@ -15,6 +17,12 @@
         if(data.content.practice) { tabs = [...tabs, "Practice"] }
         if(data.content.prompt) { tabs = [...tabs, "Prompt" ]}
     })
+
+    const els = {
+        "Overview": Header,
+        "Quick Take": QuickTake,
+        "Practice": QuestionCarousel
+    }
 </script>
 
 <div class='hero banner pt-5'>
@@ -34,8 +42,13 @@
             </div>
     </div>
     <div class='hero-body pt-0 mt-0'>
-        <div class='body-wrap container'>
-            <Header frontmatter={data.frontmatter} />
+        <div class='container'>
+            <div class='body-wrap {activeTab == 0 ? 'three' : 'four'}'>
+                <div class='el-wrap'>
+                    <!-- <Header data={data} /> -->
+                    <svelte:component this={els[tabs[activeTab]]} data={data} containerized={true} />
+                </div>
+            </div>
         </div>
     </div>
     
@@ -52,7 +65,12 @@
     }
     .body-wrap {
         border: 1px solid lightgray;
-        border-radius: 0 8px 8px 8px;
+        &.three {
+            border-radius: 0 8px 8px 8px;
+        }
+        &.four {
+            border-radius: 8px;
+        }
         position: relative;
         top: -1px;
         z-index: 0;
@@ -74,5 +92,8 @@
     .is-active {
         border-bottom: 1px solid white;
         z-index:99;
+    }
+    .el-wrap {
+        margin: 1rem 2rem;
     }
 </style>

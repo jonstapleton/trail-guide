@@ -1,6 +1,6 @@
 <script lang='ts'>
     import Fa from 'svelte-fa'
-    import { faFire, faArrowUpRightFromSquare, faMap } from '@fortawesome/free-solid-svg-icons';
+    import { faFire, faArrowUpRightFromSquare, faMap, faStar } from '@fortawesome/free-solid-svg-icons';
     import type { Map, Project } from "../map/local/mapNodes";
     import { base} from '$app/paths'
     import { onMount } from 'svelte';
@@ -36,8 +36,16 @@
         <div class='column'>
             <heading class='subtitle'>
                 <label class='checkbox'>
-                    <input type="checkbox">
+                    <input bind:checked={$mapData.projectObj[node.id].completed} type="checkbox">
                     <a class='ml-2 mr-5' target="_blank" href="{base}/{node.path}">{node.frontmatter.title}</a>
+                    {#if node.frontmatter.recommended}
+                    <span class='tag is-medium'>
+                        <span class='rec-icon mr-2'>
+                            <Fa icon={faStar} />
+                        </span>
+                        Recommended
+                    </span>
+                    {/if}
                     <span class='tag is-medium'>Difficulty:
                         {#each {length: node.frontmatter.difficulty} as _}
                         <span class='ml-1 diff-icon'><Fa icon={faFire} /></span>
@@ -55,7 +63,7 @@
                         <a href="{base}/{node.path}" target="_blank" class='button is-fullwidth is-dark'>Read Detailed Tutorial<span class='ml-2'><Fa icon={faArrowUpRightFromSquare} /></span></a>
                     </div>
                     <div class='control is-expanded'>
-                        <a class='button is-fullwidth'>View on the Map<span class='ml-2'><Fa icon={faMap} /></span></a>
+                        <a href="{base}/map" target="_blank" class='button is-fullwidth'>View on the Map<span class='ml-2'><Fa icon={faMap} /></span></a>
                     </div>
                 </div>
             </section>
@@ -66,6 +74,9 @@
 <style lang='scss'>
     .diff-icon {
         color: darkorange;
+    }
+    .rec-icon {
+        color: gold;
     }
     .checkbox > input {
         width: 18px;
