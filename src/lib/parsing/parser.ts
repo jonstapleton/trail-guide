@@ -13,6 +13,8 @@ import {read} from 'to-vfile'
 import {unified} from 'unified'
 import YAML from 'yaml'
 import { practice } from './directives/practice'
+import { code_and_image } from './directives/code-and-image'
+import rehypeHighlight from 'rehype-highlight'
 
 export async function parse(path:string) {
     let frontmatter:any = {
@@ -34,15 +36,17 @@ export async function parse(path:string) {
         .use(remarkDirective)
         .use(remarkDirectiveRehype)
         .use(remarkRehype)
+        .use(rehypeHighlight)
         .use(img)
         .use(a)
         .use(() => (tree:any) => {
             qt = quick_take(tree)
         })
         .use(() => (tree:any) => {
-            const q = practice(tree)
+            const q = practice(tree, path)
             qs.push(...q)
         })
+        .use(code_and_image)
         .use(rehypeFormat)
         .use(rehypeStringify)
         // TODO: this is going to cause problems for us! Paths, etc.
@@ -51,7 +55,7 @@ export async function parse(path:string) {
     // console.log(file, frontmatter)
     frontmatter.title = frontmatter.title? frontmatter.title :  `../modules/${path.replace('.json', '')}`
 
-    console.log(frontmatter.title, qs)
+    console.log(frontmatter.title,)
 
     return {
         file: file,

@@ -8,19 +8,19 @@
     import TrailInfo from './local/TrailInfo.svelte';
     import { onMount } from 'svelte';
     import { Map, Tutorial, type MapDataResponse } from './local/mapNodes';
-    import { mapData } from './store';
+    import { mapData } from '../store';
     export let data
 
     let options = {}
     onMount(() => {
-        $mapData = new Map(data.res)
+        
         console.log(mapData)
         options = {
             "Tutorials": {
                 obj: LocationList,
                 data: $mapData.nodes
             },
-            "Projects": {
+            "Maps": {
                 obj: TrailList,
                 data: $mapData.projects
             }

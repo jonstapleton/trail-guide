@@ -2,14 +2,16 @@ interface Document {
     frontmatter:Frontmatter,
     file:string,
     path:string,
-    content:string
+    content:string,
+    completed:boolean
 }
 
 interface Frontmatter {
     title:string,
     nodes?:string[],
     video?:string,
-    description?:string
+    description?:string,
+    start?:boolean
 }
 
 interface resNode extends Document {
@@ -32,16 +34,19 @@ export interface MapDataResponse {
 export class Map {
     nodes:Tutorial[] = []
     nodeObj:any = {}
+    nodesByPath:any = {}
     projectObj:any = {}
     edges:Edge[] = []
     projects:Project[] = []
     selectedNode:Tutorial|null = null
 
     constructor(res:MapDataResponse) {
+        
         for(let i=0;i<res.nodes.length;i++) {
             const tut = new Tutorial(res.nodes[i])
             this.nodes.push(tut)
             this.nodeObj[res.nodes[i].id] = tut // create the nodeObj object to help with drawing edges
+            this.nodesByPath[res.nodes[i].path] = tut
         }
         // this.edges = res.edges
 
@@ -68,6 +73,14 @@ export class Map {
         }
         return objs
     }
+    toRes():MapDataResponse {
+        let res:MapDataResponse = {
+            nodes: this.nodes,
+            edges: this.edges,
+            projects: this.projects
+        }
+        return res
+    }
 }
 
 export class Edge {
@@ -78,7 +91,8 @@ export class Edge {
     fromSide:("left"|"right"|"top"|"bottom")
     toSide:("left"|"right"|"top"|"bottom")
     id:string
-    highlighted = false
+    highlighted:string|false = false
+    optional = false
     constructor(resEdge:any, data:Map) {
         this.toNode = resEdge.toNode
         this.fromNode = resEdge.fromNode
@@ -101,6 +115,13 @@ export class Edge {
         this.c1 = controlPoint1
         this.c2 = controlPoint2
     }
+
+    highlight(style:string) {
+        this.highlighted = style
+    }
+    dehighlight() {
+        this.highlighted = false
+    }
 }
 
 class Element {
@@ -114,6 +135,11 @@ class Element {
         this.file = obj.file
         this.path = obj.path
         this.content = obj.content
+        this.completed = obj.completed ? obj.completed : false
+
+        if(obj.completed == true) {
+            console.log("Constructing completed Element", obj.file)
+        }
     }
 }
 
@@ -128,11 +154,17 @@ class MapNode extends Element {
         this.y = obj.y
         this.id = obj.id
     }
+    rehover() {
+        this.hover = true
+    }
+    dehover() {
+        this.hover = false
+    }
 }
 
 export class Tutorial extends MapNode {
     highlighted:boolean = false
-    completed:boolean = false
+    // completed:boolean = false
     selected:boolean = false
     edges:string[] = []
     constructor(obj:resNode) {
@@ -141,11 +173,16 @@ export class Tutorial extends MapNode {
     highlight() {
         this.highlighted = true
     }
+    dehighlight() {
+        this.highlighted = false
+    }
 }
 
 export class Project extends Element {
     nodes:Tutorial[] = []
     edges:Edge[] = []
+    optionalTutorialMask:boolean[] = []
+    optionalEdgeMask:boolean[] = []
     selected:boolean = false
     difficulty:number
     id:string
@@ -153,8 +190,14 @@ export class Project extends Element {
         super(obj)
         this.difficulty = obj.frontmatter.difficulty ? obj.frontmatter.difficulty : 'N/A'
         if(!obj.frontmatter.nodes) { throw new Error(`Document ${obj.frontmatter.title} does not define nodes!`)}
-        let objIds:any[] = [...obj.frontmatter.nodes]
-        let objArray:(string|Tutorial)[] = [...obj.frontmatter.nodes]
+        let objIds:string[] = []
+        let objArray:(string|Tutorial)[] = []
+        for(let i=0;i<obj.frontmatter.nodes.length;i++) {
+            const nodeRef = obj.frontmatter.nodes[i].replaceAll(' ', '').replace('{optional}','')
+            objArray.push(nodeRef)
+            objIds.push(nodeRef)
+            this.optionalTutorialMask.push(obj.frontmatter.nodes[i].includes('{optional}'))
+        }
         for(let i=0;i<nodeObjs.length;i++) {
             const nodeFilePath = './'+nodeObjs[i].path
             if(objArray.includes(nodeFilePath)) {
@@ -166,14 +209,41 @@ export class Project extends Element {
         // this.nodes is an ordered list of the nodes in the trail
         this.nodes = objArray as Tutorial[]
 
+        // filter the edges available in the map down to the edges associated with the Project
+        let reqIds:string[] = []
         this.edges = edges.filter((edge) => {
             const to = objIds.indexOf(edge.toNode)
             const from = objIds.indexOf(edge.fromNode)
-            const edgeInProject = (to != -1 && from != -1) && Math.abs(to - from) == 1
+            // if the edge leads to or comes from an optional tutorial...
+            // if(edgeInProject && (this.optionalTutorialMask[to] || this.optionalTutorialMask[from])) {
+            //     this.optionalEdgeMask.push(true)
+            // } else if(edgeInProject) {
+            //     this.optionalEdgeMask.push(false)
+            // }
+
+            for(let i=0;i<objIds.length;i++) {{
+                if(!this.optionalTutorialMask[i]) {
+                    reqIds.push(objIds[i])
+                }
+            }}
+
+            const edgeInProject = (to != -1 && from != -1) && (Math.abs(to - from) == 1 || Math.abs(reqIds.indexOf(edge.toNode) - reqIds.indexOf(edge.fromNode)) == 1)
+
+            //   edge nodes are in project list AND  (edges are adjacent  OR  all nodes in between edge nodes in node list are optional)
             return edgeInProject
         })
+
+        for(let i=0;i<this.edges.length;i++) {
+            if(!reqIds.includes(this.edges[i].toNode) || !reqIds.includes(this.edges[i].fromNode)) {
+                // the edge is connected to an optional node
+                this.optionalEdgeMask.push(true)
+            } else {
+                this.optionalEdgeMask.push(false)
+            }
+        }
+
+        console.log(this.frontmatter.title, this.optionalEdgeMask)
         this.id = this.path
-        // console.log(`${this.frontmatter.title} edges:`, this.edges.length)
     }
 
     highlight() {
@@ -181,7 +251,7 @@ export class Project extends Element {
             this.nodes[i].highlight()
         }
         for(let i=0;i<this.edges.length;i++) {
-            this.edges[i].highlighted = true
+            this.edges[i].highlight(this.optionalEdgeMask[i] ? 'dashed' : 'solid')
         }
     }
     dehighlight() {
@@ -189,7 +259,23 @@ export class Project extends Element {
             this.nodes[i].highlighted = false || this.selected
         }
         for(let i=0;i<this.edges.length;i++) {
-            this.edges[i].highlighted = false || this.selected
+            const highlight = false || this.selected
+            if(highlight && this.optionalEdgeMask[i]) {
+                this.edges[i].highlight("dashed")
+            } else if(highlight) {
+                this.edges[i].highlight("solid")
+            } else {
+                this.edges[i].dehighlight()
+            }
+        }
+    }
+    deselect() {
+        this.selected = false
+        for(let i=0;i<this.nodes.length;i++) {
+            this.nodes[i].highlighted = false
+        }
+        for(let i=0;i<this.edges.length;i++) {
+            this.edges[i].dehighlight()
         }
     }
 }

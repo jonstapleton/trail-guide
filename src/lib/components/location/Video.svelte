@@ -2,7 +2,7 @@
     import {base} from '$app/paths'
     import { onMount } from 'svelte';
     import type { Tutorial } from '../../../routes/map/local/mapNodes';
-    import { mapData } from '../../../routes/map/store';
+    import { mapData } from '../../../routes/store';
     export let node:string|undefined
     let loaded = false
 

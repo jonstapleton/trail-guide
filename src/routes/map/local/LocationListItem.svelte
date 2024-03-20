@@ -1,10 +1,11 @@
 <script lang='ts'>
     import { onMount } from "svelte";
+    import { base } from '$app/paths'
     import { faArrowUpRightFromSquare, faBoxOpen, faLocationDot, faLocationPin, faSearch } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { createEventDispatcher } from "svelte";
     import type { Tutorial } from "./mapNodes";
-    import { mapData } from "../store";
+    import { mapData } from "../../store";
 
     export let node:string
     export let selected:Tutorial;
@@ -18,11 +19,18 @@
             type: 'location'
         })
     }
+
+    function hover() {
+        $mapData.nodeObj[node].rehover()
+    }
+    function dehover() {
+        $mapData.nodeObj[node].dehover()
+    }
 </script>
 
 <!-- TODO: a11y stuff -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class='location-list-item'>
+<div on:mouseenter={hover} on:mouseleave={dehover} class='location-list-item'>
     <div class='left'>
         <div class='control'>
             <label class='radio'>
@@ -35,9 +43,9 @@
         <a on:click={focus}>{$mapData.nodeObj[node].frontmatter.title}</a>
     </div>
     <div class='right'>
-        <span class='hoverable'>
+        <a data-tooltip="Open" target="_blank" href="{base}/tutorials/{$mapData.nodeObj[node].path.replace('.md','')}" class='has-tooltip-arrow hoverable'>
             <Fa icon={faArrowUpRightFromSquare} />
-        </span>
+        </a>
         <span class="{selected && selected.path == $mapData.nodeObj[node].path ? 'visible' : 'invisible'}">
             <Fa icon={faLocationDot} />
         </span>
@@ -54,11 +62,11 @@
         &:hover {
             background-color: whitesmoke;
             cursor: pointer;
-            span.hoverable {
+            a.hoverable, span.hoverable {
                 visibility: visible;
             }
         }
-        span.hoverable {
+        a.hoverable, span.hoverable {
             visibility: hidden;
         }
     }
@@ -70,8 +78,9 @@
     .right {
         display: inline-flex;
         // background-color: lightblue;
-        span {
+        a, span {
             margin-left: 0.75rem;
+            color: black;
         }
         margin-left: auto;
     }

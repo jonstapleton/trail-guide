@@ -108,6 +108,8 @@ export class Cartographer {
     p5:any
     x:number = 0;
     y:number = 0;
+    font:any
+    tick:number = 0
     offset:Coords = {
         x: 0, y: 0
     }
@@ -128,36 +130,69 @@ export class Cartographer {
         this.offset.y = this.y
     }
 
-    draw(data:Map, cursor:Cursor) {
+    bezier(p0:Coords, p1:Coords, p2:Coords, p3:Coords, t:number) {
+        let o = 0
+        for(let i=0;i<1.0001;i+=t) {
+            const v = this.cubic(p0,p1,p2,p3,i)
+            if(o % 2 == 0) {
+                this.p5.beginShape()
+                this.p5.vertex(v.x,v.y)
+            } else {
+                this.p5.vertex(v.x,v.y)
+                this.p5.endShape()
+            }
+            o++
+        }
+    }
 
+    cubic(p0:Coords, p1:Coords, p2:Coords, p3:Coords, t:number):Coords {
+        const v1 = this.quadratic(p0,p1,p2,t)
+        const v2 = this.quadratic(p1,p2,p3,t)
+        const x = this.p5.lerp(v1.x, v2.x, t)
+        const y = this.p5.lerp(v1.y, v2.y, t)
+        return this.p5.createVector(x, y)
+    }
+
+    quadratic(p0:Coords, p1:Coords, p2:Coords, t:number):Coords {
+        const x1 = this.p5.lerp(p0.x, p1.x, t)
+        const y1 = this.p5.lerp(p0.y, p1.y, t)
+        const x2 = this.p5.lerp(p1.x, p2.x, t)
+        const y2 = this.p5.lerp(p1.y, p2.y, t)
+        const x = this.p5.lerp(x1, x2, t)
+        const y = this.p5.lerp(y1, y2, t)
+        return this.p5.createVector(x,y)
+    }
+
+    draw(data:Map, cursor:Cursor) {
+        this.tick++
         const localCoord = getLocalCoords(this.p5, {x: this.p5.mouseX, y: this.p5.mouseY});
         cursor.setTransformCoords(localCoord)
-        // Edges
+        // Draw Edges
         for(let i=0;i<data.edges.length;i++) {
             const edge:Edge = data.edges[i]
             const node1:Tutorial = data.nodeObj[edge.fromNode]
             const node2:Tutorial = data.nodeObj[edge.toNode]
+            
             this.p5.fill('rgba(0, 0, 0, 0)')
             
-            // If the edge is selected, draw a bolder line as well
+            const p0 = this.p5.createVector(node1.x/2, node1.y/2)
+            const p1 = this.p5.createVector(edge.c1.x/2, edge.c1.y/2)
+            const p2 = this.p5.createVector(edge.c2.x/2, edge.c2.y/2)
+            const p3 = this.p5.createVector(node2.x/2, node2.y/2)
+
+            // If the edge is highlighted, draw a bolder line as well
             if(edge.highlighted) {
                 this.p5.stroke(this.p5.color(255, 0, 0));
                 this.p5.strokeWeight(18);
-                this.p5.bezier(
-                    node1.x/2, node1.y/2,
-                    edge.c1.x/2, edge.c1.y/2,
-                    edge.c2.x/2, edge.c2.y/2,
-                    node2.x/2, node2.y/2
-                )
+                if(edge.highlighted == 'dashed') {
+                    this.bezier(p0,p1,p2,p3,0.1) // TODO: set `t` based on how far apart the nodes are
+                } else {
+                    this.p5.bezier(p0.x,p0.y,p1.x,p1.y,p2.x,p2.y,p3.x,p3.y)
+                }
             }
             this.p5.stroke(this.p5.color(0, 0, 0));
             this.p5.strokeWeight(1);
-            this.p5.bezier(
-                node1.x/2, node1.y/2,
-                edge.c1.x/2, edge.c1.y/2,
-                edge.c2.x/2, edge.c2.y/2,
-                node2.x/2, node2.y/2
-            )
+            this.p5.bezier(p0.x, p0.y ,p1.x, p1.y ,p2.x, p2.y, p3.x, p3.y) 
         } 
         
         // Draw Nodes
@@ -167,20 +202,55 @@ export class Cartographer {
             // if mouse is hovering over a node, highlight it
             // let the cursor know it's in a hover state
             cursor.overNode = false;
+
+            let box = this.font.textBounds(node.frontmatter.title, node.x/2, node.y/2)
+            const w = 200 > box.w + 25 ? box.w + 25 : 200
+            const h = (Math.floor(box.w / 140)+1) * (box.h + this.p5.textLeading())
+
             if(node.highlighted) {
                 this.p5.fill(this.p5.color(255, 0, 0))
-                this.p5.circle(node.x/2, node.y/2, 68);
+                this.p5.circle(node.x/2, node.y/2, w + 18);
                 cursor.overNode = true
             }
-            if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= 50 || node.hover) {
+            if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= w/2 || node.hover) {
                 this.p5.fill(this.p5.color(0, 0, 255))
-                this.p5.circle(node.x/2, node.y/2, 68)
+                this.p5.circle(node.x/2, node.y/2, w + 18)
             }
+
             // Draw node
-            // TODO: we need to see a lot more information about the node without having to interact with it
             const color = node.selected? this.p5.color(0, 255, 0) : 255            
             this.p5.fill(color)
-            this.p5.circle(node.x/2, node.y/2, 50)    
+            // this.p5.rect(node.x/2-(w/2), node.y/2-(h/2), w, h)
+            this.p5.circle(node.x/2, node.y/2, w)
+            
+            this.p5.fill(0)
+            this.p5.text(node.frontmatter.title, node.x/2-150/2, node.y/2, 150)
+            
+            // Icons
+            if(node.completed) {
+                let cx = node.x/2 + w/3
+                let cy = node.y/2 - w/3
+                this.p5.strokeWeight(24)
+                this.p5.line(cx, cy, cx - 25, cy - 25)
+                this.p5.line(cx, cy, cx + 50, cy - 50)
+                this.p5.stroke('rgb(72, 199, 116)');
+                this.p5.strokeWeight(18)
+                this.p5.line(cx, cy, cx - 25, cy - 25)
+                this.p5.line(cx, cy, cx + 50, cy - 50)
+                this.p5.strokeWeight(1)
+            }
+
+            // Add "start here" callout
+            if(node.frontmatter.start && !node.completed) {
+                let offsetY = Math.abs((this.tick/3) % 30 - 15)
+                this.p5.triangle(node.x/2 - 125/2, (node.y/2 - w*1.5) + offsetY, node.x/2 + 125/2, (node.y/2 - w*1.5) + offsetY, node.x/2, (node.y/2 - w*1.5+125) + offsetY)
+                this.p5.circle(node.x/2, (node.y/2 - w*1.5) + offsetY, 125)
+                this.p5.fill(255)
+                this.p5.stroke(255)
+                this.p5.text("Start Here", node.x/2 - 48, (node.y/2 - w*1.5) + offsetY, 100)
+            }
+            this.p5.stroke(0)
+            
         }
                
     }
@@ -260,7 +330,7 @@ export class Camera {
         cb();
         this.p5.pop();
         this.p5.fill(0)
-        this.p5.text(`${this.x}, ${this.y}`, 20, this.p5.height - 25)
+        // this.p5.text(`${this.x}, ${this.y}`, 20, this.p5.height - 25)
 
         this.lx = transformX; this.ly = transformY; //this.lscale = lerpScale
     }

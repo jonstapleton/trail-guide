@@ -1,7 +1,11 @@
 <script lang='ts'>
     import Fa from 'svelte-fa'
-    import { faMap, faLocationDot, faDownload, faGear, faUpload, faBagShopping, faFolder } from '@fortawesome/free-solid-svg-icons'
+    import { faMap, faLocationDot, faDownload, faGear, faUpload, faBagShopping, faFolder, faRoute } from '@fortawesome/free-solid-svg-icons'
     import { createEventDispatcher } from 'svelte'
+    import Save from './Save.svelte';
+    import Load from './Load.svelte';
+    import { mapData } from '../../store';
+    import Map from './Map.svelte';
     
     export let selected:string|null
     function select (name:string) {
@@ -11,34 +15,46 @@
             selected = name
         }
     }
+
+    let active = false
+
+    function loadMap(e:any) {
+        console.log("Loading map...")
+        console.log(e.detail)
+        // TODO: $mapData = new Map(e.detail)
+    }
 </script>
 
 <div class='map-panel'>
-    <a class='button round'>
+    <!-- <a class='button round'>
         <Fa icon={faFolder} size='2x' />
         <span class='button-text'>Projects</span>
-    </a>
-    <a on:click={() => select('Projects') } class='button round {selected == 'Projects'? 'highlighted' : ''}'>
-        <Fa icon={faMap} size='2x' />
-        <span class='button-text'>Maps</span>
+    </a> -->
+    <a on:click={() => select('Maps') } class='button round {selected == 'Maps'? 'highlighted' : ''}'>
+        <Fa icon={faRoute} size='2.5x' />
+        <span class='button-text'>Projects</span>
     </a>
     <a on:click={() => select('Tutorials') } class='button round {selected == 'Tutorials'? 'highlighted' : ''}'>
         <Fa icon={faLocationDot} size='2x' />
         <span class='button-text'>Tutorials</span>
     </a>
     <div class='bottom'>
-        <a class='button round'>
+        <button on:click={() => active = true} class='button round'>
             <Fa icon={faUpload} size='1.5x' />
             <span class='button-text'>Load</span>
-        </a>
-        <a class='button round'>
+        </button>
+        <button class='button round'>
             <Fa icon={faDownload} size='1.5x' />
             <span class='button-text'>Save</span>
-        </a>
-        <a class='button round'>
+        </button>
+        <!-- <a class='button round'>
             <Fa icon={faGear} size='1.5x' />
             <span class='button-text'>Settings</span>
-        </a>
+        </a> -->
+    </div>
+    <div class="modal {active? 'is-active' : ''}">
+        <div on:click={() => active = false} class="modal-background"></div>
+        <Load on:load={loadMap} on:close={() => active = false} />
     </div>
 </div>
 
