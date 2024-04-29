@@ -24,7 +24,7 @@
     </div>
     <div class='text'>
         <blockquote class='block is-italic'>{obj.frontmatter.description}</blockquote>
-        <p class='block'>Watch the video to see someone demonstrate the basics, or <a href="{obj.path}">open the tutorial page to read a text version</a>. This concept is a part of several projects <a href='{base}/trails'>Trails</a>; check them out!</p>
+        <p class='block'>Watch the video to see someone demonstrate the basics, or <a href="{obj.path}">open the tutorial page to read a text version</a>. This concept is a part of several <a href='{base}/projects'>projects </a>; check them out!</p>
     </div>
 </div>
 {/if}

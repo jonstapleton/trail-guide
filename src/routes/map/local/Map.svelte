@@ -1,11 +1,24 @@
 <script lang='ts'>
-    import P5 from 'p5-svelte'
-    import { onMount } from 'svelte';
+    // import P5 from 'p5-svelte'
+    import P5 from './P5.svelte'
+    import { onDestroy, onMount } from 'svelte';
     import { Camera, Cartographer, Cursor } from './utils';
     import { createEventDispatcher } from 'svelte'
     import { faCameraRetro } from '@fortawesome/free-solid-svg-icons';
     import type { Coords } from './types';
     import type { Map } from './mapNodes';
+
+    let sketch = (p5:any) => {
+    };
+    let mapEl;
+    onMount(() => {
+        sketch = mapSketch
+    })
+
+    onDestroy(() => {
+        console.log("Unmounting map...")
+        mapEl.$destroy()
+    })
 
     const dispatch = createEventDispatcher()
 
@@ -90,7 +103,7 @@
 
     // $:console.log(interact)
     let font:any;
-    export let sketch = (p5:any) => {
+    let mapSketch = (p5:any) => {
         p5.preload = () => {
             font = p5.loadFont('/Raleway-Regular.ttf')
         }
@@ -154,13 +167,14 @@
                 scaleFactor = 1 - zoomSensitivity; // Zoom out
             }
             camera.zoom({x: camera.x, y: camera.y}, scaleFactor, false)
+            console.log("scroll event...")
             return false // disable scroll on page
         }
     }
 </script>
 
 <div id='map' class='canvas'>
-    <P5 {sketch} />
+    <P5 bind:this={mapEl} sketch={sketch} debug={true} />
 </div>
 
 <style lang='scss'>

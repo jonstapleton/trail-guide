@@ -6,15 +6,17 @@
     import TrailList from './local/TrailList.svelte';
     import LocationList from './local/LocationList.svelte';
     import TrailInfo from './local/TrailInfo.svelte';
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import { Map, Tutorial, type MapDataResponse } from './local/mapNodes';
     import { mapData } from '../store';
-    export let data
 
     let options = {}
+    let interactable = false;
+
     onMount(() => {
         
         console.log(mapData)
+        interactable = true
         options = {
             "Tutorials": {
                 obj: LocationList,
@@ -26,6 +28,10 @@
             }
         }
         // setInterval(() => {$mapData.nodes[0].completed = !$mapData.nodes[0].completed}, 1000)
+    })
+
+    onDestroy(() => {
+        interactable = false
     })
 
     let selectedNode:string|null
@@ -48,7 +54,7 @@
         }
     }
 
-    let interactable = true;
+    
     function handleCapture(e:any) {
         interactable = e.detail
     }
