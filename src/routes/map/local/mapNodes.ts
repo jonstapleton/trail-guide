@@ -41,7 +41,7 @@ export class Map {
     selectedNode:Tutorial|null = null
 
     constructor(res:MapDataResponse) {
-        
+        res.nodes = res.nodes.filter((obj) => obj.file ? true : false)
         for(let i=0;i<res.nodes.length;i++) {
             const tut = new Tutorial(res.nodes[i])
             this.nodes.push(tut)
