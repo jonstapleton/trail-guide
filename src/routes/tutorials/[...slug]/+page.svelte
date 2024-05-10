@@ -28,7 +28,7 @@
 <div class='hero banner pt-5'>
     <div class="hero-head pb-0">
             <div class='container mt-5'>
-                <h1 class='title is-size-1'>Link Passages</h1>
+                <h1 class='title is-size-1'>{data.frontmatter.title}</h1>
                 <nav class="tabs is-boxed">
                     <ul>
                         {#each tabs as tab, i}

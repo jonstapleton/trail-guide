@@ -16,8 +16,9 @@
 
     function filter(term:string, nodes:Tutorial[]) {
         filteredNodes = nodes.filter((node) => {
-            return  node.frontmatter.title.toLowerCase().includes(term.toLowerCase())
-                    || term.length == 0 //||
+            return  (node.frontmatter.title.toLowerCase().includes(term.toLowerCase())
+                    || term.length == 0)
+                    && !node.file.includes('activities/') //||
                     // selectedNode.path == node.path
         })
     }

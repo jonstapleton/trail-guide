@@ -26,7 +26,7 @@
         if(obj.frontmatter.video && !exclude.includes("Video"))   { tabs = [...tabs, "Video"]    }
         if(obj.content.practice && !exclude.includes("Practice"))    { tabs = [...tabs, "Practice"] }
         if(obj.content.prompt && !exclude.includes("Prompt"))      { tabs = [...tabs, "Prompt"]   } 
-        console.log(tabs)
+        // console.log(tabs)
     }
 
     $: loadCard(node as string)
@@ -69,23 +69,27 @@
         {/each}
         </ul>
     </div>
-    {/if}
     <div class='body content'>
         <svelte:component this={objs[openTab].component} node={ node }></svelte:component>
     </div>
     <hr>
+    {:else if obj.file.includes('activities/')}
+    <div class='my-3 content'>
+        { @html obj.content.full }
+    </div>
+    {/if}
     {#if obj}
     <div class='buttons is-centered is-fullwidth'>
-        <!-- TODO: -->
-        <!-- <a href={base+'tutorials/'+obj.path.replace('.md', '')} target='_blank' class='button is-fullwidth'>
+        {#if !obj.file.includes('activities/')}
+        <a href={base+'tutorials/'+obj.path.replace('.md', '')} target='_blank' class='button is-fullwidth'>
             Read Detailed Tutorial
             <span class='icon ml-1'><Fa icon={faArrowUpRightFromSquare} /></span>
-        </a> -->
+        </a>
+        {/if}
         <button on:click={() => $mapData.nodeObj[node].completed = !$mapData.nodeObj[node].completed} class='button is-success is-fullwidth'>
             <span class='icon mr-1'><Fa icon={$mapData.nodeObj[node].completed ? faSquareCheck : faSquare} /></span>
             Mark as Completed
         </button>
-        
     </div>
     {/if}
 </div>
