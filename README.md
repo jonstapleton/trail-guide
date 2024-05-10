@@ -49,11 +49,11 @@ The `practice-question` directive allows authors to include multiple-choice ques
 :::practice-question{title="An Example Question"}
 Here's some question text, posing a question for the reader to answer
 
-a. [x] this is the correct answer
-+ Feedback to be displayed when the reader answers correctly selects this option
-b. [ ] this is a distractor
-- Feedback to display when the reader incorrectly selects this option
-c. [ ] this is a distractor
+- [x] this is the correct answer
+	::feedback[Feedback to be displayed when the reader answers correctly selects this option]
+- [ ] this is a distractor
+	::feedback[Feedback to display if the user selects this option]
+- [ ] this is a distractor
 :::
 ```
 
