@@ -11,6 +11,9 @@
 
   export let data;
 
+  // console.log("Group Count:", (data.map.nodes.filter((obj:any) => obj.type == "group")).length)
+  console.log(data.map.groups)
+
   let local
   if(browser) {
       console.log("Trying to read localStorage...")

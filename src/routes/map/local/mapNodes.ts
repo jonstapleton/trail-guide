@@ -17,6 +17,8 @@ interface Frontmatter {
 interface resNode extends Document {
     x:number,
     y:number,
+    width:number,
+    height:number
     id:string
 }
 
@@ -25,14 +27,18 @@ interface Coords {
     y:number
 }
 
+type ObjById = { [index:string ]: any}
+
 export interface MapDataResponse {
     nodes:resNode[],
     edges:object[],
+    groups:object[],
     projects:Document[]
 }
 
 export class Map {
     nodes:Tutorial[] = []
+    groups:ObjById = {}
     nodeObj:any = {}
     nodesByPath:any = {}
     projectObj:any = {}
@@ -41,12 +47,27 @@ export class Map {
     selectedNode:Tutorial|null = null
 
     constructor(res:MapDataResponse) {
+        // Get Groups
+        for(let i=0;i<res.groups.length;i++) {
+            const gp = res.groups[i]
+            this.groups[gp.id] = new Group(gp, res);
+            // console.log("Groups", this.groups)
+        }
+        
+        // Get Tutorials
         res.nodes = res.nodes.filter((obj) => obj.file ? true : false)
         for(let i=0;i<res.nodes.length;i++) {
             const tut = new Tutorial(res.nodes[i])
             this.nodes.push(tut)
             this.nodeObj[res.nodes[i].id] = tut // create the nodeObj object to help with drawing edges
             this.nodesByPath[res.nodes[i].path] = tut
+
+            for(const id in this.groups) {
+                if(this.groups[id].members.includes(tut.id)) {
+                    tut.groups = [id, ...tut.groups]
+                    // console.log("Tutorial has a group!", tut)
+                }
+            }
         }
         // this.edges = res.edges
 
@@ -80,6 +101,37 @@ export class Map {
             projects: this.projects
         }
         return res
+    }
+}
+
+export class Group {
+    x:number
+    y:number
+    width:number
+    height:number
+    id:string
+    members:string[] = []
+    label:string = ""
+    constructor(obj:any, res:MapDataResponse) {
+        this.x = obj.x
+        this.y = obj.y
+        this.width = obj.width
+        this.height = obj.height
+        this.id = obj.id
+        this.label = obj.label
+        // Find members from nodes whose centers are within the group's dimensions
+        for(let i=0;i<res.nodes.length;i++) {
+            const node = res.nodes[i]
+            if( node.file && 
+                node.x > this.x && node.x + node.width < this.x + this.width &&
+                node.y > this.y && node.y + node.height < this.y + this.height
+            ) {
+                this.members.push(node.id)
+            }
+        }
+    }
+    draw(p5:any) {
+        p5.rect(this.x/2, this.y/2, this.width/2, this.height/2);
     }
 }
 
@@ -146,13 +198,18 @@ class Element {
 class MapNode extends Element {
     x:number = 0
     y:number = 0
+    width:number = 0
+    height:number = 0
     id:string = ''
     hover:boolean = false
+    groups:string[] = []
     constructor(obj:resNode) {
         super(obj)
         this.x = obj.x
         this.y = obj.y
         this.id = obj.id
+        this.width = obj.width
+        this.height = obj.height
     }
     rehover() {
         this.hover = true

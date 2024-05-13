@@ -17,7 +17,9 @@
 
     onDestroy(() => {
         console.log("Unmounting map...")
-        mapEl.$destroy()
+        if(mapEl) {
+            mapEl.$destroy()
+        }
     })
 
     const dispatch = createEventDispatcher()

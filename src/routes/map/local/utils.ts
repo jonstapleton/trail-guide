@@ -167,6 +167,14 @@ export class Cartographer {
         this.tick++
         const localCoord = getLocalCoords(this.p5, {x: this.p5.mouseX, y: this.p5.mouseY});
         cursor.setTransformCoords(localCoord)
+        
+        // Draw Groups
+        // this.p5.fill('rgba(0,0,0,0)')
+        // this.p5.stroke(1)
+        // for(const id in data.groups) {
+        //     data.groups[id].draw(this.p5)
+        // }
+        
         // Draw Edges
         for(let i=0;i<data.edges.length;i++) {
             const edge:Edge = data.edges[i]
