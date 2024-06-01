@@ -11,15 +11,25 @@ The `trail-guide` is designed to be used as a git submodule within a larger repo
 ```
 README.md
 modules/
-	meta.md
+	_assets/
 	region-map.canvas
 	activities/
 	applications/
 	concepts/
 	projects/
 static/
+styles/
+	main.scss
 trail-guide/
 ```
+
+## Styles
+
+The `styles` directory contains `.scss` files to apply globally to the generated `trail-guide` website. The `styles` directory must contain a `main.scss` file, which serves as the entry point for the global style rules. If you wish to decompose your styles into separate `.scss` files, be sure to import them into the `main.scss` file so the `trail-guide` loads them.
+
+## Static
+
+The `trail-guide` includes the files in the `static` directory at the root of the generated website. It does not apply any processing to these files. This directory should include things like the `favicon.ico`, `robots.txt`, and static image assets.
 
 ## Modules
 
