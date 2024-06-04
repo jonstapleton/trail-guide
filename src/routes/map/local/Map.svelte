@@ -72,7 +72,7 @@
             return
         }
         console.log("Setting camera location....")
-        camera.setCoords({x: x, y: y}, 0.5)
+        camera.x = x; camera.y = y;
     }
 
     export function focus(node?:Node) {
@@ -125,15 +125,20 @@
             p5.textAlign(p5.CENTER, p5.CENTER)
 
             dispatch('loaded')
+            // dispatch('write', { x: camera.lx, y: camera.ly })
         };
 
         p5.draw = () => {
             p5.background(255);
             cursor.update();
             const coords= cursor.getDrag(interact)
-            camera.display(coords, () => {
+            const lerpComplete = camera.display(coords, () => {
                 carto.draw(data, cursor);
             })
+            if(lerpComplete) {
+                console.log("Lerp complete! Writing to url...", camera) 
+                dispatch('write', { x: camera.lx, y: camera.ly }) 
+            }
             // TODO: If the cursor is over a node, draw the tooltip
             if(cursor.overNode) {
                 // What content should be in the tooltip?

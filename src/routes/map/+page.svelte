@@ -10,6 +10,7 @@
     import { Map, Tutorial, type MapDataResponse } from './local/mapNodes';
     import { mapData } from '../store';
     import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
 
     let options = {}
     let interactable = true;
@@ -20,13 +21,22 @@
         interactable = false
     })
 
-    function write(url:URLSearchParams) {
+    function initInterface() {
+        
+    }
+
+    function writeToMap(url:URLSearchParams) {
         // Create the URL object from the route params
         console.log(`Writing new params ${url.toString()} to map state...`)
         if(map) { map.readEventFrom(url) } else { console.log("Map not yet loaded...") }
     }
+    function writeToURL(url:URLSearchParams, data:any) {
+        console.log("Writing to URL...", data)
+        $page.url.searchParams.set('xy', `${Math.round(data.x)},${Math.round(data.y)}`)
+        goto(`?${$page.url.searchParams.toString()}`)
+    }
 
-    $: write($page.url.searchParams)
+    $: writeToMap($page.url.searchParams)
 
     
 
@@ -76,7 +86,7 @@
 </script>
 <section class='map hero is-fullheight-with-navbar'>
     <div  class='ui'>
-        <a href="/map?xy=500,400">Change</a>
+        <a href="/map?xy=400,300&zoom=5">Change</a>
         <!-- <MapPanel  bind:selected={openPanel} />
         
         <div class='panels'>
@@ -108,7 +118,8 @@
         /> -->
         <MapComponent
             bind:this={map}
-            on:loaded={() => write($page.url.searchParams)}
+            on:loaded={() => writeToMap($page.url.searchParams) }
+            on:write={ (e) => writeToURL($page.url.searchParams, e.detail) }
             data={$mapData}
             center={0.5}
             interact={interactable}

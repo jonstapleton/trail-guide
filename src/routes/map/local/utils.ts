@@ -264,6 +264,7 @@ export class Camera {
     x:number = 0; y:number = 0;
     lx:number = 0; ly:number = 0;
     offsetX:number = 0; offsetY:number = 0
+    moving:boolean = false
 
     constructor(p5:any, data:object, scale:number) {
         this.p5 = p5;
@@ -305,7 +306,7 @@ export class Camera {
         this.y = coords.y - (coords.y * factor) + (this.y * factor);
     }
 
-    display(coords:Coords, cb:any) {
+    display(coords:Coords, cb:any):boolean {
         // lerp scale changes
         if(this.currentScale != this.scale) {
             const lerp = (this.scale - this.currentScale) / 4
@@ -320,9 +321,14 @@ export class Camera {
 
         // center of screen debug marker
         // this.p5.circle(this.p5.width*centerFactor, this.p5.height*0.5, 10)
+        this.stateChanged = true // assume that some kind of movement is going to happen
         let transformX = this.lx + ((this.x - this.lx)/4)
         let transformY = this.ly + ((this.y - this.ly)/4)
         // let lerpScale  = this.scale + ((this.scale - this.lscale)/4)
+
+        if(transformX - this.lx != 0 && transformY - this.ly != 0) {
+            this.moving = true
+        }
         
         this.p5.push();
         this.p5.translate(transformX, transformY);
@@ -332,7 +338,15 @@ export class Camera {
         this.p5.fill(0)
         // this.p5.text(`${this.x}, ${this.y}`, 20, this.p5.height - 25)
 
-        this.lx = transformX; this.ly = transformY; //this.lscale = lerpScale
+        let lerpComplete = false;
+        // if no movement happened, reset `stateChanged`
+        if(transformX - this.lx == 0 && transformY - this.ly == 0 && this.moving == true) {
+            lerpComplete = true
+            this.moving = false
+        }
+        this.lx = transformX; this.ly = transformY;
+
+        return lerpComplete // this should only be true on the frame after movement is complete
     }
     getScreenCoords(coords:Coords) {
         let transformX = this.lx + ((this.x - this.lx)/4)
