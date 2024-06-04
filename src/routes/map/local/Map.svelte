@@ -8,6 +8,12 @@
     import type { Coords } from './types';
     import type { Map } from './mapNodes';
 
+    /* API for map interactions
+    | Method Name        | Description 
+    | ------------------ | -------------------------------------------------------- 
+    | Map.event(url:URL) | Write to map state from a URL object based on parameters
+    */
+
     let sketch = (p5:any) => {
     };
     let mapEl;
@@ -17,7 +23,7 @@
 
     onDestroy(() => {
         console.log("Unmounting map...")
-        mapEl.$destroy()
+        // if(mapEl) { mapEl.$destroy() }
     })
 
     const dispatch = createEventDispatcher()
@@ -27,7 +33,7 @@
         dispatch('nodeSelect', {
             data: data,
             index: index
-        })        
+        })
     }
 
     interface Node {
@@ -38,16 +44,36 @@
         highlighted?:boolean,
         file:string
     }
-    let space = false
-    let mx:number, my:number
     let cursor:Cursor;
     let camera:Camera;
     let carto:Cartographer;
-    let canvas;
+    let mx:number, my:number;
 
     export let data:Map
     export let center:number = 0.5
     export let interact = true
+
+    export function readEventFrom(params:URLSearchParams) {
+        console.log("Reading parameters....")
+        // Process URL parameters & call methods based on provided data
+        pan(params.get('xy'))
+        if(params.has('zoom')) { console.log("Found zoom") }
+        if(params.has('open')) { console.log("Found open") }
+    }
+
+    function pan(coords:string|null) {
+        if(!coords) { return }
+        const comma = coords.indexOf(',')
+        const x = Number(coords.substring(0, comma))
+        const y = Number(coords.substring(comma+1, coords.length))
+        if(isNaN(x) || isNaN(y)) {
+            console.log(`Invalid coordinates ${x}, ${y}. Deleting parameter from route.`)
+            // TODO:
+            return
+        }
+        console.log("Setting camera location....")
+        camera.setCoords({x: x, y: y}, 0.5)
+    }
 
     export function focus(node?:Node) {
         if(!node) {
@@ -63,31 +89,7 @@
             camera.setCoords(scoords, center);
         }
     }
-    export function addHighlight(nodes:Node[], zoom:boolean) {
-        console.log("handling highlight...")
-        // let sumX = 0; let sumY = 0; let count = 0
-        // for(let i=0;i<data.nodes.length;i++) {
-        //     data.nodes[i].highlighted = nodes.includes('./'+data.nodes[i].file) ? true : false;
-        //     if(data.nodes[i].highlighted) {
-        //         sumX += data.nodes[i].x
-        //         sumY += data.nodes[i].y
-        //         count++
-        //     }
-        // }
-        
-        // if(nodes.length > 0 && zoom) {
-        //     const avgX = sumX/count
-        //     const avgY = sumY/count
-        //     const coords = {x: avgX/2, y: avgY/2}
-        //     const scoords = camera.getScreenCoords(coords)
-        //     camera.zoom(scoords, 0.4, true)
-        //     camera.setCoords(scoords, 0.66)
-        // }
-    }
-    export function removeHighlight(nodes:Node[], zoom:boolean) {
-
-    }
-    export function zoom(nodes:Nodes[]) {
+    export function zoom(nodes:Node[]) {
         let ysum = 0; let xsum = 0
         for(let i=0;i<nodes.length;i++) {
             ysum += nodes[i].y
@@ -121,6 +123,8 @@
             p5.textSize(28)
             p5.textWrap('WORD')
             p5.textAlign(p5.CENTER, p5.CENTER)
+
+            dispatch('loaded')
         };
 
         p5.draw = () => {
