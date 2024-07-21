@@ -307,11 +307,7 @@ export class Camera {
     }
 
     display(coords:Coords, cb:any):boolean {
-        // lerp scale changes
-        if(this.currentScale != this.scale) {
-            const lerp = (this.scale - this.currentScale) / 4
-            this.currentScale += lerp;
-        } 
+        
         // update map offset coordinates
         this.x -= coords.x; this.y -= coords.y
         
@@ -326,6 +322,17 @@ export class Camera {
         let transformY = this.ly + ((this.y - this.ly)/4)
         // let lerpScale  = this.scale + ((this.scale - this.lscale)/4)
 
+        // lerp scale changes
+        if(Math.abs(this.currentScale - this.scale) > 0.000001) {
+            // console.log("Zooming!!!")
+            this.moving = true
+            const lerp = (this.scale - this.currentScale) / 4
+            this.currentScale += lerp;
+        } else {
+            // console.log("No zoom action, lerp complete")
+            // this.moving = false
+        }
+        
         if(transformX - this.lx != 0 && transformY - this.ly != 0) {
             this.moving = true
         }
@@ -340,7 +347,7 @@ export class Camera {
 
         let lerpComplete = false;
         // if no movement happened, reset `stateChanged`
-        if(transformX - this.lx == 0 && transformY - this.ly == 0 && this.moving == true) {
+        if(transformX - this.lx == 0 && transformY - this.ly == 0 && Math.abs(this.currentScale - this.scale) < 0.000001 && this.moving == true) {
             lerpComplete = true
             this.moving = false
         }

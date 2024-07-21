@@ -11,6 +11,7 @@
     import { mapData } from '../store';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
+    import UrlDebugger from './local/UrlDebugger.svelte';
 
     let options = {}
     let interactable = true;
@@ -33,6 +34,7 @@
     function writeToURL(url:URLSearchParams, data:any) {
         console.log("Writing to URL...", data)
         $page.url.searchParams.set('xy', `${Math.round(data.x)},${Math.round(data.y)}`)
+        $page.url.searchParams.set('zoom', `${Math.round(data.zoom * 100) / 100}`)
         goto(`?${$page.url.searchParams.toString()}`)
     }
 
@@ -86,7 +88,8 @@
 </script>
 <section class='map hero is-fullheight-with-navbar'>
     <div  class='ui'>
-        <a href="/map?xy=400,300&zoom=5">Change</a>
+        <!-- <a href="/map?xy=400,300&zoom=5">Change</a> -->
+         <UrlDebugger />
         <!-- <MapPanel  bind:selected={openPanel} />
         
         <div class='panels'>

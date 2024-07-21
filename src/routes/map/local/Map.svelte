@@ -56,8 +56,12 @@
     export function readEventFrom(params:URLSearchParams) {
         console.log("Reading parameters....")
         // Process URL parameters & call methods based on provided data
-        pan(params.get('xy'))
-        if(params.has('zoom')) { console.log("Found zoom") }
+        const coords = pan(params.get('xy'))
+        if(params.has('zoom') && coords) { 
+            console.log("Found zoom")
+            const z:number = Number(params.get('zoom'))
+            camera.zoom(coords, z, true)
+        }
         if(params.has('open')) { console.log("Found open") }
     }
 
@@ -73,6 +77,7 @@
         }
         console.log("Setting camera location....")
         camera.x = x; camera.y = y;
+        return { x, y }
     }
 
     export function focus(node?:Node) {
@@ -137,7 +142,7 @@
             })
             if(lerpComplete) {
                 console.log("Lerp complete! Writing to url...", camera) 
-                dispatch('write', { x: camera.lx, y: camera.ly }) 
+                dispatch('write', { x: camera.lx, y: camera.ly, zoom: camera.scale }) 
             }
             // TODO: If the cursor is over a node, draw the tooltip
             if(cursor.overNode) {
@@ -176,7 +181,7 @@
                 scaleFactor = 1 - zoomSensitivity; // Zoom out
             }
             camera.zoom({x: camera.x, y: camera.y}, scaleFactor, false)
-            console.log("scroll event...")
+            // console.log("scroll event...")
             return false // disable scroll on page
         }
     }
