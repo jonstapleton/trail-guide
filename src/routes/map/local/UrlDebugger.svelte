@@ -2,16 +2,18 @@
     let zoom:string;
     let coords:string;
     let url:string = "/map?"
-    function calcUrl(coords:string, zoom:string):string {
+    let open:string;
+    function calcUrl(coords:string, zoom:string, open:string):string {
         let url = "/map?"
         let paramCount = 0
         if(coords) { url = url + "xy=" + coords; paramCount++ }
-        if(zoom) { url += (paramCount > 0? "&" : "") + "zoom=" + zoom }
+        if(zoom) { url += (paramCount > 0? "&" : "") + "zoom=" + zoom; paramCount++ }
+        if(open) { url += (paramCount > 0? "&" : "") + "open=" + open; paramCount++ }
 
         return url
     }
 
-    $: url = calcUrl(coords, zoom)
+    $: url = calcUrl(coords, zoom, open)
 </script>
 
 <div class='card urldebugger'>
@@ -23,6 +25,10 @@
         <div class='field'>
             <label>Zoom:</label>
             <input class='input' bind:value={zoom} >
+        </div>
+        <div class='field'>
+            <label>Open:</label>
+            <input class='input' bind:value={open} >
         </div>
         <p>{url}</p>
     </div>

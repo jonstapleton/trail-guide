@@ -65,18 +65,18 @@ The parser does several things with these questions:
 
 ## API
 
-The `trail-guide` API has two main sections to concern yourself with--the `/map` API which controls the interactive Map view, and the `/api` route endpoints which provide access to the site content.
+The `trail-guide` API has two main sections to concern yourself with--the `/map` API which controls the interactive Map view, and the `/api` routes which provide access to the site content via static API endpoints.
 
 ### The `/map` API
 
-While the user interacts with the `/map` view, their interacts **write** data to URL query fields. Each frame, the program **reads** from the URL query fields and updates the `/map` UI accordingly. The `/map` API supports the following query fields:
+While the user interacts with the `/map` view, their interacts **write** data to URL query fields. When the URL query fields change, the program **reads** from the URL query fields and updates the `/map` UI accordingly. The `/map` API supports the following query fields:
 
 | Field  | Type | Description | Example |
 | ------ | ---- | ----------- | ------- |
 | `xy`   | comma-separated `number` pair | Moves the camera so the coordinates are in the center of the viewport | `/map?xy=400,300` |
 | `zoom` | `number` | Adjusts the zoom level of the camera according to the value given | `/map?zoom=140` |
-| `open`  | `string` | Selects and opens the named element(s). If `xy` and/or `zoom` are not given, focuses on the center of all given elements and zooms out to accommodate their locations within the viewport | `/map?open="applications/foo"&open="projects/bar"` |
+| `open`  | `string` | Selects and opens the named element(s). If `xy` and/or `zoom` are not given, focuses on the center of all given elements and zooms out to accommodate their locations within the viewport | `/map?open=applications/foo&open=projects/bar` |
 
 ### The `/api` Endpoints
 
-TODO:
+The `trail-guide` site is a static site, meaning there is no server data to `POST` to. All endpoints at the `/api` routes return data in response to `GET` requests only.

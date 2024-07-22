@@ -22,24 +22,19 @@
         interactable = false
     })
 
-    function initInterface() {
-        
+    function writeToURL(e:any) {
+        let params = new URLSearchParams()
+        if(e.open) { params.append('open', e.open.path.replace('.md', '')) }
+        if(e.x && e.y) { params.append('xy', `${Math.round(e.x)},${Math.round(e.y)}`)}
+        console.log("Writing new URL:", params.toString())
+        goto(`?${params.toString()}`)
     }
-
-    function writeToMap(url:URLSearchParams) {
-        // Create the URL object from the route params
-        console.log(`Writing new params ${url.toString()} to map state...`)
-        if(map) { map.readEventFrom(url) } else { console.log("Map not yet loaded...") }
-    }
-    function writeToURL(url:URLSearchParams, data:any) {
-        console.log("Writing to URL...", data)
-        $page.url.searchParams.set('xy', `${Math.round(data.x)},${Math.round(data.y)}`)
-        $page.url.searchParams.set('zoom', `${Math.round(data.zoom * 100) / 100}`)
-        goto(`?${$page.url.searchParams.toString()}`)
+    function writeToMap(params:URLSearchParams) {
+        console.log("Sending directive to map...")
+        if(map) { map.readEventFrom(params) }
     }
 
     $: writeToMap($page.url.searchParams)
-
     
 
     // function closeLocationPanel() {
@@ -88,8 +83,7 @@
 </script>
 <section class='map hero is-fullheight-with-navbar'>
     <div  class='ui'>
-        <!-- <a href="/map?xy=400,300&zoom=5">Change</a> -->
-         <UrlDebugger />
+         <!-- <UrlDebugger /> -->
         <!-- <MapPanel  bind:selected={openPanel} />
         
         <div class='panels'>
@@ -122,7 +116,7 @@
         <MapComponent
             bind:this={map}
             on:loaded={() => writeToMap($page.url.searchParams) }
-            on:write={ (e) => writeToURL($page.url.searchParams, e.detail) }
+            on:write={ (e) => writeToURL(e.detail) }
             data={$mapData}
             center={0.5}
             interact={interactable}
