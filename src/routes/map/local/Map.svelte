@@ -143,14 +143,20 @@
                 let zoom
                 if(!node.selected) {
                     zoom = 0.5
+                    dispatch('write', {
+                        // zoom: zoom 
+                    })
+                    camera.zoom({x: camera.ix, y: camera.iy}, zoom, true)
                 } else {
                     zoom = 1.75
                     dispatch('write', {
-                        open: node 
+                        open: node,
+                        zoom: zoom 
                     })
                 }
             } else {
                 console.log("No new node")
+                dispatch('write', {})
             }
         }
         p5.mouseWheel = (e:any) => {

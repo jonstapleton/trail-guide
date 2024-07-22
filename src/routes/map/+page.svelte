@@ -26,6 +26,7 @@
         let params = new URLSearchParams()
         if(e.open) { params.append('open', e.open.path.replace('.md', '')) }
         if(e.x && e.y) { params.append('xy', `${Math.round(e.x)},${Math.round(e.y)}`)}
+        if(e.zoom) { params.append('zoom', `${e.zoom}`)}
         console.log("Writing new URL:", params.toString())
         goto(`?${params.toString()}`)
     }

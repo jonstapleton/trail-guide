@@ -221,8 +221,8 @@ export class Cartographer {
             this.p5.circle(node.x/2, node.y/2, w)
             
             this.p5.fill(0)
-            // this.p5.text(node.frontmatter.title, node.x/2-150/2, node.y/2, 150)
-            this.p5.text(`${node.x/2}, ${node.y/2}`, node.x/2-150/2, node.y/2, 150)
+            this.p5.text(node.frontmatter.title, node.x/2-150/2, node.y/2, 150)
+            // this.p5.text(`${node.x/2}, ${node.y/2}`, node.x/2-150/2, node.y/2, 150)
             
             // Icons
             if(node.completed) {
