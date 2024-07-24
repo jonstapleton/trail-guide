@@ -46,7 +46,7 @@
 {/if}
 <style lang='scss'>
     .panel-card.horizontal {
-        margin: 2rem;
+        margin: 1rem 0.5rem;
         min-width: 20rem;
         max-width: 33rem;
         // max-height: 85vh;
