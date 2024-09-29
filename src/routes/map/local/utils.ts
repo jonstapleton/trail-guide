@@ -339,16 +339,19 @@ export class Camera {
     getLocalCoords(coords:Coords) {
         return getLocalCoords(this.p5, this.matrix, coords)
     }
-    getScreenCoords(coords:Coords) {
+    getScreenCoords(coords:Coords, center:number) {
         const screenCoords = this.matrix
-        // .inverse()
         .transformPoint(
             new DOMPoint(
-                coords.x * this.p5.pixelDensity(),
+                coords.x * this.p5.pixelDensity() - this.p5.width * center,
                 coords.y * this.p5.pixelDensity()
             )
         );
         return screenCoords
+    }
+    setCenter(factor:number) {
+        this.ix = this.p5.WIDTH * factor
+        this.iy = this.p5.HEIGHT * factor
     }
 }
 

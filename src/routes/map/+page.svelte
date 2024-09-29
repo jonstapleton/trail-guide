@@ -27,6 +27,7 @@
     let map:any
 
     function writeToURL(e:any) {
+        console.log(e)
         let params = new URLSearchParams()
         if(e.open) {
             for(const obj of e.open) {
@@ -50,14 +51,15 @@
     function handleCapture(flag:boolean) {
         interactable = flag
     }
-    function handleClose(name:string, array:string[]) {
-        array.splice(array.indexOf(name), 1)
-        array = array // reactive update
+    function handleClose(name:string) {
+        openPanels.splice(openPanels.indexOf(name), 1)
+        openPanels = openPanels // reactive update
         handleCapture(true)
     }
     function handleTutorialClose(obj:any) {
         console.log("Closing tutorial", obj)
         openTutorials.splice(openTutorials.indexOf(obj.name), 1)
+        openTutorials = openTutorials
         handleCapture(true)
         map.close(obj.name)
 
@@ -99,16 +101,15 @@
                 on:close={(e) => handleClose(e.detail, openPanels)}
                 loaded={openPanels.includes('Tutorials')}
             >
-                Tutorial List
+                <LocationList on:select={(e) => writeToURL(e.detail)} selectedNodes={openTutorials} />
             </PanelCard>
             {#each openTutorials as panel}
                 <PanelCard
-                    title={$mapData.nodesByPath[panel + '.md'].frontmatter.title}
+                    title={panel}
                     on:capture={(e) => handleCapture(e.detail)}
                     on:close={(e) => handleTutorialClose(e.detail)}
-                    layout="vertical"
                 >
-                    Tutorial Column
+                    <LocationCard node={panel + '.md'} />
                 </PanelCard>
             {/each}
     </div>
@@ -119,7 +120,7 @@
             on:loaded={() => writeToMap($page.url.searchParams) }
             on:write={ (e) => writeToURL(e.detail) }
             data={$mapData}
-            center={0.5}
+            center={openPanels.length > 0 && openTutorials.length > 0? 0.125 : 0}
             interact={interactable}
         />
     </div>

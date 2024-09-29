@@ -41,6 +41,9 @@
         </div>
     </div>
     <!-- // List of nodes -->
+     {#if $mapData.projects.length == 0}
+     <i>We haven't written any projects yet! Check back soon.</i>
+     {/if}
     {#each filteredNodes as node, i}
     <TrailListItem on:select node={node.id} />
     {/each}

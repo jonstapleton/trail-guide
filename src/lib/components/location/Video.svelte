@@ -8,7 +8,7 @@
 
     let obj:Tutorial
     onMount(() => {
-        obj = $mapData.nodeObj[node]
+        obj = $mapData.nodesByPath[node]
     })
 
     function show() {

@@ -52,6 +52,12 @@
     export let center:number = 0.5
     export let interact = true
 
+    // $: updateCenter(center)
+
+    function updateCenter(factor:number) {
+        if(camera) { camera.setCenter(factor) }
+    }
+
     export function readEventFrom(params:URLSearchParams) {
         console.log("Got call to read params...")
         if(params.has('open')) {
@@ -85,13 +91,14 @@
             }
             // Zoom in on the last path selected, for now
             const node = data.nodesByPath[paths[paths.length-1] + '.md']
-            const location = camera.getScreenCoords({x: node.x/2, y: node.y/2})
+            const location = camera.getScreenCoords({x: node.x/2, y: node.y/2}, center)
             camera.moveCenterTo(location)
         }
     }
     export function close(path:string) {
         const node = data.nodesByPath[path + '.md']
         node.selected = false
+        camera.zoom({x: camera.ix, y: camera.iy}, 0.5, true)
     }
 
     export function focus(node?:Node) {

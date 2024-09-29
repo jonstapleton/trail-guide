@@ -14,7 +14,7 @@
     let quick:string = ''
     let loaded = false
     onMount(() => {
-        console.log(src)
+        console.log("Mounting quick take...")
         if(node) {
             console.log("Loading Quick Take from id")
             loadContent(node as string)
@@ -26,8 +26,8 @@
     })
 
     function loadContent(node:string) {
-        ({full, quick} = $mapData.nodeObj[node].content)
-        loaded = full && quick ? true: false
+        ({full, quick} = $mapData.nodesByPath[node].content)
+        loaded = full || quick ? true: false
     }
 
     $: if(node && !loaded) {loadContent(node as string)}
