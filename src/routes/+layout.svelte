@@ -33,4 +33,31 @@
 </script>
 
 <Nav />
+{#if data.config.status == 'draft'}
+<aside class='warning'>
+  <p class='mb-2'><strong>⚠️ This website is still in progress!</strong></p>
+  <p>
+    You may notice bugs, weird behavior, and missing content. If you have questions or requests, please email <a href="mailto:jonstapleton@codevirginia.org">jonstapleton@codevirginia.org</a>.
+  </p>
+</aside>
+{/if}
 <slot />
+
+<style lang='scss'>
+  aside {
+    width: 300px;
+    position: absolute;
+    right: 0;
+    border: 1px solid black;
+    border-radius: 8px;
+    padding: 1rem 1rem;
+    margin: 1rem 1rem;
+    background-color: whitesmoke;
+    p > strong {
+      font-size: 11pt
+    }
+    p {
+      font-size: 9pt;
+    }
+  }
+</style>
