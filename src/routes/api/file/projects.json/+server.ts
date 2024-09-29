@@ -7,7 +7,9 @@ export async function GET() {
     const dir = '../modules/projects/';
     let paths:string[] = []
     fs.readdirSync(dir).forEach((path:string) => {
-        paths.push(path)
+        if(!path.includes('_')) {
+            paths.push(path)
+        }
     }); 
     let objs = []
     for(let i=0;i<paths.length;i++) {

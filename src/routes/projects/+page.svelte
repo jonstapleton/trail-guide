@@ -49,7 +49,9 @@
         </div>
     </div>
     <div class='section'>
-        
+        {#if $mapData.projects.length == 0}
+        <i>We haven't published any projects yet! Check back soon.</i>
+        {/if}
         {#each nodes as node}
         <ProjectCard node={node} />
         {/each}
