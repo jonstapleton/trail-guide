@@ -15,3 +15,9 @@ type Location = {
     title:string,
     author:string
 }
+
+export type Transform = {
+    x:number,
+    y:number,
+    scale:number
+}
