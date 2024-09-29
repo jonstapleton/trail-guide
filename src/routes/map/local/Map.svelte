@@ -55,7 +55,7 @@
     export function readEventFrom(params:URLSearchParams) {
         console.log("Got call to read params...")
         if(params.has('open')) {
-            open(params.get('open'), params)
+            open(params.getAll('open'), params)
         }
         if(params.has('xy')) {
             const str:string = params.get('xy') as string
@@ -73,16 +73,25 @@
         }
     }
 
-    function open(path:string|null, params:URLSearchParams) {
-        if(!path) { params.delete('open'); return }
-        if(path.includes('projects')) {
-            console.log("Got call to open project")
-        } else {
-            const node = data.nodesByPath[path + '.md']
-            node.selected = true
+    function open(paths:string[], params:URLSearchParams) {
+        if(paths.length == 0) { params.delete('open'); return } else {
+            for(const path of paths) {
+                if(path.includes('projects')) {
+                    console.log("Got call to open project")
+                } else {
+                    const node = data.nodesByPath[path + '.md']
+                    node.selected = true
+                }
+            }
+            // Zoom in on the last path selected, for now
+            const node = data.nodesByPath[paths[paths.length-1] + '.md']
             const location = camera.getScreenCoords({x: node.x/2, y: node.y/2})
             camera.moveCenterTo(location)
         }
+    }
+    export function close(path:string) {
+        const node = data.nodesByPath[path + '.md']
+        node.selected = false
     }
 
     export function focus(node?:Node) {
@@ -150,13 +159,13 @@
                 } else {
                     zoom = 1.75
                     dispatch('write', {
-                        open: node,
+                        open: [node],
                         zoom: zoom 
                     })
                 }
             } else {
                 console.log("No new node")
-                dispatch('write', {})
+                // dispatch('write', {})
             }
         }
         p5.mouseWheel = (e:any) => {

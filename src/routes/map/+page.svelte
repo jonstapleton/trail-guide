@@ -13,6 +13,7 @@
     import { goto } from '$app/navigation';
     import UrlDebugger from './local/UrlDebugger.svelte';
     import Capture from './local/Capture.svelte';
+    import { parseAllDocuments } from 'yaml';
 
     let options = {}
     let interactable = true;
@@ -27,11 +28,19 @@
 
     function writeToURL(e:any) {
         let params = new URLSearchParams()
-        if(e.open) { params.append('open', e.open.path.replace('.md', '')) }
+        if(e.open) {
+            for(const obj of e.open) {
+                params.append('open', obj.path.replace('.md', ''))
+            }
+        }
         if(e.x && e.y) { params.append('xy', `${Math.round(e.x)},${Math.round(e.y)}`)}
         if(e.zoom) { params.append('zoom', `${e.zoom}`)}
+        if(e.close) { params.append('close', e.close) }
         console.log("Writing new URL:", params.toString())
         goto(`?${params.toString()}`)
+
+        console.log("Updating UI elements based on URL...")
+        openTutorials = params.getAll('open')
     }
     function writeToMap(params:URLSearchParams) {
         console.log("Sending directive to map...")
@@ -41,15 +50,35 @@
     function handleCapture(flag:boolean) {
         interactable = flag
     }
-    function handleClose(name:string) {
-        openPanels.splice(openPanels.indexOf(name), 1)
-        openPanels = openPanels // reactive update
+    function handleClose(name:string, array:string[]) {
+        array.splice(array.indexOf(name), 1)
+        array = array // reactive update
+        handleCapture(true)
     }
+    function handleTutorialClose(obj:any) {
+        console.log("Closing tutorial", obj)
+        openTutorials.splice(openTutorials.indexOf(obj.name), 1)
+        handleCapture(true)
+        map.close(obj.name)
 
+        // Remove open from URL
+        const openLocs = $page.url.searchParams.getAll('open')
+        openLocs.splice(openLocs.indexOf(obj.name), 1)
+        const newParams = $page.url.searchParams
+        newParams.delete('open')
+        for(const loc in openLocs) {
+            newParams.append('open', loc)
+        }
+        goto(`?${newParams.toString()}`)
+    }
     $: writeToMap($page.url.searchParams)
-    $: console.log("Interactable:", interactable)
+    
+    // $: console.log("Interactable:", interactable)
 
     let openPanels:string[] = []
+    let openTutorials:string[] = []
+
+    $: console.log("OpenTutorials changed state!", openTutorials)
 </script>
 <section class='map hero is-fullheight-with-navbar'>
     <div  class='ui'>
@@ -59,18 +88,30 @@
             <PanelCard 
                 title="Projects"
                 on:capture={(e) => handleCapture(e.detail)}
-                on:close={(e) => handleClose(e.detail)}
+                on:close={(e) => handleClose(e.detail, openPanels)}
                 loaded={openPanels.includes('Maps')}
             >
                 <TrailList />
             </PanelCard>
-            <PanelCard title="Tutorials" on:capture={(e) => handleCapture(e.detail)}>
+            <PanelCard 
+                title="Tutorials"
+                on:capture={(e) => handleCapture(e.detail)}
+                on:close={(e) => handleClose(e.detail, openPanels)}
+                loaded={openPanels.includes('Tutorials')}
+            >
                 Tutorial List
             </PanelCard>
-            <PanelCard on:capture={(e) => handleCapture(e.detail)}>
-                Tutorial Column
-            </PanelCard>
-        </div>
+            {#each openTutorials as panel}
+                <PanelCard
+                    title={$mapData.nodesByPath[panel + '.md'].frontmatter.title}
+                    on:capture={(e) => handleCapture(e.detail)}
+                    on:close={(e) => handleTutorialClose(e.detail)}
+                    layout="vertical"
+                >
+                    Tutorial Column
+                </PanelCard>
+            {/each}
+    </div>
     </div>
     <div class='hero-body m-0 p-0'>
         <MapComponent
@@ -84,7 +125,7 @@
     </div>
 </section>
 
-<style>
+<style lang='scss'>
     .map {
         overflow: hidden;
         padding-top: 0;

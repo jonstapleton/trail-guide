@@ -58,6 +58,18 @@
             position: static;
         }
     }
+    .panel-card.vertical {
+        margin: 1rem 0.5rem;
+        min-width: 20rem;
+        max-width: 33rem;
+        // max-height: 85vh;
+        background-color: white;
+        position: relative;
+        vertical-align: top;
+        section {
+            position: static;
+        }
+    }
     h2.large {
         font-size: larger;
     }
