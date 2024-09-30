@@ -21,8 +21,9 @@
         } else if(data) {
             console.log("Loading Quick Take from object");
             ({full, quick} = data.content);
+            console.log(quick)
         }
-        loaded = full && quick ? true: false
+        loaded = full || quick ? true: false
     })
 
     function loadContent(node:string) {
@@ -33,7 +34,7 @@
     $: if(node && !loaded) {loadContent(node as string)}
 </script>
 
-<div class='quick-take {containerized ? 'columns' : ''}'>
+<div class='quick-take content {containerized ? 'columns' : ''}'>
     {#if loaded}
     {@html quick && quick.length > 0 ? quick : full }
     {/if}

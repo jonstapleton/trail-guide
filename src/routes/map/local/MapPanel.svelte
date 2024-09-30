@@ -52,7 +52,7 @@
             <span class='button-text'>Tutorials</span>
         </a>
     </Capture>
-    
+    <!-- TODO:
     <div class='bottom'>
         <Capture on:capture>
             <button on:click={() => active = true} class='button round'>
@@ -62,13 +62,13 @@
             <button class='button round'>
                 <Fa icon={faDownload} size='1.5x' />
                 <span class='button-text'>Save</span>
-            </button>
+            </button> -->
             <!-- <a class='button round'>
                 <Fa icon={faGear} size='1.5x' />
                 <span class='button-text'>Settings</span>
             </a> -->
-        </Capture>
-    </div>
+        <!-- </Capture> -->
+    <!-- </div> -->
     
     <div class="modal {active? 'is-active' : ''}">
         <div on:click={() => active = false} class="modal-background"></div>

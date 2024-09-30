@@ -14,7 +14,7 @@
     onMount(() => {
         // console.log(data)
         if(data.content.quick) { tabs = [...tabs, "Quick Take"] }
-        if(data.content.practice) { tabs = [...tabs, "Practice"] }
+        // if(data.content.practice) { tabs = [...tabs, "Practice"] }
         if(data.content.prompt) { tabs = [...tabs, "Prompt" ]}
     })
 
@@ -55,7 +55,11 @@
 </div>
 <div class='container content tutorial'>
     <!-- <div class='section'> -->
+        {#if data.content.full.length == 0}
+        <p><i>We haven't written the full tutorial for this page yet! Check back soon.</i></p>
+        {:else}
         {@html data.content.full}
+        {/if}
     <!-- </div> -->
 </div>
 
