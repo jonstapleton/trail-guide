@@ -7,7 +7,9 @@ import { browser } from '$app/environment'
 
 export async function load({ fetch }) {
 
-    const blob = (await read('../modules/region-map.canvas')).toString()
+    const config = await loadConfig()
+
+    const blob = (await read(`../${config.modules}/region-map.canvas`)).toString()
     const res = JSON.parse(blob)
     for(let i=0;i<res.nodes.length;i++) {
         const md = await (await fetch(`${base}/api/file/${res.nodes[i].file}.json`)).json()
@@ -19,8 +21,7 @@ export async function load({ fetch }) {
     res.projects = await (await fetch(`${base}/api/file/projects.json`)).json()
 
     let local;
-    
-    const config = await loadConfig()
+
     return {
         config: config,
         map: local ? JSON.parse(local) : res as MapDataResponse

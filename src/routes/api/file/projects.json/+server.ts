@@ -1,10 +1,12 @@
 import { json } from "@sveltejs/kit"
 import * as fs from 'fs'
 import { parse } from "$lib/parsing/parser";
+import { loadConfig } from "$lib/config";
 
 
 export async function GET() {
-    const dir = '../modules/projects/';
+    const config = await loadConfig()
+    const dir = `../${config.modules}/projects/`;
     let paths:string[] = []
     fs.readdirSync(dir).forEach((path:string) => {
         if(!path.includes('_')) {

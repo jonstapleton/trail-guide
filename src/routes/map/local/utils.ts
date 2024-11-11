@@ -107,6 +107,7 @@ export class Cartographer {
     x:number = 0;
     y:number = 0;
     font:any
+    icons:any
     tick:number = 0
     offset:Coords = {
         x: 0, y: 0
@@ -215,13 +216,34 @@ export class Cartographer {
             }
 
             // Draw node
-            const color = node.selected? this.p5.color(0, 255, 0) : 255            
-            this.p5.fill(color)
-            // this.p5.rect(node.x/2-(w/2), node.y/2-(h/2), w, h)
-            this.p5.circle(node.x/2, node.y/2, w)
+            let color = node.selected? this.p5.color(0, 255, 0) : 255
+            // make the caches look different; really, we need to refactor all of this... TODO:
+            if(node.frontmatter.type == 'cache') {
+                // this.p5.rect(node.x/2-(w/2), node.y/2-(h/2), w, h)
+                this.p5.fill(255)
+                this.p5.circle(node.x/2, node.y/2, 75)
+
+                this.p5.textFont(this.icons)
+                this.p5.textSize(28)
+                this.p5.textWrap('WORD')
+                this.p5.textAlign(this.p5.CENTER, this.p5.CENTER)
+
+                this.p5.fill(0)
+                this.p5.text("", node.x/2-150/2, node.y/2, 150)
+
+                this.p5.textFont(this.font)
+                this.p5.textSize(28)
+                this.p5.textWrap('WORD')
+                this.p5.textAlign(this.p5.CENTER, this.p5.CENTER)
+            } else {
+                this.p5.fill(color)
+                // this.p5.rect(node.x/2-(w/2), node.y/2-(h/2), w, h)
+                this.p5.circle(node.x/2, node.y/2, w)
+                
+                this.p5.fill(0)
+                this.p5.text(node.frontmatter.title, node.x/2-150/2, node.y/2, 150)
+            }
             
-            this.p5.fill(0)
-            this.p5.text(node.frontmatter.title, node.x/2-150/2, node.y/2, 150)
             // this.p5.text(`${node.x/2}, ${node.y/2}`, node.x/2-150/2, node.y/2, 150)
             
             // Icons

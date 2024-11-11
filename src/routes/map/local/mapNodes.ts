@@ -11,7 +11,8 @@ interface Frontmatter {
     nodes?:string[],
     video?:string,
     description?:string,
-    start?:boolean
+    start?:boolean,
+    type?:string
 }
 
 interface resNode extends Document {

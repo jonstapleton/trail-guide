@@ -113,9 +113,11 @@
 
     // $:console.log(interact)
     let font:any;
+    let icons:any;
     let mapSketch = (p5:any) => {
         p5.preload = () => {
             font = p5.loadFont('/Raleway-Regular.ttf')
+            icons = p5.loadFont('/icons.otf')
         }
         p5.setup = () => {
             const c = p5.createCanvas(p5.displayWidth, p5.displayHeight*0.83)
@@ -125,6 +127,7 @@
             cursor = new Cursor(p5);
             carto = new Cartographer(p5);
             carto.font = font
+            carto.icons = icons
             camera = new Camera(p5, data, 0.5)
 
             p5.textFont(font)
