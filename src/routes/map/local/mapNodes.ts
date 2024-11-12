@@ -199,9 +199,50 @@ export class Tutorial extends MapNode {
         this.highlighted = false
     }
     setWidth(p5:any, font:any) {
-        // TODO: make this more sophisticated
-        let box = font.textBounds(this.frontmatter.title, this.x/2, this.y/2)
-        this.width = 250 < box.w + 25 ? 250 : box.w + 25 
+        // find the longest series of words that will be displayed on one line (<= 150px)
+        const words = this.frontmatter.title.split(' ')
+        const lengths:number[] = []
+        let lineHeight = -1;
+        for(let i=0;i<words.length;i++) {
+            words[i] += ' '
+            let box = font.textBounds(words[i], this.x/2, this.y/2, 28)
+            lengths.push(box.w)
+            if(box.h > lineHeight) { lineHeight = box.h * 2 }
+        }
+        let lines = [
+            {
+                text: '',
+                lineLength: 0
+            }
+        ]
+        let linesIndex = 0
+        for(let i=0;i<words.length;i++) {
+            if(lines[linesIndex].text == "" || lines[linesIndex].lineLength + lengths[i] < 150) {
+                lines[linesIndex].text += words[i]
+                lines[linesIndex].lineLength += lengths[i]
+            } else {
+                lines.push({
+                    text: words[i],
+                    lineLength: lengths[i]
+                })
+                linesIndex += 1
+            }
+        }
+
+        let maxLength = -1
+        let index = 0
+        for(let i=0;i<lines.length;i++) {
+            if(maxLength < lines[i].lineLength) {
+                maxLength = lines[i].lineLength
+                index = i
+            }
+        }
+
+        // width of longest word is in `maxLength`, now need to scale the width based on how high or low that word is in the circle using `index`
+        const offsetY = (index - (lines.length -1) / 2) * lineHeight
+        console.log(this.frontmatter.title, offsetY)
+        this.width = Math.sqrt(offsetY*offsetY + (maxLength)*(maxLength)) + 30
+
     }
     draw(p5:any, cursor:Cursor) {
         // draw highlighted circle (red)
