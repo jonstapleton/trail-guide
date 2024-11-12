@@ -1,3 +1,5 @@
+import type { Cursor } from "./utils"
+
 interface Document {
     frontmatter:Frontmatter,
     file:string,
@@ -12,7 +14,8 @@ interface Frontmatter {
     video?:string,
     description?:string,
     start?:boolean,
-    type?:string
+    type?:string,
+    icon?:string
 }
 
 interface resNode extends Document {
@@ -40,11 +43,12 @@ export class Map {
     edges:Edge[] = []
     projects:Project[] = []
     selectedNode:Tutorial|null = null
+    p5:any
 
     constructor(res:MapDataResponse) {
         res.nodes = res.nodes.filter((obj) => obj.file ? true : false)
         for(let i=0;i<res.nodes.length;i++) {
-            const tut = new Tutorial(res.nodes[i])
+            const tut = res.nodes[i].frontmatter.type == 'cache' ? new Cache(res.nodes[i]) : new Tutorial(res.nodes[i])
             this.nodes.push(tut)
             this.nodeObj[res.nodes[i].id] = tut // create the nodeObj object to help with drawing edges
             this.nodesByPath[res.nodes[i].path] = tut
@@ -81,6 +85,12 @@ export class Map {
             projects: this.projects
         }
         return res
+    }
+    setSketchContext(p5:any) {
+        this.p5 = p5;
+        for(const node of this.nodes) {
+            node.setSketchContext(p5)
+        }
     }
 }
 
@@ -131,6 +141,7 @@ class Element {
     path:string = ''
     content:string = '<p>no content</p>'
     completed:boolean = false
+    p5:any
     constructor(obj:Document) {
         this.frontmatter = obj.frontmatter
         this.file = obj.file
@@ -149,6 +160,8 @@ class MapNode extends Element {
     y:number = 0
     id:string = ''
     hover:boolean = false
+    primaryFont:any
+    iconFont:any
     constructor(obj:resNode) {
         super(obj)
         this.x = obj.x
@@ -161,6 +174,13 @@ class MapNode extends Element {
     dehover() {
         this.hover = false
     }
+    setSketchContext(p5:any) {
+        this.p5 = p5
+    }
+    setFonts(primary:any, icon:any) {
+        this.primaryFont = primary
+        this.iconFont = icon
+    }
 }
 
 export class Tutorial extends MapNode {
@@ -168,6 +188,7 @@ export class Tutorial extends MapNode {
     // completed:boolean = false
     selected:boolean = false
     edges:string[] = []
+    width:number = 200
     constructor(obj:resNode) {
         super(obj)
     }
@@ -176,6 +197,80 @@ export class Tutorial extends MapNode {
     }
     dehighlight() {
         this.highlighted = false
+    }
+    setWidth(p5:any, font:any) {
+        // TODO: make this more sophisticated
+        let box = font.textBounds(this.frontmatter.title, this.x/2, this.y/2)
+        this.width = 250 < box.w + 25 ? 250 : box.w + 25 
+    }
+    draw(p5:any, cursor:Cursor) {
+        // draw highlighted circle (red)
+        this.handleHighlight(p5)
+            
+        // handle hover state
+        this.handleHover(p5, cursor)
+
+        // determine node fill color
+        this.setFill(p5)
+        
+        // draw node & display text
+        p5.circle(this.x/2, this.y/2, this.width)
+        p5.fill(0)
+        p5.text(this.frontmatter.title, this.x/2-150/2, this.y/2, 150)
+
+        if(this.completed) { this.drawCheck(p5) }
+    }
+
+    drawCheck(p5:any) {
+        let cx = this.x/2 + this.width/3
+        let cy = this.y/2 - this.width/3
+        p5.strokeWeight(24)
+        p5.line(cx, cy, cx - 25, cy - 25)
+        p5.line(cx, cy, cx + 50, cy - 50)
+        p5.stroke('rgb(72, 199, 116)');
+        p5.strokeWeight(18)
+        p5.line(cx, cy, cx - 25, cy - 25)
+        p5.line(cx, cy, cx + 50, cy - 50)
+        p5.strokeWeight(1)
+    }
+    handleHighlight(p5:any) {
+        if(this.highlighted) {
+            p5.fill(p5.color(255, 0, 0))
+            p5.circle(this.x/2, this.y/2, this.width + 18);
+        }
+    }
+    handleHover(p5:any, cursor:Cursor) {
+        if(p5.dist(cursor.localX, cursor.localY, this.x/2, this.y/2) <= this.width/2 || this.hover) {
+            p5.fill(p5.color(0, 0, 255))
+            p5.circle(this.x/2, this.y/2, this.width + 18)
+        }
+    }
+    setFill(p5:any) {
+        let color = this.selected? p5.color(0, 255, 0) : 255
+        p5.fill(color)
+    }
+}
+
+export class Cache extends Tutorial {
+    constructor(obj:resNode) {
+        super(obj)
+    }
+    setWidth(p5:any, font:any) {
+        this.width = 75
+    }
+
+    draw(p5:any, cursor:Cursor) {
+        this.handleHighlight(p5)
+        this.handleHover(p5, cursor)
+        
+        this.setFill(p5)
+        p5.circle(this.x/2, this.y/2, this.width)
+        p5.fill(0)
+        p5.textFont(this.iconFont)
+        p5.text(this.frontmatter.icon, this.x/2 - this.width/2, this.y/2, this.width)
+
+        // reset font
+        p5.textFont(this.primaryFont)
     }
 }
 

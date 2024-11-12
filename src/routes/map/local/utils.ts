@@ -194,71 +194,13 @@ export class Cartographer {
         } 
         
         // Draw Nodes
-        for(let i=0;i<data.nodes.length;i++) {
-            const node = data.nodes[i]
+        for(const node of data.nodes) {
             
             // if mouse is hovering over a node, highlight it
             // let the cursor know it's in a hover state
             // cursor.overNode = false;
-
-            let box = this.font.textBounds(node.frontmatter.title, node.x/2, node.y/2)
-            const w = 200 > box.w + 25 ? box.w + 25 : 200
-            const h = (Math.floor(box.w / 140)+1) * (box.h + this.p5.textLeading())
-
-            if(node.highlighted) {
-                this.p5.fill(this.p5.color(255, 0, 0))
-                this.p5.circle(node.x/2, node.y/2, w + 18);
-                // cursor.overNode = true
-            }
-            if(this.p5.dist(cursor.localX, cursor.localY, node.x/2, node.y/2) <= w/2 || node.hover) {
-                this.p5.fill(this.p5.color(0, 0, 255))
-                this.p5.circle(node.x/2, node.y/2, w + 18)
-            }
-
-            // Draw node
-            let color = node.selected? this.p5.color(0, 255, 0) : 255
-            // make the caches look different; really, we need to refactor all of this... TODO:
-            if(node.frontmatter.type == 'cache') {
-                // this.p5.rect(node.x/2-(w/2), node.y/2-(h/2), w, h)
-                this.p5.fill(255)
-                this.p5.circle(node.x/2, node.y/2, 75)
-
-                this.p5.textFont(this.icons)
-                this.p5.textSize(28)
-                this.p5.textWrap('WORD')
-                this.p5.textAlign(this.p5.CENTER, this.p5.CENTER)
-
-                this.p5.fill(0)
-                this.p5.text("", node.x/2-150/2, node.y/2, 150)
-
-                this.p5.textFont(this.font)
-                this.p5.textSize(28)
-                this.p5.textWrap('WORD')
-                this.p5.textAlign(this.p5.CENTER, this.p5.CENTER)
-            } else {
-                this.p5.fill(color)
-                // this.p5.rect(node.x/2-(w/2), node.y/2-(h/2), w, h)
-                this.p5.circle(node.x/2, node.y/2, w)
-                
-                this.p5.fill(0)
-                this.p5.text(node.frontmatter.title, node.x/2-150/2, node.y/2, 150)
-            }
             
-            // this.p5.text(`${node.x/2}, ${node.y/2}`, node.x/2-150/2, node.y/2, 150)
-            
-            // Icons
-            if(node.completed) {
-                let cx = node.x/2 + w/3
-                let cy = node.y/2 - w/3
-                this.p5.strokeWeight(24)
-                this.p5.line(cx, cy, cx - 25, cy - 25)
-                this.p5.line(cx, cy, cx + 50, cy - 50)
-                this.p5.stroke('rgb(72, 199, 116)');
-                this.p5.strokeWeight(18)
-                this.p5.line(cx, cy, cx - 25, cy - 25)
-                this.p5.line(cx, cy, cx + 50, cy - 50)
-                this.p5.strokeWeight(1)
-            }
+            node.draw(this.p5, cursor)
 
             // Add "start here" callout
             if(node.frontmatter.start && !node.completed) {
