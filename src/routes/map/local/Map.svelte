@@ -84,14 +84,15 @@
             for(const path of paths) {
                 if(path.includes('projects')) {
                     console.log("Got call to open project")
+                    data.nodesByPath[path + '.md'].select()
                 } else {
                     const node = data.nodesByPath[path + '.md']
                     node.selected = true
                 }
             }
-            // Zoom in on the last path selected, for now
-            const node = data.nodesByPath[paths[paths.length-1] + '.md']
-            const location = camera.getScreenCoords({x: node.x/2, y: node.y/2}, center)
+            // TODO: Zoom in on the last path selected, for now
+            const coords = data.nodesByPath[paths[paths.length-1] + '.md'].getCoords()
+            const location = camera.getScreenCoords({x: coords.x/2, y: coords.y/2}, center)
             camera.moveCenterTo(location)
         }
     }

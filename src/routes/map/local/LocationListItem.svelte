@@ -13,7 +13,7 @@
     const dispatch = createEventDispatcher();
     function focus() {
         const n = $mapData.nodeObj[node]
-        console.log(n)
+        // console.log(n)
         dispatch('select', {
             open: [n],
         })

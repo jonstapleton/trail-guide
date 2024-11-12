@@ -13,11 +13,13 @@ export async function GET() {
             paths.push(path)
         }
     }); 
+
     let objs = []
     for(let i=0;i<paths.length;i++) {
-        const { file, frontmatter, quicktake, practice } = await parse(dir+paths[i])
+        const projectFile = paths[i] + '/index.md'
+        const { file, frontmatter, quicktake, practice } = await parse(dir+projectFile)
         objs.push({
-            path: 'projects/'+paths[i].replace('.md', ''),
+            path: 'projects/'+projectFile.replace('/index.md', ''),
             content: {full: file.value, quick: quicktake, practice: practice},
             frontmatter: frontmatter,
             completed: false

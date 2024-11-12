@@ -93,7 +93,8 @@
                 on:close={(e) => handleClose(e.detail, openPanels)}
                 loaded={openPanels.includes('Maps')}
             >
-                <TrailList />
+                <!-- TODO: add support for writing back to map -->
+                <TrailList  />
             </PanelCard>
             <PanelCard 
                 title="Tutorials"

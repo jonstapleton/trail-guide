@@ -68,6 +68,7 @@ export class Map {
         this.projects = this.constructProjects(res, this.nodes, this.edges)
         for(let i=0;i<this.projects.length;i++) {
             this.projectObj[this.projects[i].path] = this.projects[i]
+            this.nodesByPath[this.projects[i].path + '.md'] = this.projects[i]
         }
         
     }
@@ -155,7 +156,11 @@ class Element {
     }
 }
 
-class MapNode extends Element {
+interface Focusable {
+    getCoords():Coords
+}
+
+class MapNode extends Element implements Focusable {
     x:number = 0
     y:number = 0
     id:string = ''
@@ -180,6 +185,9 @@ class MapNode extends Element {
     setFonts(primary:any, icon:any) {
         this.primaryFont = primary
         this.iconFont = icon
+    }
+    getCoords():Coords {
+        return { x: this.x, y: this.y }
     }
 }
 
@@ -242,7 +250,6 @@ export class Tutorial extends MapNode {
         const offsetY = (index - (lines.length -1) / 2) * lineHeight
         console.log(this.frontmatter.title, offsetY)
         this.width = Math.sqrt(offsetY*offsetY + (maxLength)*(maxLength)) + 30
-
     }
     draw(p5:any, cursor:Cursor) {
         // draw highlighted circle (red)
@@ -315,7 +322,7 @@ export class Cache extends Tutorial {
     }
 }
 
-export class Project extends Element {
+export class Project extends Element implements Focusable {
     nodes:Tutorial[] = []
     edges:Edge[] = []
     optionalTutorialMask:boolean[] = []
@@ -434,5 +441,8 @@ export class Project extends Element {
     }
     getCenterCoords():Coords {
         return this.center;
+    }
+    getCoords(): Coords {
+        return this.getCenterCoords()
     }
 }
