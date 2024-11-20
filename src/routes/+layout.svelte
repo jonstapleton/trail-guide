@@ -17,10 +17,11 @@
       local = window.localStorage.getItem('map')
   }
 
-  mapData.subscribe((value:Map) => {
+  mapData.subscribe(async (value:Map) => {
       if (browser && value) {
           console.log("Saving data...")
-          window.localStorage.setItem('map', JSON.stringify(value.toRes()));
+          const d = await JSON.stringify(await value.toRes())
+          window.localStorage.setItem('map', d);
       }
   });
  

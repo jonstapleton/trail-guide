@@ -1,10 +1,26 @@
 <script lang='ts'>
     import { base } from "$app/paths";
+    import { mapData } from "../../store";
+    import { onDestroy, onMount } from "svelte";
+    import type { Project } from "./mapNodes";
+    import LocationCountPill from "./TrailPanel/LocationCountPill.svelte";
+    import Checkbox from "./TrailPanel/Checkbox.svelte";
+    import Recommended from "./TrailPanel/Recommended.svelte";
 
     export let node:string
+    let obj:Project
 
     let route = `${base}/map?open=${node}`
     let destination = route
+
+    // onMount(() => {
+    //     obj = $mapData.projectObj[node]
+    // })
+
+    onDestroy(() => {
+        // console.log("Destroying", obj.frontmatter.title)
+        // obj.deselect()
+    })
 
     function toggleRoute() {
         setTimeout(() => {
@@ -12,6 +28,39 @@
         }, 100)
     }
 
+    function select() {
+        const obj = $mapData.projectObj[node]
+        obj.highlight()
+    }
+    function deselect() {
+        const obj = $mapData.projectObj[node]
+        obj.dehighlight()
+    }
+
+    // $: obj = $mapData.projectObj[node]
+
 </script>
 
-<a on:click={toggleRoute} href="{destination}">{node}</a>
+{#if obj}
+<a
+    on:mouseenter={select} 
+    on:mouseleave={deselect} 
+    on:click={toggleRoute} 
+    href="{destination}"
+>
+    <Checkbox node={node} />
+    {obj.frontmatter.title}
+    <Recommended node={node} />
+    <LocationCountPill node={node} />
+</a>
+{/if}
+
+<style lang='scss'>
+    a {
+        padding: 1rem 0.5rem;
+        display: flex;
+    }
+    a:hover {
+        background-color: whitesmoke;
+    }
+</style>

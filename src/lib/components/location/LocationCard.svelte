@@ -9,11 +9,13 @@
     import QuestionHost from "./QuestionHost.svelte";
     import { base } from '$app/paths'
 
-    export let node:string|null;
+    export let node:string;
     export let exclude:string[] = []
     let tabs = ["Quick Take"]
-    let obj:Tutorial
+    // let obj:Tutorial
     export let tabClass = 'onMap'
+
+    // $: obj = $mapData.nodesByPath[node]
 
     onMount(() => {
         loadCard(node as string)
@@ -22,7 +24,7 @@
     })
 
     function loadCard(node:string) {
-        obj = $mapData.nodesByPath[node]
+        const obj = $mapData.nodesByPath[node]
         tabs = ["Quick Take"]
         if(obj.frontmatter.video && !exclude.includes("Video"))   { tabs = [...tabs, "Video"]    }
         if(obj.content.practice && !exclude.includes("Practice"))    { tabs = [...tabs, "Practice"] }
@@ -30,7 +32,7 @@
         // console.log(tabs)
     }
 
-    $: loadCard(node as string)
+    // $: loadCard(node as string)
 
     let openTab = tabs[0]
     const objs:any = {
@@ -80,20 +82,20 @@
         { @html obj.content.full }
     </div> -->
     
-    {#if obj}
     <div class='buttons is-centered is-fullwidth'>
-        {#if !obj.file.includes('activities/')}
+        <!-- {#if !obj.file.includes('activities/')}
         <a href={base+'tutorials/'+obj.path.replace('.md', '')} target='_blank' class='button is-fullwidth'>
             Read Detailed Tutorial
             <span class='icon ml-1'><Fa icon={faArrowUpRightFromSquare} /></span>
         </a>
-        {/if}
-        <button on:click={() => $mapData.nodesByPath[node].completed = !$mapData.nodesByPath[node].completed} class='button is-success is-fullwidth'>
-            <span class='icon mr-1'><Fa icon={$mapData.nodesByPath[node].completed ? faSquareCheck : faSquare} /></span>
+        {/if} -->
+        <button on:click={() => $mapData.nodesByPath[node].completed = true} class='button is-success is-fullwidth'>
+            <!-- <span class='icon mr-1'>
+                <Fa icon={$mapData.nodesByPath[node].completed ? faSquareCheck : faSquare} />
+            </span> -->
             Mark as Completed
         </button>
     </div>
-    {/if}
 </div>
 
 <style lang='scss'>

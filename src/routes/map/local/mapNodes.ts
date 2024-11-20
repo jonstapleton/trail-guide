@@ -193,7 +193,6 @@ class MapNode extends Element implements Focusable {
 
 export class Tutorial extends MapNode {
     highlighted:boolean = false
-    // completed:boolean = false
     selected:boolean = false
     edges:string[] = []
     width:number = 200
@@ -266,7 +265,9 @@ export class Tutorial extends MapNode {
         p5.fill(0)
         p5.text(this.frontmatter.title, this.x/2-150/2, this.y/2, 150)
 
-        if(this.completed) { this.drawCheck(p5) }
+        if(this.completed) { 
+            this.drawCheck(p5)
+        }
     }
 
     drawCheck(p5:any) {
@@ -296,6 +297,10 @@ export class Tutorial extends MapNode {
     setFill(p5:any) {
         let color = this.selected? p5.color(0, 255, 0) : 255
         p5.fill(color)
+    }
+    toggleCompleted() {
+        console.log("Marking tutorial complete...")
+        this.completed = true
     }
 }
 
