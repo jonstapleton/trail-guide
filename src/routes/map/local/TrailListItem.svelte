@@ -13,9 +13,10 @@
     let route = `${base}/map?open=${node}`
     let destination = route
 
-    // onMount(() => {
-    //     obj = $mapData.projectObj[node]
-    // })
+    $: obj = $mapData.projectObj[node]
+    onMount(() => {
+        obj = $mapData.projectObj[node]
+    })
 
     onDestroy(() => {
         // console.log("Destroying", obj.frontmatter.title)
@@ -37,7 +38,7 @@
         obj.dehighlight()
     }
 
-    // $: obj = $mapData.projectObj[node]
+    
 
 </script>
 

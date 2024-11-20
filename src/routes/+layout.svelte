@@ -11,19 +11,21 @@
 
   export let data;
 
+
   let local
   if(browser) {
       console.log("Trying to read localStorage...")
       local = window.localStorage.getItem('map')
   }
 
-  mapData.subscribe(async (value:Map) => {
-      if (browser && value) {
-          console.log("Saving data...")
-          const d = await JSON.stringify(await value.toRes())
-          window.localStorage.setItem('map', d);
-      }
-  });
+  // TODO: fix local storage
+  // mapData.subscribe(async (value:Map) => {
+  //     if (browser && value) {
+  //         console.log("Saving data...")
+  //         const d = await JSON.stringify(await value.toRes())
+  //         window.localStorage.setItem('map', d);
+  //     }
+  // });
  
   if(data.config.local && local) {
     console.log("Got localStorage!")
