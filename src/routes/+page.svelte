@@ -2,12 +2,10 @@
     import { faLocationDot, faMap, faRoute } from '@fortawesome/free-solid-svg-icons';
     import Fa from 'svelte-fa'
     import { base } from '$app/paths'
-    import TestElement from '$lib/components/elements/TestElement.svelte';
     export let data;
 </script>
 
 <div class='homepage hero is-fullheight-with-navbar'>
-    <TestElement />
     <div class='hero-body'>
         <div class='container has-text-centered'>
             <h1 class='title'>{data.config.title}</h1>

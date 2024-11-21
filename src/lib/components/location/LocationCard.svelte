@@ -88,9 +88,9 @@
         </a>
         {/if} -->
         <button on:click={() => $mapData.nodesByPath[node].completed = !$mapData.nodesByPath[node].completed} class='button is-success is-fullwidth'>
-            <!-- <span class='icon mr-1'>
+            <span class='icon mr-1'>
                 <Fa icon={$mapData.nodesByPath[node].completed ? faSquareCheck : faSquare} />
-            </span> -->
+            </span>
             Mark as Completed
         </button>
     </div>

@@ -25,7 +25,7 @@ export async function GET() {
             completed: false
         })
     }
-    // console.log(objs)
+    // console.log(objs[0].frontmatter.nodes)
 
     return json(objs)
 }

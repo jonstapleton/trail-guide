@@ -93,6 +93,12 @@ export class Map {
             node.setSketchContext(p5)
         }
     }
+    deselectAll() {
+        console.log("Deselecting all projects...")
+        for(const proj of this.projects) {
+            proj.deselect()
+        }
+    }
 }
 
 export class Edge {
@@ -143,6 +149,7 @@ class Element {
     content:string = '<p>no content</p>'
     completed:boolean = false
     p5:any
+    type:string = "element"
     constructor(obj:Document) {
         this.frontmatter = obj.frontmatter
         this.file = obj.file
@@ -172,6 +179,7 @@ class MapNode extends Element implements Focusable {
         this.x = obj.x
         this.y = obj.y
         this.id = obj.id
+        this.type = "mapNode"
     }
     rehover() {
         this.hover = true
@@ -198,6 +206,7 @@ export class Tutorial extends MapNode {
     width:number = 200
     constructor(obj:resNode) {
         super(obj)
+        this.type = "tutorial"
     }
     highlight() {
         this.highlighted = true
@@ -307,6 +316,7 @@ export class Tutorial extends MapNode {
 export class Cache extends Tutorial {
     constructor(obj:resNode) {
         super(obj)
+        this.type = "cache"
     }
     setWidth(p5:any, font:any) {
         this.width = 75
@@ -338,25 +348,28 @@ export class Project extends Element implements Focusable {
     center:Coords
     constructor(obj:Document, nodeObjs:Tutorial[], edges:Edge[]) {
         super(obj)
+        this.type = "project"
         this.difficulty = obj.frontmatter.difficulty ? obj.frontmatter.difficulty : 'N/A'
         if(!obj.frontmatter.nodes) { throw new Error(`Document ${obj.frontmatter.title} does not define nodes!`)}
         let objIds:string[] = []
         let objArray:(string|Tutorial)[] = []
         for(let i=0;i<obj.frontmatter.nodes.length;i++) {
-            const nodeRef = obj.frontmatter.nodes[i].replaceAll(' ', '').replace('{optional}','')
+            let nodeRef = obj.frontmatter.nodes[i].replaceAll(' ', '').replace('{optional}','').replace('./', this.path + "/")
             objArray.push(nodeRef)
             objIds.push(nodeRef)
             this.optionalTutorialMask.push(obj.frontmatter.nodes[i].includes('{optional}'))
         }
-
-        
+        // console.log(objArray)
         for(let i=0;i<nodeObjs.length;i++) {
-            const nodeFilePath = './'+nodeObjs[i].path
+            const nodeFilePath = nodeObjs[i].path
             if(objArray.includes(nodeFilePath)) {
                 const index = objArray.indexOf(nodeFilePath)
                 objArray[index] = nodeObjs[i]
                 objIds[index] = nodeObjs[i].id
             }
+        }
+        for(const obj of objArray) {
+            if(typeof(obj) == typeof("string")) { throw Error(obj + " not found, could not create Element")}
         }
         this.nodes = objArray as Tutorial[]
 
@@ -403,8 +416,6 @@ export class Project extends Element implements Focusable {
                 this.optionalEdgeMask.push(false)
             }
         }
-
-        console.log(this.frontmatter.title, this.optionalEdgeMask)
         this.id = this.path
     }
 
@@ -438,7 +449,7 @@ export class Project extends Element implements Focusable {
     deselect() {
         this.selected = false
         for(let i=0;i<this.nodes.length;i++) {
-            this.nodes[i].highlighted = false
+            this.nodes[i].dehighlight()
         }
         for(let i=0;i<this.edges.length;i++) {
             this.edges[i].dehighlight()

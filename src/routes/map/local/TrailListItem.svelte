@@ -6,6 +6,9 @@
     import LocationCountPill from "./TrailPanel/LocationCountPill.svelte";
     import Checkbox from "./TrailPanel/Checkbox.svelte";
     import Recommended from "./TrailPanel/Recommended.svelte";
+    import Difficulty from "./TrailPanel/Difficulty.svelte";
+    import Open from "./TrailPanel/Open.svelte";
+    import Selected from "./TrailPanel/Selected.svelte";
 
     export let node:string
     let obj:Project
@@ -20,12 +23,16 @@
 
     onDestroy(() => {
         // console.log("Destroying", obj.frontmatter.title)
-        // obj.deselect()
+        obj.deselect()
     })
 
     function toggleRoute() {
         setTimeout(() => {
-            destination  = `${base}/map`
+            if(destination == `${base}/map`) {
+                destination = route
+            } else {
+                destination  = `${base}/map`
+            }
         }, 100)
     }
 
@@ -53,6 +60,9 @@
     {obj.frontmatter.title}
     <Recommended node={node} />
     <LocationCountPill node={node} />
+    <Difficulty node={node} />
+    <!-- <Open node={node} /> -->
+    <Selected node={node} />
 </a>
 {/if}
 

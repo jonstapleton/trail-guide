@@ -7,6 +7,7 @@
     import { faCameraRetro } from '@fortawesome/free-solid-svg-icons';
     import type { Coords } from './types';
     import type { Map } from './mapNodes';
+    import { mapData } from '../../store';
 
     /* API for map interactions
     | Method Name        | Description 
@@ -62,6 +63,8 @@
         console.log("Got call to read params...")
         if(params.has('open')) {
             open(params.getAll('open'), params)
+        } else {
+            $mapData.deselectAll()
         }
         if(params.has('xy')) {
             const str:string = params.get('xy') as string
@@ -82,13 +85,8 @@
     function open(paths:string[], params:URLSearchParams) {
         if(paths.length == 0) { params.delete('open'); return } else {
             for(const path of paths) {
-                if(path.includes('projects')) {
-                    console.log("Got call to open project")
-                    data.nodesByPath[path + '.md'].select()
-                } else {
-                    const node = data.nodesByPath[path + '.md']
-                    node.selected = true
-                }
+                const node = data.nodesByPath[path + '.md']
+                node.select()
             }
             // TODO: Zoom in on the last path selected, for now
             const coords = data.nodesByPath[paths[paths.length-1] + '.md'].getCoords()

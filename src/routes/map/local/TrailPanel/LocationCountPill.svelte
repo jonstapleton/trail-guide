@@ -3,6 +3,7 @@
     import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
     import { mapData } from "../../../store";
     import type { Project } from '../mapNodes';
+    import "$lib/styles/number.scss"
     export let node:string
 
     let obj:Project;
@@ -12,7 +13,7 @@
     $: nodesCompleted = $mapData.projectObj[node].nodes.filter((obj:any) => obj.completed).length
 </script>
 
-<span data-tooltip="Completed Tutorials" class='has-tooltip-arrow tag { $mapData.projectObj[node].frontmatter.nodes? 'visible': 'invisible'}'>
+<span data-tooltip="Completed Tutorials" class='mx-2 has-tooltip-arrow number { $mapData.projectObj[node].frontmatter.nodes? 'visible': 'invisible'}'>
     {nodesCompleted}/{obj.nodes.length}<Fa style='margin-left: 4px;' icon={faLocationDot} />
 </span>
 
@@ -23,4 +24,15 @@
     .invisible {
         visibility: hidden;
     }
+    span {
+    color: black;
+}
+span.number {
+    font-size: 11pt;
+    position: relative;
+    top: -3pt;
+    background-color: white;
+    border: 1px solid lightgray;
+    margin-right: 0;
+}
 </style>
