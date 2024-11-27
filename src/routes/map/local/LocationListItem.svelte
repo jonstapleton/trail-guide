@@ -4,7 +4,7 @@
     import { faArrowUpRightFromSquare, faBoxOpen, faLocationDot, faLocationPin, faSearch } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { createEventDispatcher } from "svelte";
-    import type { Tutorial } from "./mapNodes";
+    import type { Tutorial } from "./elements/Tutorial";
     import { mapData } from "../../store";
 
     export let node:string

@@ -2,7 +2,7 @@
     import SearchBar from "$lib/components/elements/SearchBar.svelte";
     import LocationListItem from "./LocationListItem.svelte";
     import { createEventDispatcher } from "svelte";
-    import type { Tutorial } from "./mapNodes";
+    import type { Tutorial } from "./elements/Tutorial";
     import { mapData } from "../../store";
 
     // let nodes:Tutorial[] = $mapData.nodes

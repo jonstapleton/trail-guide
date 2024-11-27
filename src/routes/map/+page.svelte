@@ -7,7 +7,9 @@
     import LocationList from './local/LocationList.svelte';
     import TrailInfo from './local/TrailInfo.svelte';
     import { onDestroy, onMount } from 'svelte';
-    import { Map, Tutorial, type MapDataResponse } from './local/mapNodes';
+    import type { MapDataResponse } from './local/elements/types';
+    import { Map } from './local/elements/Map';
+    import { Tutorial } from './local/elements/Tutorial';
     import { mapData } from '../store';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';

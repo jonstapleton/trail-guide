@@ -1,6 +1,6 @@
 <script lang='ts'>
     import { onMount } from "svelte";
-    import type { Tutorial } from "../../../routes/map/local/mapNodes";
+    import type { Tutorial } from "../../../routes/map/local/elements/Tutorial";
     import Video from "./Video.svelte";
     import { faArrowUpRightFromSquare, faCircleQuestion, faGaugeSimpleHigh, faPenToSquare, faPencil, faSquare, faSquareCheck, faVideo } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'

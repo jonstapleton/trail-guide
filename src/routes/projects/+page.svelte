@@ -4,7 +4,7 @@
     import Fa from 'svelte-fa'
     import { mapData } from '../store';
     import { onMount } from 'svelte';
-    import type { Project } from '../map/local/mapNodes';
+    import type { Project } from '../map/local/elements/Project';
     import ProjectCard from './ProjectCard.svelte';
 
     let term = ''

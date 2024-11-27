@@ -5,7 +5,7 @@
   // import hljs from 'highlight.js';
   import 'highlight.js/styles/a11y-light.min.css';
   import {mapData} from './store'
-  import { Map } from '../routes/map/local/mapNodes'
+  import { Map } from '../routes/map/local/elements/Map'
   import { browser } from '$app/environment';
   import { writable } from 'svelte/store';
 

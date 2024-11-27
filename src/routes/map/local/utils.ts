@@ -1,5 +1,9 @@
 import type { Coords, Transform } from "./types";
-import type { Edge, Map, Tutorial } from "./mapNodes";
+import { Lerpable } from "./elements/types";
+import { Edge } from "./elements/Edge";
+import { Map } from "./elements/Map";
+import { Tutorial } from "./elements/Tutorial";
+import type { MapNode } from "./elements/MapNode";
 
 export class Cursor {
     overNode = false
@@ -44,6 +48,9 @@ export class Cursor {
             y: 0
         }
         
+    }
+    over(node:MapNode, offset:number=0):boolean {
+        return this.p5.dist(this.localX, this.localY, node.x/2, node.y/2) <= (node.width + offset)/2
     }
 
     click(data:any):any|null {
@@ -109,6 +116,7 @@ export class Cartographer {
     font:any
     icons:any
     tick:number = 0
+    mask:Lerpable = new Lerpable(0, 175)
     offset:Coords = {
         x: 0, y: 0
     }
@@ -164,6 +172,9 @@ export class Cartographer {
 
     draw(data:Map, cursor:Cursor) {
         this.tick++
+
+        // Lerp mask value
+        const maskValue = this.mask
         
         // Draw Edges
         for(let i=0;i<data.edges.length;i++) {
@@ -180,7 +191,7 @@ export class Cartographer {
 
             // If the edge is highlighted, draw a bolder line as well
             if(edge.highlighted) {
-                this.p5.stroke(this.p5.color(255, 0, 0));
+                this.p5.stroke(this.p5.color(0, 0, 0));
                 this.p5.strokeWeight(18);
                 if(edge.highlighted == 'dashed') {
                     this.bezier(p0,p1,p2,p3,0.1) // TODO: set `t` based on how far apart the nodes are
@@ -194,34 +205,43 @@ export class Cartographer {
         } 
         
         // Draw Nodes
+        let hoveredNodes:Tutorial[] = []
         for(const node of data.nodes) {
             
-            // if mouse is hovering over a node, highlight it
-            // let the cursor know it's in a hover state
-            // cursor.overNode = false;
-            
             node.draw(this.p5, cursor)
+            if(cursor.over(node)) { hoveredNodes.push(node); this.mask.setTarget(1) }
 
+            // TODO: move this to Tutorial.draw()
             // Add "start here" callout
-            if(node.frontmatter.start && !node.completed) {
-                let offsetY = Math.abs((this.tick/3) % 30 - 15)
-                this.p5.triangle(node.x/2 - 125/2, (node.y/2 - w*1.5) + offsetY, node.x/2 + 125/2, (node.y/2 - w*1.5) + offsetY, node.x/2, (node.y/2 - w*1.5+125) + offsetY)
-                this.p5.circle(node.x/2, (node.y/2 - w*1.5) + offsetY, 125)
-                this.p5.fill(255)
-                this.p5.stroke(255)
-                this.p5.text("Start Here", node.x/2 - 48, (node.y/2 - w*1.5) + offsetY, 100)
-            }
+            // if(node.frontmatter.start && !node.completed) {
+            //     let offsetY = Math.abs((this.tick/3) % 30 - 15)
+            //     this.p5.triangle(node.x/2 - 125/2, (node.y/2 - w*1.5) + offsetY, node.x/2 + 125/2, (node.y/2 - w*1.5) + offsetY, node.x/2, (node.y/2 - w*1.5+125) + offsetY)
+            //     this.p5.circle(node.x/2, (node.y/2 - w*1.5) + offsetY, 125)
+            //     this.p5.fill(255)
+            //     this.p5.stroke(255)
+            //     this.p5.text("Start Here", node.x/2 - 48, (node.y/2 - w*1.5) + offsetY, 100)
+            // }
+
             this.p5.stroke(0)
-            
+        }
+        // Draw the semi-opaque background to help highlight the hovered node
+        this.mask.update()
+        const c = this.p5.color(255)
+        c.setAlpha(this.mask.getLerp())
+        this.p5.background(c)
+        if(hoveredNodes.length > 0) {
+            for(const node of hoveredNodes) { node.draw(this.p5, cursor) } 
+        } else {
+            this.mask.setTarget(0)
         }
 
-        // Draw projects (debugging)
-        for(let i=0;i<data.projects.length;i++) {
-            const proj = data.projects[i]
-            if(proj.selected) {
-                this.p5.circle(proj.center.x, proj.center.y, 100)
-            }
-        }
+        // Draw project center (debugging)
+        // for(let i=0;i<data.projects.length;i++) {
+        //     const proj = data.projects[i]
+        //     if(proj.selected) {
+        //         this.p5.circle(proj.center.x, proj.center.y, 100)
+        //     }
+        // }
                
     }
 }

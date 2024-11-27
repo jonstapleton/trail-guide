@@ -1,7 +1,7 @@
 <script lang='ts'>
     import {base} from '$app/paths'
     import { onMount } from 'svelte';
-    import type { Tutorial } from '../../../routes/map/local/mapNodes';
+    import type { Tutorial } from '../../../routes/map/local/elements/Tutorial';
     import { mapData } from '../../../routes/store';
     export let node:string
     let loaded = false

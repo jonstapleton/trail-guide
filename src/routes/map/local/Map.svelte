@@ -6,7 +6,7 @@
     import { createEventDispatcher } from 'svelte'
     import { faCameraRetro } from '@fortawesome/free-solid-svg-icons';
     import type { Coords } from './types';
-    import type { Map } from './mapNodes';
+    import type { Map } from './elements/Map';
     import { mapData } from '../../store';
 
     /* API for map interactions

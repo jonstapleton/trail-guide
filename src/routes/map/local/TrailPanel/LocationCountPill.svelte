@@ -2,7 +2,7 @@
     import Fa from 'svelte-fa'
     import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
     import { mapData } from "../../../store";
-    import type { Project } from '../mapNodes';
+    import type { Project } from '../elements/Project';
     import "$lib/styles/number.scss"
     export let node:string
 

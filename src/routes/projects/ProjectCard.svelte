@@ -1,7 +1,7 @@
 <script lang='ts'>
     import Fa from 'svelte-fa'
     import { faFire, faArrowUpRightFromSquare, faMap, faStar } from '@fortawesome/free-solid-svg-icons';
-    import type { Map, Project } from "../map/local/mapNodes";
+    import type { Project } from "../map/local/elements/Project";
     import { base} from '$app/paths'
     import { onMount } from 'svelte';
     import { mapData } from '../store';

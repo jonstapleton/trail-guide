@@ -2,7 +2,7 @@
     import { base } from "$app/paths";
     import { mapData } from "../../store";
     import { onDestroy, onMount } from "svelte";
-    import type { Project } from "./mapNodes";
+    import type { Project } from "./elements/Project";
     import LocationCountPill from "./TrailPanel/LocationCountPill.svelte";
     import Checkbox from "./TrailPanel/Checkbox.svelte";
     import Recommended from "./TrailPanel/Recommended.svelte";

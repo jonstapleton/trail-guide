@@ -4,7 +4,7 @@
     import { createEventDispatcher, onMount } from "svelte";
     import TrailListItem from "./TrailListItem.svelte";
     import { mapData } from "../../store";
-    import type { Project } from "./mapNodes";
+    import type { Project } from "./elements/Project";
 
     // export let selectedNode:string;
     export let locs:object[] = []

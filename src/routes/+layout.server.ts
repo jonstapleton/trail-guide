@@ -1,7 +1,7 @@
 import { loadConfig } from "$lib/config"
 import {read} from 'to-vfile'
 import {base} from '$app/paths'
-import type {MapDataResponse} from './map/local/mapNodes'
+import type {MapDataResponse} from './map/local/elements/types'
 import { mapData } from './store'
 import { browser } from '$app/environment'
 
