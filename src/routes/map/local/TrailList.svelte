@@ -3,11 +3,10 @@
     import LocationListItem from "./LocationListItem.svelte";
     import { createEventDispatcher, onMount } from "svelte";
     import TrailListItem from "./TrailListItem.svelte";
-    import type { Nodes } from "rehype-format/lib";
     import { mapData } from "../../store";
     import type { Project } from "./mapNodes";
 
-    export let selectedNode:string;
+    // export let selectedNode:string;
     export let locs:object[] = []
 
     let term = ''

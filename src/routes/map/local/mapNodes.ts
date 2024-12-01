@@ -62,7 +62,7 @@ export class Map {
         }
         this.projects = this.constructProjects(res, this.nodes, this.edges)
         for(let i=0;i<this.projects.length;i++) {
-            this.projectObj[this.projects[i].id] = this.projects[i]
+            this.projectObj[this.projects[i].path] = this.projects[i]
         }
         
     }
@@ -186,6 +186,7 @@ export class Project extends Element {
     selected:boolean = false
     difficulty:number
     id:string
+    center:Coords
     constructor(obj:Document, nodeObjs:Tutorial[], edges:Edge[]) {
         super(obj)
         this.difficulty = obj.frontmatter.difficulty ? obj.frontmatter.difficulty : 'N/A'
@@ -198,6 +199,8 @@ export class Project extends Element {
             objIds.push(nodeRef)
             this.optionalTutorialMask.push(obj.frontmatter.nodes[i].includes('{optional}'))
         }
+
+        
         for(let i=0;i<nodeObjs.length;i++) {
             const nodeFilePath = './'+nodeObjs[i].path
             if(objArray.includes(nodeFilePath)) {
@@ -206,8 +209,18 @@ export class Project extends Element {
                 objIds[index] = nodeObjs[i].id
             }
         }
-        // this.nodes is an ordered list of the nodes in the trail
         this.nodes = objArray as Tutorial[]
+
+        // find project center
+        let minX; let maxX; let minY; let maxY;
+        for(let i=0;i<this.nodes.length;i++) {
+            const node = this.nodes[i]
+            if(!minX || node.x < minX) { minX = node.x }
+            if(!maxX || node.x > maxX) { maxX = node.x }
+            if(!maxY || node.y > maxY) { maxY = node.y }
+            if(!minY || node.y < minY) { minY = node.y }
+        }
+        this.center = { x: (minX/2) + (maxX - minX)/4, y: (minY/2) + (maxY - minY)/4 }
 
         // filter the edges available in the map down to the edges associated with the Project
         let reqIds:string[] = []
@@ -269,6 +282,10 @@ export class Project extends Element {
             }
         }
     }
+    select() {
+        this.selected = true
+        this.highlight()
+    }
     deselect() {
         this.selected = false
         for(let i=0;i<this.nodes.length;i++) {
@@ -277,5 +294,8 @@ export class Project extends Element {
         for(let i=0;i<this.edges.length;i++) {
             this.edges[i].dehighlight()
         }
+    }
+    getCenterCoords():Coords {
+        return this.center;
     }
 }

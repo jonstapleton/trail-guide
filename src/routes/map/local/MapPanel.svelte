@@ -6,15 +6,21 @@
     import Load from './Load.svelte';
     import { mapData } from '../../store';
     import Map from './Map.svelte';
+    import Capture from './Capture.svelte';
     
-    export let selected:string|null
+    export let selected:string[] = []
     function select (name:string) {
-        if(selected == name) {
-            selected = ''
+        if(selected.includes(name)) {
+            // remove name from array
+            selected.splice(selected.indexOf(name), 1)
+            selected = selected
         } else {
-            selected = name
+            // add name to array
+            selected = [...selected, name]
         }
     }
+
+    $: console.log(selected)
 
     let active = false
 
@@ -30,28 +36,40 @@
         <Fa icon={faFolder} size='2x' />
         <span class='button-text'>Projects</span>
     </a> -->
-    <a on:click={() => select('Maps') } class='button round {selected == 'Maps'? 'highlighted' : ''}'>
-        <Fa icon={faRoute} size='2.5x' />
-        <span class='button-text'>Projects</span>
-    </a>
-    <a on:click={() => select('Tutorials') } class='button round {selected == 'Tutorials'? 'highlighted' : ''}'>
-        <Fa icon={faLocationDot} size='2x' />
-        <span class='button-text'>Tutorials</span>
-    </a>
+    <Capture on:capture>
+        <a  on:click={() => select('Maps') } 
+            class='button round {selected.includes("Maps") ? 'highlighted' : ''}'
+        >
+            <Fa icon={faRoute} size='2.5x' />
+            <span class='button-text'>Projects</span>
+        </a>
+    </Capture>
+    <Capture on:capture>
+        <a on:click={() => select('Tutorials') } 
+            class='button round {selected.includes('Tutorials')? 'highlighted' : ''}'
+        >
+            <Fa icon={faLocationDot} size='2x' />
+            <span class='button-text'>Tutorials</span>
+        </a>
+    </Capture>
+    
     <div class='bottom'>
-        <button on:click={() => active = true} class='button round'>
-            <Fa icon={faUpload} size='1.5x' />
-            <span class='button-text'>Load</span>
-        </button>
-        <button class='button round'>
-            <Fa icon={faDownload} size='1.5x' />
-            <span class='button-text'>Save</span>
-        </button>
-        <!-- <a class='button round'>
-            <Fa icon={faGear} size='1.5x' />
-            <span class='button-text'>Settings</span>
-        </a> -->
+        <Capture on:capture>
+            <button on:click={() => active = true} class='button round'>
+                <Fa icon={faUpload} size='1.5x' />
+                <span class='button-text'>Load</span>
+            </button>
+            <button class='button round'>
+                <Fa icon={faDownload} size='1.5x' />
+                <span class='button-text'>Save</span>
+            </button>
+            <!-- <a class='button round'>
+                <Fa icon={faGear} size='1.5x' />
+                <span class='button-text'>Settings</span>
+            </a> -->
+        </Capture>
     </div>
+    
     <div class="modal {active? 'is-active' : ''}">
         <div on:click={() => active = false} class="modal-background"></div>
         <Load on:load={loadMap} on:close={() => active = false} />
@@ -63,7 +81,8 @@
         position: relative;
         display: inline-block;
         height: 100%;
-        // background-color: pink;
+        // background-color: white;
+        // border-right: black solid 1px;
     }
     .button-text {
         font-style: italic;

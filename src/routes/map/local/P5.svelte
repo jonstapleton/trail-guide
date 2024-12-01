@@ -60,7 +60,7 @@
     
     onDestroy(() => {
         console.log("Destroying p5js instance... bump")
-        window._p5Instance.remove()
+        // if(window) { window._p5Instance.remove() }
     })
 </script>
 
