@@ -3,9 +3,11 @@ import { Tutorial } from "./Tutorial"
 import { Edge } from "./Edge"
 import { Element } from "./Element"
 
+
 export class Project extends Element implements Focusable {
     nodes:Tutorial[] = []
     edges:Edge[] = []
+    map:any = {}
     optionalTutorialMask:boolean[] = []
     optionalEdgeMask:boolean[] = []
     selected:boolean = false
@@ -19,26 +21,92 @@ export class Project extends Element implements Focusable {
         if(!obj.frontmatter.nodes) { throw new Error(`Document ${obj.frontmatter.title} does not define nodes!`)}
         let objIds:string[] = []
         let objArray:(string|Tutorial)[] = []
-        for(let i=0;i<obj.frontmatter.nodes.length;i++) {
-            let nodeRef = obj.frontmatter.nodes[i].replaceAll(' ', '').replace('{optional}','').replace('./', this.path + "/")
-            objArray.push(nodeRef)
-            objIds.push(nodeRef)
-            this.optionalTutorialMask.push(obj.frontmatter.nodes[i].includes('{optional}'))
-        }
-        // console.log(objArray)
-        for(let i=0;i<nodeObjs.length;i++) {
-            const nodeFilePath = nodeObjs[i].path
-            if(objArray.includes(nodeFilePath)) {
-                const index = objArray.indexOf(nodeFilePath)
-                objArray[index] = nodeObjs[i]
-                objIds[index] = nodeObjs[i].id
+
+        // Build `map` Groups from raw data
+        // Store group references for later
+        const groupRefs:object[] = []
+        for(const [k,v] of Object.entries(obj.frontmatter.nodes)) {
+            this.map[k] = { nodes: [], optNodeMask: [], edges: [], optEdgeMask: [] }
+            for(let i=0;i<v.length;i++) {
+                const n = v[i]
+                if(n.charAt(0) == "$") {
+                    // console.log("Found Group reference in " + k + " group")
+                    const newRef = {
+                        parent: k,
+                        name: n.substring(1),
+                        to: i < v.length-1 ? v[i + 1] : null,
+                        from: i > 0 ? v[i - 1] : null
+                    }
+                    newRef.to = newRef.to ? newRef.to.replaceAll(' ', '').replace('{optional}','').replace('./', this.path + "/") : null
+                    newRef.from = newRef.from ? newRef.from.replaceAll(' ', '').replace('{optional}','').replace('./', this.path + "/") : null
+                    groupRefs.push(newRef)
+                } else {
+                    let nodeRef = n.replaceAll(' ', '').replace('{optional}','').replace('./', this.path + "/")
+                    // all the nodes have unique filepaths, so we know this will work everytime
+                    const nodeObj = (nodeObjs.filter((node) => nodeRef == node.path))[0] as Tutorial
+                    this.map[k].nodes.push(nodeObj)
+                    this.map[k].optNodeMask.push(n.includes('{optional}'))
+                    this.nodes.push(nodeObj) // push the object reference to `this.nodes:Tutorial[]`
+                }
             }
         }
-        for(const obj of objArray) {
-            if(typeof(obj) == typeof("string")) { throw Error(obj + " not found, could not create Element")}
-        }
-        this.nodes = objArray as Tutorial[]
+        this.center = this.getCenter()
 
+        // Find edges for each group
+        // TODO: if a groupRef has a `to` and a `from` the edge reference is self-contained within the group and should be added
+        for(const [k,v] of Object.entries(this.map)) {
+            const groupIds = this.getGroupIds(k)
+            const groupEdges =  edges.filter((e) => {
+                // find the indices of the nodes in each group, then filter the edges to find edges that are between two adjacent nodes
+                const to = groupIds.indexOf(e.toNode)
+                const from = groupIds.indexOf(e.fromNode)
+                return (to != -1 && from != -1) && (Math.abs(to - from) == 1 || Math.abs(groupIds.indexOf(e.toNode) - groupIds.indexOf(e.fromNode)) == 1)
+            })
+            this.map[k].edges = groupEdges
+        }
+
+        // copy the edges from the groups to `this.edges:Edge[]`
+        for(const [k,v] of Object.entries(this.map)) {
+            for(const edge of this.map[k].edges) {
+                if(this.edges.filter(e => edge.id == e.id).length == 0) {
+                    this.edges.push(edge)
+                }
+            }
+        }
+
+        // add edges associated with references
+        for(const ref of groupRefs) {
+            const to = ref.to ? this.nodes.filter(n => ref.to == n.path)[0] : null
+            const from = ref.from ? this.nodes.filter(n => ref.from == n.path) : this.map[ref.name].nodes[this.map[ref.name].nodes.length-1]
+
+            if(!(to && from)) { throw new Error(`Cannot connect group reference to ${ref.to} in ${ref.parent}`) }
+            const refEdges = this.getEdgesBetween(to, from, edges)
+            this.edges = refEdges ? [...this.edges, ...refEdges] : this.edges
+        }
+        
+        this.id = this.path
+    }
+
+    getGroupIds(groupName:string) {
+        let ids:string[] = []
+        for(const n of this.map[groupName].nodes) {
+            ids.push(n.id)
+        }
+        return ids
+    }
+
+    getEdgesBetween(node1:Tutorial, node2:Tutorial, edges:Edge[]):Edge[]|false {
+        const between = edges.filter(e => (e.toNode == node1.id || e.toNode == node2.id) && (e.fromNode == node1.id || e.fromNode == node2.id))
+        if(between.length == 0) {
+            console.warn(`Cannot find edge between ${node1.path} and ${node2.path}!`)
+            return false
+        } else {
+            return between
+        }
+    }
+
+    getCenter():Coords {
+        if(this.nodes.length == 0) { throw new Error(`Cannot find project at ${this.path} center, no nodes loaded`)}
         // find project center
         let minX; let maxX; let minY; let maxY;
         for(let i=0;i<this.nodes.length;i++) {
@@ -48,41 +116,7 @@ export class Project extends Element implements Focusable {
             if(!maxY || node.y > maxY) { maxY = node.y }
             if(!minY || node.y < minY) { minY = node.y }
         }
-        this.center = { x: ((minX as number)/2) + ((maxX as number) - (minX as number))/4, y: ((minY as number)/2) + ((maxY as number) - (minY as number))/4 }
-
-        // filter the edges available in the map down to the edges associated with the Project
-        let reqIds:string[] = []
-        this.edges = edges.filter((edge) => {
-            const to = objIds.indexOf(edge.toNode)
-            const from = objIds.indexOf(edge.fromNode)
-            // if the edge leads to or comes from an optional tutorial...
-            // if(edgeInProject && (this.optionalTutorialMask[to] || this.optionalTutorialMask[from])) {
-            //     this.optionalEdgeMask.push(true)
-            // } else if(edgeInProject) {
-            //     this.optionalEdgeMask.push(false)
-            // }
-
-            for(let i=0;i<objIds.length;i++) {{
-                if(!this.optionalTutorialMask[i]) {
-                    reqIds.push(objIds[i])
-                }
-            }}
-
-            const edgeInProject = (to != -1 && from != -1) && (Math.abs(to - from) == 1 || Math.abs(reqIds.indexOf(edge.toNode) - reqIds.indexOf(edge.fromNode)) == 1)
-
-            //   edge nodes are in project list AND  (edges are adjacent  OR  all nodes in between edge nodes in node list are optional)
-            return edgeInProject
-        })
-
-        for(let i=0;i<this.edges.length;i++) {
-            if(!reqIds.includes(this.edges[i].toNode) || !reqIds.includes(this.edges[i].fromNode)) {
-                // the edge is connected to an optional node
-                this.optionalEdgeMask.push(true)
-            } else {
-                this.optionalEdgeMask.push(false)
-            }
-        }
-        this.id = this.path
+        return { x: ((minX as number)/2) + ((maxX as number) - (minX as number))/4, y: ((minY as number)/2) + ((maxY as number) - (minY as number))/4 }
     }
 
     highlight() {
