@@ -26,9 +26,10 @@ export class Project extends Element implements Focusable {
         // Store group references for later
         const groupRefs:object[] = []
         for(const [k,v] of Object.entries(obj.frontmatter.nodes)) {
-            this.map[k] = { nodes: [], optNodeMask: [], edges: [], optEdgeMask: [] }
+            this.map[k] = { nodes: [], optNodeMask: [], edges: [], optEdgeMask: [], list: [] }
             for(let i=0;i<v.length;i++) {
                 const n = v[i]
+                this.map[k].list.push(n)
                 if(n.charAt(0) == "$") {
                     // console.log("Found Group reference in " + k + " group")
                     const newRef = {

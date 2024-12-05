@@ -1,11 +1,12 @@
 import YAML from 'yaml'
 import { read } from 'to-vfile'
 
-interface Config {
+export interface Config {
     title:string,
     modules:string,
     status:string,
-    local:boolean
+    local:boolean,
+    tool:string
 }
 
 export async function loadConfig():Promise<Config> {

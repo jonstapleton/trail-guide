@@ -50,28 +50,45 @@
 </script>
 
 {#if obj}
-<a
-    on:mouseenter={select} 
-    on:mouseleave={deselect} 
-    on:click={toggleRoute} 
-    href="{destination}"
->
-    <Checkbox node={node} />
-    {obj.frontmatter.title}
-    <Recommended node={node} />
-    <LocationCountPill node={node} />
-    <Difficulty node={node} />
-    <!-- <Open node={node} /> -->
-    <Selected node={node} />
-</a>
+<div class='trail-list-item'>
+    <a
+        on:mouseenter={select} 
+        on:mouseleave={deselect} 
+        on:click={toggleRoute} 
+        href="{destination}"
+    >
+        <Checkbox node={node} />
+        {obj.frontmatter.title}
+        <Recommended node={node} />
+        <LocationCountPill node={node} />
+        <Difficulty node={node} />
+        <!-- <Open node={node} /> -->
+        <!-- <Selected node={node} /> -->
+    </a>
+    {#if destination != route}
+    <div class='trail-info'>
+        <p>{obj.frontmatter.description}</p>
+    </div>
+    {/if}
+</div>
 {/if}
 
 <style lang='scss'>
     a {
-        padding: 1rem 0.5rem;
+        padding-top: 1rem;
+        padding-bottom: 0.5rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
         display: flex;
     }
-    a:hover {
+    .trail-list-item:hover {
         background-color: whitesmoke;
+    }
+    p {
+        font-size: 10pt;
+        margin-left: 2rem;
+    }
+    .trail-info {
+        padding-bottom: 0.5rem;
     }
 </style>

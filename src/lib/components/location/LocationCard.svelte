@@ -5,7 +5,7 @@
     import { faArrowUpRightFromSquare, faCircleQuestion, faGaugeSimpleHigh, faPenToSquare, faPencil, faSquare, faSquareCheck, faVideo } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { mapData } from "../../../routes/store";
-    import QuickTake from "./QuickTake.svelte";
+    import QuickTake from "./banner/QuickTake.svelte";
     import QuestionHost from "./QuestionHost.svelte";
     import { base } from '$app/paths'
 

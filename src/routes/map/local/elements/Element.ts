@@ -1,10 +1,12 @@
-import type { Frontmatter, Document } from './types'
+import type { Frontmatter, Document, Content } from './types'
+
+
 
 export class Element {
     frontmatter:Frontmatter = { title: "Default Title" }
     file:string = ''
     path:string = ''
-    content:string = '<p>no content</p>'
+    content:Content = {full: '<p>no content</p>'}
     completed:boolean = false
     p5:any
     type:string = "element"

@@ -1,6 +1,6 @@
 <script lang='ts'>
     import { onMount } from "svelte";
-    import { mapData } from "../../../routes/store";
+    import { mapData } from "../../../../routes/store";
     import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import * as components from '$lib/components/location/directives'
@@ -34,7 +34,7 @@
     $: if(node && !loaded) {loadContent(node as string)}
 </script>
 
-<div class='quick-take content {containerized ? 'columns' : ''}'>
+<div class='quick-take content {containerized ? 'columns' : ''} p-5'>
     {#if loaded}
     {@html quick && quick.length > 0 ? quick : full }
     {/if}

@@ -1,8 +1,14 @@
+export type Content = {
+    full:string,
+    quick?:string,
+    prompt?:string
+}
+
 export interface Document {
     frontmatter:Frontmatter,
     file:string,
     path:string,
-    content:string,
+    content:Content,
     completed:boolean
 }
 

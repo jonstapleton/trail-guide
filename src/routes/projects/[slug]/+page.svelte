@@ -6,13 +6,16 @@
     import LocationCard from "$lib/components/location/LocationCard.svelte";
     import CardWrap from "$lib/components/elements/CardWrap.svelte";
     import PanelCard from "$lib/components/elements/PanelCard.svelte";
-    import Header from "$lib/components/location/Header.svelte";
-    import QuickTake from "$lib/components/location/QuickTake.svelte";
+    import Header from "$lib/components/location/banner/Header.svelte";
+    import QuickTake from "$lib/components/location/banner/QuickTake.svelte";
     import { mapData } from "../../store";
+    import type { Project } from "../../map/local/elements/Project";
+    import TutorialBanner from "$lib/components/location/banner/TutorialBanner.svelte";
+    import ProjectMap from "./ProjectMap.svelte";
     
     export let data
-    let selectedNode = 0;
-    let obj:any = data
+    let selectedNode:string; // the path of a Tutorial
+    let obj:Project
     const id = 'projects/'+data.path
     onMount(() => {
         console.log('Project ID is', data.path)
@@ -20,6 +23,7 @@
             console.log("Found project in mapData")
             obj = $mapData.projectObj[id]
             // console.log(obj.frontmatter.nodes)
+            selectedNode = $mapData.projectObj[id].nodes[0].path
         }
     })
     let completed = 0;
@@ -34,8 +38,9 @@
     
 </script>
 
-<div class='container'>
-    <div class='section content'>
+{#if obj}
+<div class='project-header container content'>
+    <!-- <div class='section content'> -->
         <h1 class='title'>
             <label class='checkbox'>
                 <input bind:value={$mapData.projectObj[id].completed} class='checkbox' type='checkbox'>
@@ -53,37 +58,39 @@
                 {/each}
             </span>
             <span class='tag'>
-                Completed: {completed} / {obj.frontmatter.nodes.length}
+                Completed: {completed} / {obj.nodes.length}
             </span>
-            <a class='tag' target="_blank" href="{base}/map">View on Map<span class='ml-2'><Fa icon={faMap} /></span></a>
+            <a class='tag' target="_blank" href="{base}/map?open={obj.path}">View on Map<span class='ml-2'><Fa icon={faMap} /></span></a>
         </div>
         <div class='content'>
             {@html obj.content.full}
         </div>
-        <div class='level nodes'>
-            {#each $mapData.projectObj[id].nodes as node, i}
-            <a on:click={() => selectedNode = i} class='level-item {i == 0? 'first':''} {i==obj.frontmatter.nodes.length-1? "last":''}'>
-                {#if selectedNode == i}
-                    <span class='select-icon'><Fa size="2x" icon={faLocationDot} /></span>
+        <ProjectMap id={id} bind:selectedNode={selectedNode} />
+    <!-- </div> -->
+</div>
+<div class='tut-info container'>
+    <!-- <Header titleSize="24" node={obj.nodes[selectedNode].id} /> -->
+        <TutorialBanner tutorial={$mapData.nodesByPath[selectedNode]} />
+        <div class='content tutorial'>
+            <!-- <div class='section'> -->
+                {#if $mapData.nodesByPath[selectedNode].content.full.length == 0}
+                <p><i>We haven't written the full tutorial for this page yet! Check back soon.</i></p>
+                {:else}
+                {@html $mapData.nodesByPath[selectedNode].content.full}
                 {/if}
-                <p>{node.frontmatter.title}</p>
-                {#if node.completed}
-                <span class='completed-icon'><Fa size="3x" icon={faCheck} /></span>
-                {/if}
-            </a>
-            {/each}
+            <!-- </div> -->
         </div>
-        <div class='cards'>
-            <Header titleSize="24" node={obj.nodes[selectedNode].id} />
-            <hr>
-            <div class='p-5'>
-                <LocationCard tabClass={'onTrail'} exclude={["Video"]} node={obj.nodes[selectedNode].id} />
-            </div>
-        </div>
-    </div>
 </div>
 
+{/if}
+
 <style lang='scss'>
+    .tutorial {
+        margin-bottom: 10rem;
+    }
+    .project-header {
+        margin-top: 6rem;
+    }
     .completed-icon {
         position: absolute;
         color: hsl(141, 53%, 53%);
@@ -108,42 +115,7 @@
             position: static;
         }
     }
-    .nodes {
-        background: linear-gradient(to bottom, white calc(50% - 3px), black calc(50% - 3px) calc(50% + 3px), white calc(50% + 3px));
-        margin-top: 5rem;
-        margin-bottom: 4rem;
-        & > a {
-            background-color: hsl(0, 0%, 21%);
-            color: white;
-            margin: 0.5rem 0.5rem;
-            border-radius: 8px;
-            height: 3rem;
-            border: 3px solid hsl(0, 0%, 21%);
-            position: relative;
-            p {
-                color: white
-            }
-            &.first { margin-left: 0 }
-            &.last { margin-right: 0 }
-            &:hover {
-                background-color: white;
-                color: black;
-                border: 3px dashed black;
-                cursor: pointer;
-                p {
-                    color: black;
-                }
-            }
-        }
-    }
-    @media screen and (max-width: 768px) {
-        .nodes {
-            background: linear-gradient(#000, #000) no-repeat center/6px 100%;
-            & > a.first, & > a.last {
-                margin: 0.5rem 0.5rem;
-            }
-        }
-    }
+    
     .title {
         font-size: 36pt;
         input {

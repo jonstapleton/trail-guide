@@ -25,14 +25,14 @@
 
 <article class='box'>
     <div class='columns'>
-        {#if node.frontmatter.video}
+        <!-- {#if node.frontmatter.video}
         <div class='column mr-5 is-one-third is-hidden-mobile'>
             <div class='video-wrap'>
                 <iframe src="{node.frontmatter.video}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                <!-- <span class='video-icon'><Fa icon={faVideo} size="2x" /></span> -->
+                <span class='video-icon'><Fa icon={faVideo} size="2x" /></span>
             </div>
         </div>
-        {/if}
+        {/if} -->
         <div class='column'>
             <heading class='subtitle'>
                 <label class='checkbox'>
@@ -51,7 +51,7 @@
                         <span class='ml-1 diff-icon'><Fa icon={faFire} /></span>
                         {/each}
                     </span>
-                    <span class='tag is-medium'>Completed: {completed} / {node.frontmatter.nodes.length}</span>
+                    <span class='tag is-medium'>Completed: {completed} / {node.nodes.length}</span>
                     <!-- <span class='ml-2'><Fa icon={icon} /></span> -->
                     <!-- <span class='type is-italic'>Tutorial</span> -->
                 </label>

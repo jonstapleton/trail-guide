@@ -6,6 +6,7 @@
     import { onMount } from 'svelte';
     import type { Project } from '../map/local/elements/Project';
     import ProjectCard from './ProjectCard.svelte';
+    import { loadConfig, type Config } from '$lib/config';
 
     let term = ''
     let completedNodes = 0
@@ -25,7 +26,8 @@
         })
     }
     let nodes:Project[] = []
-    onMount(() => {
+    let config:Config // TODO: need to figure out why this isn't working
+    onMount(async () => {
         filter(term)
     })
 </script>
@@ -33,11 +35,13 @@
 <div class='container'>
     <div class='section content'>
         <h1>Projects</h1>
-        <p>Check out the projects below for fun story ideas to create with Twine!</p>
+        {#if config}
+        <p>Check out the projects below some ideas of what you might make with {config.tool}!</p>
+        {/if}
         <p>Each of the projects listed below contain several tutorials. Search our whole library of tutorials on the <a href='{base}/tutorials'>Tutorials</a> page, or browse all of the trail guide resources on the <a href="{base}/map">Map</a>.</p>
         <div class='field has-addons mt-5'>
             <div class='control is-expanded'>
-                <input bind:value={term} placeholder="Search by Project Name..." class='input is-large'>
+                <input bind:value={term} placeholder="Search by project name..." class='input is-large'>
             </div>
             <div class='control'>
                 <!-- TODO: update path based on search terms -->

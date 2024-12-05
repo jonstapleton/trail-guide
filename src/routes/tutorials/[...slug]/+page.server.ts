@@ -3,7 +3,7 @@ import { read } from 'to-vfile'
 
 // TODO: context-ful location pages, that show what map you're "in" based on where you're coming from
 export async function load({ params }) {
-    const { file, frontmatter, quicktake, practice } = await parse(params.slug + '.md')
+    // const { file, frontmatter, quicktake, practice } = await parse(params.slug + '.md')
 
     // const blob = (await read('../modules/region-map.canvas')).toString()
     // const res = JSON.parse(blob)
@@ -16,9 +16,6 @@ export async function load({ params }) {
 
     return {
         path: params.slug,
-        content: {full: file.value, quick: quicktake, practice: practice},
-        frontmatter: frontmatter,
-        completed: false // TODO: this is going to have to change when we load data
     }
 }
 
