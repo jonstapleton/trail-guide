@@ -63,7 +63,7 @@
                         <a href="{base}/{node.path}" target="_blank" class='button is-fullwidth is-dark'>Read Detailed Tutorial<span class='ml-2'><Fa icon={faArrowUpRightFromSquare} /></span></a>
                     </div>
                     <div class='control is-expanded'>
-                        <a href="{base}/map" target="_blank" class='button is-fullwidth'>View on the Map<span class='ml-2'><Fa icon={faMap} /></span></a>
+                        <a href="{base}/map?open={node.path}&zoom=0.5" target="_blank" class='button is-fullwidth'>View on the Map<span class='ml-2'><Fa icon={faMap} /></span></a>
                     </div>
                 </div>
             </section>

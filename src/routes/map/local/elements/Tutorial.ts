@@ -106,7 +106,7 @@ export class Tutorial extends MapNode {
         p5.strokeWeight(1)
     }
     handleHighlight(p5:any) {
-        if(this.highlighted) {
+        if(this.highlighted || this.selected) {
             p5.fill(p5.color(0, 0, 0))
             p5.circle(this.x/2, this.y/2, this.width + + this.widthOffset.getLerp() + 18);
         }
@@ -117,7 +117,7 @@ export class Tutorial extends MapNode {
         return hovering || this.hover
     }
     setFill(p5:any) {
-        let color = this.selected? p5.color(0, 255, 0) : 255
+        let color = 255
         p5.fill(color)
     }
     toggleCompleted() {

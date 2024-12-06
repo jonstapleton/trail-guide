@@ -93,9 +93,12 @@
             {#each rows[name].objs as node, i}
             <a 
                 style="grid-column: {rows[name].indices[i]}; grid-row: {rows[name].row}"
-                class='{rows[name].edges[i]}'
+                class='{rows[name].edges[i]} {selectedNode == node.path ? "selected" : ""}'
                 on:click={() => select(node)}
             >
+                <!-- {#if selectedNode == node.path}
+                    <span class='select-icon'><Fa size="2x" icon={faLocationDot} /></span>
+                {/if} -->
                 {node.frontmatter.title}
                 {#if $mapData.nodesByPath[node.path].completed}
                 <span class='completed-icon'><Fa size="3x" icon={faCheck} /></span>
@@ -135,7 +138,7 @@
         border: 3px solid hsl(0, 0%, 21%);
         border-radius: 8px;
         position: relative;
-        &:hover {
+        &:hover, &.selected {
             background-color: white;
             color: black;
             border: 3px dashed black;

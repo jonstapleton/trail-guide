@@ -43,11 +43,12 @@
         goto(`?${params.toString()}`)
 
         console.log("Updating UI elements based on URL...")
-        openTutorials = params.getAll('open')
+        openTutorials = params.getAll('open') // open panel
     }
     function writeToMap(params:URLSearchParams) {
         console.log("Sending directive to map...")
         if(map) { map.readEventFrom(params) }
+        openTutorials = params.getAll('open') // open panel
     }
 
     function handleCapture(flag:boolean) {
