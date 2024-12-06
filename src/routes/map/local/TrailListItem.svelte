@@ -62,7 +62,7 @@
         <Recommended node={node} />
         <LocationCountPill node={node} />
         <Difficulty node={node} />
-        <!-- <Open node={node} /> -->
+        <Open node={node} />
         <!-- <Selected node={node} /> -->
     </a>
     {#if destination != route}

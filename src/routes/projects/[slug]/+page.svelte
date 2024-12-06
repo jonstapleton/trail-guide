@@ -64,6 +64,8 @@
         </div>
         <div class='content'>
             {@html obj.content.full}
+            <br>
+            <p><i>Click on the flowchart below to load tutorials associated with this project.</i></p>
         </div>
         <ProjectMap id={id} bind:selectedNode={selectedNode} />
     <!-- </div> -->

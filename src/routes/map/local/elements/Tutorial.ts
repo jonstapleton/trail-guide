@@ -72,11 +72,13 @@ export class Tutorial extends MapNode {
     }
     draw(p5:any, cursor:Cursor) {
         this.widthOffset.update()
-        // draw highlighted circle (red)
-        this.handleHighlight(p5)
+        
             
         // handle hover state
         this.handleHover(p5, cursor)
+
+        // draw highlighted circle
+        this.handleHighlight(p5)
 
         // determine node fill color
         this.setFill(p5)
@@ -106,7 +108,7 @@ export class Tutorial extends MapNode {
     handleHighlight(p5:any) {
         if(this.highlighted) {
             p5.fill(p5.color(0, 0, 0))
-            p5.circle(this.x/2, this.y/2, this.width + 18);
+            p5.circle(this.x/2, this.y/2, this.width + + this.widthOffset.getLerp() + 18);
         }
     }
     handleHover(p5:any, cursor:Cursor, buffer:number=0):boolean {
