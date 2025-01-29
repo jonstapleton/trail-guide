@@ -11,7 +11,6 @@ The `trail-guide` is designed to be used as a git submodule within a larger repo
 ```
 README.md
 modules/
-	meta.md
 	region-map.canvas
 	applications/
 	concepts/
