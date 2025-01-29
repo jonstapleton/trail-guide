@@ -28,10 +28,6 @@ The `modules` directory contains all of the text content to appear on the websit
 
 The `concepts` and `applications` directories contain tutorial elements. The `concepts` elements should detail broadly applicable programming concepts (e.g., variables, "if" statements), and `applications` elements should provide details about how those concepts should be applied in a given domain/context using a given tool. Most of the time, one Concept will be connected to several Applications. 
 
-### Activities
-
-The `activities` directory contains practical prompts designed to help learners practice related concepts. Each Activity should be connected to one or more Concepts or Applications in the `region-map.canvas`. Connected tutorial elements will contain a link to the activity in the "Activity" tab at the top of their associated page and map card. Some Applications will be Landmarks (i.e., tutorial elements at the end of a Project).
-
 ### Projects
 
 Elements in the `projects` directory describe large "capstone" projects which require learners to synthesize a large number of concepts and/or applications. Projects always end with a Landmark: an Application element containing a prompt for the culminating project. They also always define an ordered list of `nodes` in the element frontmatter. These Nodes are references to the Concepts and Applications learners must draw on to successfully complete the Project.
