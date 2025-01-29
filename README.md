@@ -13,7 +13,6 @@ README.md
 modules/
 	meta.md
 	region-map.canvas
-	activities/
 	applications/
 	concepts/
 	projects/
