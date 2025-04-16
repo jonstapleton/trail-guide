@@ -1,6 +1,6 @@
 <script lang='ts'>
     import { onMount } from "svelte";
-    import { mapData } from "../../../routes/store";
+    import { mapData } from "../../../../routes/store";
     import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import * as components from '$lib/components/location/directives'
@@ -14,26 +14,27 @@
     let quick:string = ''
     let loaded = false
     onMount(() => {
-        console.log(src)
+        console.log("Mounting quick take...")
         if(node) {
             console.log("Loading Quick Take from id")
             loadContent(node as string)
         } else if(data) {
             console.log("Loading Quick Take from object");
             ({full, quick} = data.content);
+            console.log(quick)
         }
-        loaded = full && quick ? true: false
+        loaded = full || quick ? true: false
     })
 
     function loadContent(node:string) {
-        ({full, quick} = $mapData.nodeObj[node].content)
-        loaded = full && quick ? true: false
+        ({full, quick} = $mapData.nodesByPath[node].content)
+        loaded = full || quick ? true: false
     }
 
     $: if(node && !loaded) {loadContent(node as string)}
 </script>
 
-<div class='quick-take {containerized ? 'columns' : ''}'>
+<div class='quick-take content {containerized ? 'columns' : ''} p-5'>
     {#if loaded}
     {@html quick && quick.length > 0 ? quick : full }
     {/if}

@@ -4,7 +4,7 @@
     import { onDestroy, onMount } from "svelte";
     import Fa from 'svelte-fa'
     import { mapData } from "../../../routes/store";
-    import type { Map } from "../../../routes/map/local/mapNodes";
+    import type { Map } from "../../../routes/map/local/elements/Map";
 
     export let question:Question
     export let boxed = true

@@ -13,7 +13,9 @@ export function quick_take(tree:any):string {
             // el.properties.src = node.properties.src
             console.log("found quick take!", node.properties.src)
             content += toHtml( h('div.column', [node.children]))
-            content += toHtml(h('div.column', [h('img', {src: node.properties.src})]))
+            if(node.properties.src) {
+                content += toHtml(h('div.column', [h('img', {src: node.properties.src})]))
+            }
         }
     })
     remove(tree, (node:any) => node.tagName == 'quick-take')

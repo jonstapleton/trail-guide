@@ -1,15 +1,15 @@
 <script lang='ts'>
     import { onMount } from "svelte";
-    import type { Tutorial } from "../../../routes/map/local/mapNodes";
+    import type { Tutorial } from "../../../routes/map/local/elements/Tutorial";
     import Video from "./Video.svelte";
     import { faArrowUpRightFromSquare, faCircleQuestion, faGaugeSimpleHigh, faPenToSquare, faPencil, faSquare, faSquareCheck, faVideo } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { mapData } from "../../../routes/store";
-    import QuickTake from "./QuickTake.svelte";
+    import QuickTake from "./banner/QuickTake.svelte";
     import QuestionHost from "./QuestionHost.svelte";
     import { base } from '$app/paths'
 
-    export let node:string|null;
+    export let node:string;
     export let exclude:string[] = []
     let tabs = ["Quick Take"]
     let obj:Tutorial
@@ -17,16 +17,17 @@
 
     onMount(() => {
         loadCard(node as string)
+        console.log("Tabs: ", tabs)
+        console.log("Element:", $mapData.nodesByPath[node])
     })
 
     function loadCard(node:string) {
-        obj = $mapData.nodeObj[node]
-        // console.log(obj)
+        obj = $mapData.nodesByPath[node]
         tabs = ["Quick Take"]
         if(obj.frontmatter.video && !exclude.includes("Video"))   { tabs = [...tabs, "Video"]    }
         if(obj.content.practice && !exclude.includes("Practice"))    { tabs = [...tabs, "Practice"] }
         if(obj.content.prompt && !exclude.includes("Prompt"))      { tabs = [...tabs, "Prompt"]   } 
-        console.log(tabs)
+        // console.log(tabs)
     }
 
     $: loadCard(node as string)
@@ -74,20 +75,25 @@
         <svelte:component this={objs[openTab].component} node={ node }></svelte:component>
     </div>
     <hr>
-    {#if obj}
+    <!-- {:else if obj.file.includes('activities/')}
+    <div class='my-3 content'>
+        { @html obj.content.full }
+    </div> -->
+    
     <div class='buttons is-centered is-fullwidth'>
-        <!-- TODO: -->
-        <!-- <a href={base+'tutorials/'+obj.path.replace('.md', '')} target='_blank' class='button is-fullwidth'>
+        <!-- {#if !obj.file.includes('activities/')}
+        <a href={base+'tutorials/'+obj.path.replace('.md', '')} target='_blank' class='button is-fullwidth'>
             Read Detailed Tutorial
             <span class='icon ml-1'><Fa icon={faArrowUpRightFromSquare} /></span>
-        </a> -->
-        <button on:click={() => $mapData.nodeObj[node].completed = !$mapData.nodeObj[node].completed} class='button is-success is-fullwidth'>
-            <span class='icon mr-1'><Fa icon={$mapData.nodeObj[node].completed ? faSquareCheck : faSquare} /></span>
+        </a>
+        {/if} -->
+        <button on:click={() => $mapData.nodesByPath[node].completed = !$mapData.nodesByPath[node].completed} class='button is-success is-fullwidth'>
+            <span class='icon mr-1'>
+                <Fa icon={$mapData.nodesByPath[node].completed ? faSquareCheck : faSquare} />
+            </span>
             Mark as Completed
         </button>
-        
     </div>
-    {/if}
 </div>
 
 <style lang='scss'>

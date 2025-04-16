@@ -12,7 +12,7 @@
             <p class='subtitle'>A CodeVA Curriculum Trail Guide</p>
             <div class='field'>
                 <div class='control is-expanded'>
-                    <a class='button is-fullwidth is-large is-dark'>
+                    <a href="{base}/map" class='button is-fullwidth is-large is-dark'>
                         Explore the Map
                         <span class='ml-2'><Fa icon={faMap} /></span>
                     </a>

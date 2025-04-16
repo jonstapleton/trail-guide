@@ -60,6 +60,8 @@ pre {
     &.visible {
         display: block;
     }
+    overflow-y: scroll;
+    max-height: 25rem;
 }
 
 pre code {
@@ -85,4 +87,8 @@ pre.has-tabs {
     margin-right: auto;
     margin-left: auto;
     display:block;
+}
+
+.tutorial h2 {
+    margin-top: 4rem;
 }

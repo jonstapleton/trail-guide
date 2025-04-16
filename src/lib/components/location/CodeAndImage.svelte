@@ -93,5 +93,6 @@
     }
     article {
         margin: 3rem 0;
+        // max-height: 10rem;
     }
 </style>

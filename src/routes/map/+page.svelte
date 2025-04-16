@@ -7,115 +7,130 @@
     import LocationList from './local/LocationList.svelte';
     import TrailInfo from './local/TrailInfo.svelte';
     import { onDestroy, onMount } from 'svelte';
-    import { Map, Tutorial, type MapDataResponse } from './local/mapNodes';
+    import type { MapDataResponse } from './local/elements/types';
+    import { Map } from './local/elements/Map';
+    import { Tutorial } from './local/elements/Tutorial';
     import { mapData } from '../store';
+    import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
+    import UrlDebugger from './local/UrlDebugger.svelte';
+    import Capture from './local/Capture.svelte';
+    import { parseAllDocuments } from 'yaml';
 
     let options = {}
-    let interactable = false;
-
-    onMount(() => {
-        
-        console.log(mapData)
-        interactable = true
-        options = {
-            "Tutorials": {
-                obj: LocationList,
-                data: $mapData.nodes
-            },
-            "Maps": {
-                obj: TrailList,
-                data: $mapData.projects
-            }
-        }
-        // setInterval(() => {$mapData.nodes[0].completed = !$mapData.nodes[0].completed}, 1000)
-    })
-
+    let interactable = true;
+    
+    let url:URL
+    
     onDestroy(() => {
         interactable = false
     })
-
     let selectedNode:string|null
     let map:any
 
-    function closeLocationPanel() {
-        if(selectedNode) {
-            $mapData.nodeObj[selectedNode].selected = false
-            selectedNode = null
-            map.focus()
+    function writeToURL(e:any) {
+        console.log(e)
+        let params = new URLSearchParams()
+        if(e.open) {
+            for(const obj of e.open) {
+                params.append('open', obj.path.replace('.md', ''))
+            }
         }
+        if(e.x && e.y) { params.append('xy', `${Math.round(e.x)},${Math.round(e.y)}`)}
+        if(e.zoom) { params.append('zoom', `${e.zoom}`)}
+        if(e.close) { params.append('close', e.close) }
+        console.log("Writing new URL:", params.toString())
+        goto(`?${params.toString()}`)
+
+        console.log("Updating UI elements based on URL...")
+        openTutorials = params.getAll('open') // open panel
     }
-    let openPanel:string|null = null
-    function selectFromMap(e:any) {
-        console.log("Select from map...")
-        if(e.detail.data.selected) {
-            selectedNode = e.detail.data.id
-        } else {
-            closeLocationPanel();
-        }
+    function writeToMap(params:URLSearchParams) {
+        console.log("Sending directive to map...")
+        if(map) { map.readEventFrom(params) }
+        openTutorials = params.getAll('open') // open panel
     }
 
+    function handleCapture(flag:boolean) {
+        interactable = flag
+    }
+    function handleClose(name:string) {
+        openPanels.splice(openPanels.indexOf(name), 1)
+        openPanels = openPanels // reactive update
+        handleCapture(true)
+    }
+    function handleTutorialClose(obj:any) {
+        console.log("Closing tutorial", obj)
+        openTutorials.splice(openTutorials.indexOf(obj.name), 1)
+        openTutorials = openTutorials
+        handleCapture(true)
+        map.close(obj.name)
+
+        // Remove open from URL
+        const openLocs = $page.url.searchParams.getAll('open')
+        openLocs.splice(openLocs.indexOf(obj.name), 1)
+        const newParams = $page.url.searchParams
+        newParams.delete('open')
+        for(const loc in openLocs) {
+            newParams.append('open', loc)
+        }
+        goto(`?${newParams.toString()}`)
+    }
+    $: writeToMap($page.url.searchParams)
     
-    function handleCapture(e:any) {
-        interactable = e.detail
-    }
+    // $: console.log("Interactable:", interactable)
 
-    function closePanel() {
-        openPanel = null
-    }
+    let openPanels:string[] = []
+    let openTutorials:string[] = []
 
-    function handlePanelSelect(e:any) {
-        console.log(e.detail.type)
-        if(e.detail.type == 'location') {
-            selectLocation(e)
-        } else if(e.detail.type == 'trail') {
-            selectTrail(e)
-        }
-    }
-    function selectLocation(e:any) {
-        selectedNode = e.detail.data.id
-        $mapData.nodeObj[selectedNode].selected = true
-        // zoom into node
-        map.focus(e.detail.data)
-    }
-    function selectTrail(e:any) {
-        e.detail.data.highlight()
-    }
+    $: console.log("OpenTutorials changed state!", openTutorials)
 </script>
 <section class='map hero is-fullheight-with-navbar'>
     <div  class='ui'>
-        <MapPanel  bind:selected={openPanel} />
-        
+         <!-- <UrlDebugger /> -->
+        <MapPanel on:capture={(e) => handleCapture(e.detail)} bind:selected={openPanels} />
         <div class='panels'>
-            <PanelCard on:capture={handleCapture} title={openPanel} loaded={openPanel? true:false} on:close={closePanel}>
-                <svelte:component
-                    this={options[openPanel].obj}
-                    on:select={handlePanelSelect}
-                    bind:selectedNode={$mapData.nodeObj[selectedNode]}
-                />
-            </PanelCard>
-            
-            <PanelCard on:capture={handleCapture}
-                title={selectedNode? $mapData.nodeObj[selectedNode].frontmatter.title:'no title'} 
-                titleSize={'large'} 
-                loaded={selectedNode? $mapData.nodeObj[selectedNode].selected : false} 
-                on:close={closeLocationPanel}
+            <PanelCard 
+                title="Projects"
+                on:capture={(e) => handleCapture(e.detail)}
+                on:close={(e) => handleClose(e.detail, openPanels)}
+                loaded={openPanels.includes('Maps')}
             >
-                <LocationCard node={selectedNode} />
+                <!-- TODO: add support for writing back to map -->
+                <TrailList  />
             </PanelCard>
-        </div>
+            <PanelCard 
+                title="Tutorials"
+                on:capture={(e) => handleCapture(e.detail)}
+                on:close={(e) => handleClose(e.detail, openPanels)}
+                loaded={openPanels.includes('Tutorials')}
+            >
+                <LocationList on:select={(e) => writeToURL(e.detail)} selectedNodes={openTutorials} />
+            </PanelCard>
+            {#each openTutorials as panel}
+                <PanelCard
+                    title={panel}
+                    on:capture={(e) => handleCapture(e.detail)}
+                    on:close={(e) => handleTutorialClose(e.detail)}
+                >
+                    <LocationCard node={panel + '.md'} />
+                </PanelCard>
+            {/each}
+    </div>
     </div>
     <div class='hero-body m-0 p-0'>
         <MapComponent
-            bind:this={map}    
-            on:nodeSelect={selectFromMap} 
+            bind:this={map}
+            on:loaded={() => writeToMap($page.url.searchParams) }
+            on:write={ (e) => writeToURL(e.detail) }
             data={$mapData}
-            center={openPanel? 0.75 : 0.5}
-            interact={interactable} 
+            center={openPanels.length > 0 && openTutorials.length > 0? 0.125 : 0}
+            interact={interactable}
         />
     </div>
 </section>
 
-<style>
+<style lang='scss'>
     .map {
         overflow: hidden;
         padding-top: 0;

@@ -30,7 +30,7 @@
 </script>
 
 {#if loaded}
-<article bind:this={el} on:mouseenter={() => capture(false)} on:mouseleave={() => capture(true)} transition:slide class='panel-card card {layout}'>
+<article bind:this={el} on:mouseenter={() => capture(false)} on:mouseleave={() => capture(true)} transition:slide|global class='panel-card card {layout}'>
     <header class='card-header is-dark is-sticky'>
         <h2 class='card-header-title mb-3 pb-0'>{title}</h2>
         <button on:click={sendClose} class="card-header-icon" aria-label="close">
@@ -46,12 +46,24 @@
 {/if}
 <style lang='scss'>
     .panel-card.horizontal {
-        margin: 2rem;
+        margin: 1rem 0.5rem;
         min-width: 20rem;
         max-width: 33rem;
         // max-height: 85vh;
         background-color: white;
         display: inline-block;
+        position: relative;
+        vertical-align: top;
+        section {
+            position: static;
+        }
+    }
+    .panel-card.vertical {
+        margin: 1rem 0.5rem;
+        min-width: 20rem;
+        max-width: 33rem;
+        // max-height: 85vh;
+        background-color: white;
         position: relative;
         vertical-align: top;
         section {

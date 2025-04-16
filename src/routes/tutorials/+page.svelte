@@ -4,7 +4,7 @@
     import Fa from 'svelte-fa'
     import { mapData } from '../store';
     import { onMount } from 'svelte';
-    import type { Tutorial } from '../map/local/mapNodes';
+    import type { Tutorial } from '../map/local/elements/Tutorial';
 
     let term = ''
 
@@ -71,10 +71,10 @@
             <div class='field is-grouped mt-4'>
                 <div class='control is-expanded'>
                     <!-- TODO: -->
-                    <!-- <a href="{base}/{node.path}" target="_blank" class='button is-fullwidth is-dark'>Read Detailed Tutorial<span class='ml-2'><Fa icon={faArrowUpRightFromSquare} /></span></a> -->
+                    <a href="{base}/tutorials/{node.path.replace('.md', '')}" target="_blank" class='button is-fullwidth is-dark'>Read Detailed Tutorial<span class='ml-2'><Fa icon={faArrowUpRightFromSquare} /></span></a>
                 </div>
                 <div class='control is-expanded'>
-                    <a href="{base}/map" target="_blank" class='button is-fullwidth'>View on the Map<span class='ml-2'><Fa icon={faMap} /></span></a>
+                    <a href="{base}/map?open={node.path.replace('.md', '')}" target="_blank" class='button is-fullwidth'>View on the Map<span class='ml-2'><Fa icon={faMap} /></span></a>
                 </div>
             </div>
         </article>
