@@ -6,7 +6,9 @@
     import type { Tutorial } from "../../map/local/elements/Tutorial";
     export let id:string
     export let selectedNode:string
+    import pageBorder from "$lib/assets/paper-border.png";
 
+    
     // let rows:any = {
     //     "intro": {
     //         nodes: ["setup", "next", "last"],
@@ -76,6 +78,7 @@
 
 </script>
 
+<!-- <div class='map' style="border-image: url('{pageBorder}') 20 fill round;"> -->
 <div class='map'>
     <div class='nodes'>
         <!-- {#each $mapData.projectObj[id].nodes as node, i}
@@ -110,15 +113,22 @@
     </div>
 </div>
 
-<style lang='scss'>
+<style>
     .map {
         overflow-x: scroll;
-        // padding-bottom: 4rem;
-        border: 1px solid #dbdbdb;
-        padding: 2rem;
-        border-radius: 8px;
-        background-color: whitesmoke;
+        /* padding-bottom: 4rem; */
+        
+        /* padding: 2rem; */
         z-index: -90;
+        /* background-color: #f3f9ff; */
+        background-clip: padding-box;
+        border-style: solid;
+        border-width: 10px;
+        border-color: transparent;
+        /* border-image: url("$lib/assets/paper-border.png")
+            20 fill round; INLINED ABOVE BC VITE IS WEIRD*/
+        max-width: 70em;
+        margin: 1em auto;
     }
     .nodes {
         display: grid;
@@ -138,16 +148,17 @@
         border: 3px solid hsl(0, 0%, 21%);
         border-radius: 8px;
         position: relative;
-        &:hover, &.selected {
-            background-color: white;
-            color: black;
-            border: 3px dashed black;
-            cursor: pointer;
-            p {
-                color: black;
-            }
-        }
+        
     }
+    a:hover, a.selected {
+        background-color: white;
+        color: black;
+        border: 3px dashed black;
+        cursor: pointer;
+    }
+    a:hover p, a.selected p {
+            color: black;
+        }
     a.edgeRight::after {
         display: inline-block;
         content: "";

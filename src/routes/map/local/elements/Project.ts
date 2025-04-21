@@ -29,6 +29,7 @@ export class Project extends Element implements Focusable {
             this.map[k] = { nodes: [], optNodeMask: [], edges: [], optEdgeMask: [], list: [] }
             for(let i=0;i<v.length;i++) {
                 const n = v[i]
+                console.log("NODENAME:", n)
                 this.map[k].list.push(n)
                 if(n.charAt(0) == "$") {
                     // console.log("Found Group reference in " + k + " group")
@@ -47,10 +48,12 @@ export class Project extends Element implements Focusable {
                     const nodeObj = (nodeObjs.filter((node) => nodeRef == node.path))[0] as Tutorial
                     this.map[k].nodes.push(nodeObj)
                     this.map[k].optNodeMask.push(n.includes('{optional}'))
+                    console.log("Adding new node to project:", nodeObj.frontmatter.title)
                     this.nodes.push(nodeObj) // push the object reference to `this.nodes:Tutorial[]`
                 }
             }
         }
+        console.log(this.nodes)
         this.center = this.getCenter()
 
         // Find edges for each group
@@ -161,5 +164,10 @@ export class Project extends Element implements Focusable {
     }
     getCoords(): Coords {
         return this.getCenterCoords()
+    }
+    getCompleted():Element[] {
+        return this.nodes.filter((obj:Element) => {
+            return obj.completed
+        })
     }
 }

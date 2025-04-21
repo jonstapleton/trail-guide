@@ -16,6 +16,8 @@
     import UrlDebugger from './local/UrlDebugger.svelte';
     import Capture from './local/Capture.svelte';
     import { parseAllDocuments } from 'yaml';
+    import ProjectCard from '../projects/ProjectCard.svelte';
+    import TrailCard from './local/TrailPanel/TrailCard.svelte';
 
     let options = {}
     let interactable = true;
@@ -96,7 +98,6 @@
                 on:close={(e) => handleClose(e.detail, openPanels)}
                 loaded={openPanels.includes('Maps')}
             >
-                <!-- TODO: add support for writing back to map -->
                 <TrailList  />
             </PanelCard>
             <PanelCard 
@@ -113,7 +114,11 @@
                     on:capture={(e) => handleCapture(e.detail)}
                     on:close={(e) => handleTutorialClose(e.detail)}
                 >
-                    <LocationCard node={panel + '.md'} />
+                    {#if !panel.includes('projects/')}
+                        <LocationCard node={panel + '.md'} />
+                    {:else}
+                        <TrailCard node={panel} />
+                    {/if}
                 </PanelCard>
             {/each}
     </div>

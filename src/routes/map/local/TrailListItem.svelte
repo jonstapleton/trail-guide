@@ -65,11 +65,11 @@
         <Open node={node} />
         <!-- <Selected node={node} /> -->
     </a>
-    {#if destination != route}
+    <!-- {#if destination != route}
     <div class='trail-info'>
         <p>{obj.frontmatter.description}</p>
     </div>
-    {/if}
+    {/if} -->
 </div>
 {/if}
 

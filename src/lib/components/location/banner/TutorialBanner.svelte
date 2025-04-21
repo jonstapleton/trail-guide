@@ -10,7 +10,7 @@
     import Fa from 'svelte-fa'
     
     export let tutorial:Tutorial;
-    export let titleSize = 24;
+    export let titleSize = 32;
 
     let tabs:string[] = ["Overview"]
     let activeTab = 0
@@ -36,11 +36,11 @@
 
 {#if tutorial}
 <div class='tut-banner container'>
-    <div class='hero banner pt-5'>
+    <div class='hero banner'>
         <div class="hero-head pb-0">
                 <div class='mt-5'>
                     <!-- <h1 class='title is-size-1'>{tutorial.frontmatter.title}</h1> -->
-                    <h1 style="font-size: {titleSize}pt;" class='title control'>
+                    <h1 style="font-size: {titleSize}pt;" class='title tutorial-header control'>
                         <label class='checkbox'>
                             <input style="width: {titleSize}px; height: {titleSize}px;" type='checkbox' name='complete' bind:checked={$mapData.nodeObj[tutorial.id].completed}>
                             {tutorial.frontmatter.title}
