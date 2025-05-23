@@ -1,3 +1,5 @@
+import type { Config } from "$lib/config"
+
 export type Content = {
     full:string,
     quick?:string,
@@ -35,8 +37,8 @@ export interface Coords {
 }
 
 export interface MapDataResponse {
-    nodes:resNode[],
-    edges:object[],
+    nodes:resNode[]
+    edges:object[]
     projects:Document[]
 }
 

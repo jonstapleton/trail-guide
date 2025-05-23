@@ -3,6 +3,105 @@ import { Tutorial } from "./Tutorial"
 import { Edge } from "./Edge"
 import { Element } from "./Element"
 
+class Group {
+    name:string
+    references:string[] = []
+    list:Tutorial[] = []
+    listMask:boolean[] = []
+    edges:Edge[] = []
+    edgeMask:boolean[] = []
+    to:string[] = []
+    parent:Project
+
+    constructor(name:string, refs:string[], parent:Project, nodeObjs:Tutorial[], edges:Edge[]) {
+        this.name = name
+        this.references = refs
+        this.parent = parent
+
+        // Generate the clean paths and the tutorial mask for the group
+        const paths = (refs as unknown as string[]).filter(item => !(item.charAt(0) == '$')) // get all the Tutorials referenced in the group, excluding group references
+        for(const item of paths) {
+            let cleanPath = this.cleanPath(item)
+            const groupObj = (nodeObjs.filter((node) => cleanPath == node.path))[0] as Tutorial
+            this.list.push(groupObj)
+            if(item.includes('{optional}')) {
+                this.listMask.push(true)
+            } else {
+                this.listMask.push(false)
+            }
+        }
+        if(this.listMask.length != this.references.length || this.listMask.length != this.list.length) { throw new Error(`Failed to generate mask for group ${this.name} in project ${this.parent.frontmatter.title}!`) }
+
+        // Handle local edges & generate the mask
+        const groupIds = this.getTutorialIds()
+        this.edges = edges.filter((e) => {
+            // find the indices of the nodes in each group, then filter the edges to find edges that are between two adjacent nodes
+            let to = groupIds.indexOf(e.toNode)
+            let from = groupIds.indexOf(e.fromNode)
+            const nodesAreAdjacent = (to != -1 && from != -1) && (Math.abs(to - from) == 1 || Math.abs(groupIds.indexOf(e.toNode) - groupIds.indexOf(e.fromNode)) == 1)
+
+            let idsWithoutOptional:string[] = []
+            for(const id of groupIds) {
+                const r = this.getReferenceFromId(id)
+                if(r && !r.includes('{optional}')) {
+                    idsWithoutOptional.push(id)
+                }
+            }
+             
+            const nodesAreAdjacentWithoutOptionalNodes = (to != -1 && from != -1) && (Math.abs(to - from) == 1 || Math.abs(idsWithoutOptional.indexOf(e.toNode) - idsWithoutOptional.indexOf(e.fromNode)) == 1)
+            return nodesAreAdjacent || nodesAreAdjacentWithoutOptionalNodes
+        })
+        for(const edge of this.edges) {
+            const to = this.getReferenceFromId(edge.toNode)
+            const from = this.getReferenceFromId(edge.fromNode)
+            if((to && from) && (to.includes('{optional}') || from.includes('{optional}'))) {
+                this.edgeMask.push(true)
+            } else {
+                this.edgeMask.push(false)
+            }
+        }
+
+        // Find and add the edges that skip optional tutorials
+        
+    }
+
+    getAllPaths() {
+        const paths = this.references.filter(item => !(item.charAt(0) == '$')) // get all the Tutorials referenced in the group, excluding group references
+        let cleanPaths:string[] = []
+        for(const path of paths) {
+            cleanPaths.push(this.cleanPath(path))
+        }
+        return cleanPaths
+    }
+
+    cleanPath(path:string):string {
+        return path.replaceAll(' ', '').replace('{optional}','').replace('./', this.parent.path + "/")
+    }
+
+    getList():Tutorial[] {
+        return this.list
+    }
+
+    getTutorialIds():string[] {
+        let ids:string[] = []
+        for(const element of this.list) {
+            ids.push(element.id)
+        }
+        return ids
+    }
+    
+    getLocalTutorials():Tutorial[] {
+        return this.list
+    }
+
+
+    getReferenceFromId(id:string):string|false {
+        const node = this.list.find(obj => obj.id == id) as Tutorial
+        const ref = this.references.find(ref => this.cleanPath(ref) == node.path)
+        return ref ? ref : false
+    }
+}
+
 
 export class Project extends Element implements Focusable {
     nodes:Tutorial[] = []
@@ -14,6 +113,10 @@ export class Project extends Element implements Focusable {
     difficulty:number
     id:string
     center:Coords
+
+    // groups data structures
+    groups:Group[] = []
+
     constructor(obj:Document, nodeObjs:Tutorial[], edges:Edge[]) {
         super(obj)
         this.type = "project"
@@ -22,76 +125,25 @@ export class Project extends Element implements Focusable {
         let objIds:string[] = []
         let objArray:(string|Tutorial)[] = []
 
-        // Build `map` Groups from raw data
-        // Store group references for later
-        const groupRefs:object[] = []
-        for(const [k,v] of Object.entries(obj.frontmatter.nodes)) {
-            this.map[k] = { nodes: [], optNodeMask: [], edges: [], optEdgeMask: [], list: [] }
-            for(let i=0;i<v.length;i++) {
-                const n = v[i]
-                console.log("NODENAME:", n)
-                this.map[k].list.push(n)
-                if(n.charAt(0) == "$") {
-                    // console.log("Found Group reference in " + k + " group")
-                    const newRef = {
-                        parent: k,
-                        name: n.substring(1),
-                        to: i < v.length-1 ? v[i + 1] : null,
-                        from: i > 0 ? v[i - 1] : null
-                    }
-                    newRef.to = newRef.to ? newRef.to.replaceAll(' ', '').replace('{optional}','').replace('./', this.path + "/") : null
-                    newRef.from = newRef.from ? newRef.from.replaceAll(' ', '').replace('{optional}','').replace('./', this.path + "/") : null
-                    groupRefs.push(newRef)
-                } else {
-                    let nodeRef = n.replaceAll(' ', '').replace('{optional}','').replace('./', this.path + "/")
-                    // all the nodes have unique filepaths, so we know this will work everytime
-                    const nodeObj = (nodeObjs.filter((node) => nodeRef == node.path))[0] as Tutorial
-                    this.map[k].nodes.push(nodeObj)
-                    this.map[k].optNodeMask.push(n.includes('{optional}'))
-                    console.log("Adding new node to project:", nodeObj.frontmatter.title)
-                    this.nodes.push(nodeObj) // push the object reference to `this.nodes:Tutorial[]`
-                }
-            }
-        }
-        console.log(this.nodes)
-        this.center = this.getCenter()
-
-        // Find edges for each group
-        // TODO: if a groupRef has a `to` and a `from` the edge reference is self-contained within the group and should be added
-        for(const [k,v] of Object.entries(this.map)) {
-            const groupIds = this.getGroupIds(k)
-            const groupEdges =  edges.filter((e) => {
-                // find the indices of the nodes in each group, then filter the edges to find edges that are between two adjacent nodes
-                const to = groupIds.indexOf(e.toNode)
-                const from = groupIds.indexOf(e.fromNode)
-                return (to != -1 && from != -1) && (Math.abs(to - from) == 1 || Math.abs(groupIds.indexOf(e.toNode) - groupIds.indexOf(e.fromNode)) == 1)
-            })
-            this.map[k].edges = groupEdges
+        // Get all the Project Tutorials by iterating over the group references
+        let tutorialsAdded:string[] = []
+        for(const [k,list] of Object.entries(obj.frontmatter.nodes)) {
+            this.groups.push(new Group(k, (list as unknown as string[]), this, nodeObjs, edges)) // make the group
         }
 
-        // copy the edges from the groups to `this.edges:Edge[]`
-        for(const [k,v] of Object.entries(this.map)) {
-            for(const edge of this.map[k].edges) {
-                if(this.edges.filter(e => edge.id == e.id).length == 0) {
-                    this.edges.push(edge)
-                }
-            }
-        }
+        // Now, collate the info from the groups into the Project
+        for(const group of this.groups) {
+            this.nodes = [...this.nodes, ...group.list]
+            this.optionalTutorialMask = [...this.optionalTutorialMask, ...group.listMask]
 
-        // add edges associated with references
-        for(const ref of groupRefs) {
-            const to = ref.to ? this.nodes.filter(n => ref.to == n.path)[0] : null
-            const from = ref.from ? this.nodes.filter(n => ref.from == n.path) : this.map[ref.name].nodes[this.map[ref.name].nodes.length-1]
-
-            if(!(to && from)) { throw new Error(`Cannot connect group reference to ${ref.to} in ${ref.parent}`) }
-            const refEdges = this.getEdgesBetween(to, from, edges)
-            this.edges = refEdges ? [...this.edges, ...refEdges] : this.edges
+            this.edges = [...this.edges, ...group.edges]
+            this.optionalEdgeMask = [...this.optionalEdgeMask, ...group.edgeMask]
         }
         
         this.id = this.path
     }
 
-    getGroupIds(groupName:string) {
+    getTutorialIdsFromGroup(groupName:string) {
         let ids:string[] = []
         for(const n of this.map[groupName].nodes) {
             ids.push(n.id)
