@@ -106,7 +106,6 @@ class Group {
 export class Project extends Element implements Focusable {
     nodes:Tutorial[] = []
     edges:Edge[] = []
-    map:any = {}
     optionalTutorialMask:boolean[] = []
     optionalEdgeMask:boolean[] = []
     selected:boolean = false
@@ -139,6 +138,9 @@ export class Project extends Element implements Focusable {
             this.edges = [...this.edges, ...group.edges]
             this.optionalEdgeMask = [...this.optionalEdgeMask, ...group.edgeMask]
         }
+
+        // Find the center of the project
+        this.center = this.findCenter()
         
         this.id = this.path
     }
@@ -161,7 +163,7 @@ export class Project extends Element implements Focusable {
         }
     }
 
-    getCenter():Coords {
+    private findCenter():Coords {
         if(this.nodes.length == 0) { throw new Error(`Cannot find project at ${this.path} center, no nodes loaded`)}
         // find project center
         let minX; let maxX; let minY; let maxY;

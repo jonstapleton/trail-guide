@@ -45,12 +45,31 @@
         goto(`?${params.toString()}`)
 
         console.log("Updating UI elements based on URL...")
-        openTutorials = params.getAll('open') // open panel
+        // TODO: oh god this is terrible
+        // I need to not open a panel if it's a project click, so I'm up shit creek. Terrible job.
+        const panels = params.getAll('open') // open panel
+        // let cleanPanels:string[] = []
+        // for(const p of panels) {
+        //     console.log(p.split('/'))
+        //     if(p.split('/').length <= 2) { cleanPanels = [...cleanPanels, p]}
+        // }
+        openTutorials = updateOpenTutorials(params)
     }
     function writeToMap(params:URLSearchParams) {
         console.log("Sending directive to map...")
         if(map) { map.readEventFrom(params) }
-        openTutorials = params.getAll('open') // open panel
+        // openTutorials = params.getAll('open') // open panel
+        openTutorials = updateOpenTutorials(params)
+    }
+
+    function updateOpenTutorials(params:any) {
+        const panels = params.getAll('open') // open panel
+        let cleanPanels:string[] = []
+        for(const p of panels) {
+            console.log(p.split('/'))
+            if(!(p.split('/').length <= 2 && p.includes('projects/'))) { cleanPanels = [...cleanPanels, p]}
+        }
+        return cleanPanels
     }
 
     function handleCapture(flag:boolean) {
@@ -109,17 +128,19 @@
                 <LocationList on:select={(e) => writeToURL(e.detail)} selectedNodes={openTutorials} />
             </PanelCard>
             {#each openTutorials as panel}
+                <!-- {#if !panel.includes('projects/')} -->
                 <PanelCard
                     title={panel}
                     on:capture={(e) => handleCapture(e.detail)}
                     on:close={(e) => handleTutorialClose(e.detail)}
                 >
-                    {#if !panel.includes('projects/')}
+                    <!-- {#if !panel.includes('projects/')} -->
                         <LocationCard node={panel + '.md'} />
-                    {:else}
-                        <TrailCard node={panel} />
-                    {/if}
+                    <!-- {:else} -->
+                        <!-- <TrailCard node={panel} /> -->
+                    <!-- {/if} -->
                 </PanelCard>
+                <!-- {/if} -->
             {/each}
     </div>
     </div>

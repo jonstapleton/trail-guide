@@ -71,7 +71,7 @@
         </ul>
     </div>
     {/if}
-    <div class='body content'>
+    <div class='tab-body'>
         <svelte:component this={objs[openTab].component} node={ node }></svelte:component>
     </div>
     <hr>

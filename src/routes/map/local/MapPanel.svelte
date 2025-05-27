@@ -20,7 +20,7 @@
         }
     }
 
-    $: console.log(selected)
+    // $: console.log(selected)
 
     let active = false
 

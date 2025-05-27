@@ -89,6 +89,7 @@
                 node.select()
             }
             // TODO: Zoom in on the last path selected, for now
+            console.log(`Opening ${paths[paths.length-1] + '.md'}`)
             const coords = data.nodesByPath[paths[paths.length-1] + '.md'].getCoords()
             const location = camera.getScreenCoords({x: coords.x/2, y: coords.y/2}, center)
             camera.moveCenterTo(location)

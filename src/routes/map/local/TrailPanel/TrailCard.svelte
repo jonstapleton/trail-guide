@@ -2,15 +2,16 @@
 import { mapData } from "../../../store";
 import {base} from '$app/paths'
 import NumberPill from "$lib/components/elements/NumberPill.svelte";
-    import type { Project } from "../elements/Project";
-    import Fa from 'svelte-fa'
-    import { faStar, faFire, faMap } from "@fortawesome/free-solid-svg-icons";
+import type { Project } from "../elements/Project";
+import Fa from 'svelte-fa'
+import { faStar, faFire, faMap } from "@fortawesome/free-solid-svg-icons";
+import YouTubeEmbed from "$lib/components/elements/YouTubeEmbed.svelte";
 
-    export let node:string // path to project index.md
-    const obj:Project = $mapData.projectObj[node]
+export let node:string // path to project index.md
+const obj:Project = $mapData.projectObj[node]
 
-    let completed = 0
-    $: completed = obj.getCompleted().length
+let completed = 0
+$: completed = obj.getCompleted().length
 </script>
 
 <div class='trail-card'>
@@ -35,9 +36,7 @@ import NumberPill from "$lib/components/elements/NumberPill.svelte";
                 </span>
                 <!-- <a class='tag' target="_blank" href="{base}/map?open={obj.path}">View on Map<span class='ml-2'><Fa icon={faMap} /></span></a> -->
             </div>
-            <div class='video'>
-                <iframe src="{obj.frontmatter.video}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
+            <YouTubeEmbed url={obj.frontmatter.video} />
            
 </div>
 <div class="tabs is-boxed is-fullwidth mt-3">
@@ -80,17 +79,7 @@ import NumberPill from "$lib/components/elements/NumberPill.svelte";
         // padding: 5rem 5rem;
         // position: relative;
     }
-    .video iframe {
-        border: 0;
-        min-height: 15rem;
-        left: 0;
-        // position: absolute;
-        top: 0;
-        width: 100%;
-        border-radius: 12px;
-        // margin: 1rem 1rem;
-        /* min-width: 10rem; */
-    }
+    
     .trail-card-body {
         padding: 0 1rem;
     }

@@ -1,12 +1,13 @@
 <script lang='ts'>
-    import { mapData } from "../../store";
+    import { mapData } from '../../../routes/store';
     import Fa from 'svelte-fa'
     import { faLocationDot, faCheck } from "@fortawesome/free-solid-svg-icons";
     import { onMount } from "svelte";
-    import type { Tutorial } from "../../map/local/elements/Tutorial";
+    import type { Tutorial } from "../../../routes/map/local/elements/Tutorial";
     export let id:string
     export let selectedNode:string
     import pageBorder from "$lib/assets/paper-border.png";
+    import { Project } from '../../../routes/map/local/elements/Project';
 
     
     // let rows:any = {
@@ -28,26 +29,29 @@
     // one row per simultaneous branch
     onMount(() => {
         let rowCount = 1
-        for(const [k,v] of Object.entries($mapData.projectObj[id].map)) {
-            // Copy the nodes to the `rows` object
+        const project = $mapData.projectObj[id]
+        for(let i=0;i<project.groups.length;i++) {
+            const group = project.groups[i]
+            const k = group.name
+
+            // initialize the row
             rows[k] = { nodes: [], indices: [], row: null, objs: [], edges: [] }
-            rows[k].objs = v.nodes
-            rows[k].nodes = v.list
-
+            rows[k].objs = group.list
+            rows[k].nodes = group.references
             rows[k].row = rowCount
-            rowNames = [...rowNames, k]
-
             rowsAppendCount[k] = 0
 
+            // Add the new row to the list of row names
+            rowNames = [...rowNames, k]
+
             // set initial edges values
-            for(let i=1;i<=v.list.length;i++) {
+            for(let i=1;i<=group.references.length;i++) {
                 rows[k].edges = [...rows[k].edges, '']
             }
-
-            // calculate indices offset
+            
             let offset = 0
-            if(v.list[0].charAt(0) == "$") {
-                const key = v.list[0].replace('$', '')
+            if(group.references[0].charAt(0) == "$") {
+                const key = group.references[0].replace('$', '')
                 offset = rows[key].indices[rows[key].indices.length-1]
                 
                 rows[k].row += rowsAppendCount[key]
@@ -60,14 +64,58 @@
                 // Give the new edges to the last node in the reference group
                 rows[key].edges[rows[key].edges.length-1] += " edgeDown edgeRight"
             }
+
             // set indices
-            for(let i=1;i<=v.list.length;i++) {
-                const listWithoutRef = v.list.filter((e) => e.charAt(0) != "$")
+            for(let i=1;i<=group.references.length;i++) {
+                const listWithoutRef = group.references.filter((e:any) => e.charAt(0) != "$" && !e.includes('{optional}'))
                 const classes = i == listWithoutRef.length ? '' : " edgeRight"
                 rows[k].indices = [...rows[k].indices, i + offset]
                 rows[k].edges[i-1] += classes
             }
+
+            // Deal with detours (optional tutorials)
+            let optional
         }
+        // for(const [k,v] of Object.entries($mapData.projectObj[id].map)) {
+        //     // Copy the nodes to the `rows` object
+        //     rows[k] = { nodes: [], indices: [], row: null, objs: [], edges: [] }
+        //     rows[k].objs = v.nodes
+        //     rows[k].nodes = v.list
+
+        //     rows[k].row = rowCount
+        //     rowNames = [...rowNames, k]
+
+        //     rowsAppendCount[k] = 0
+
+        //     // set initial edges values
+        //     for(let i=1;i<=v.list.length;i++) {
+        //         rows[k].edges = [...rows[k].edges, '']
+        //     }
+
+        //     // calculate indices offset
+        //     let offset = 0
+        //     if(v.list[0].charAt(0) == "$") {
+        //         const key = v.list[0].replace('$', '')
+        //         offset = rows[key].indices[rows[key].indices.length-1]
+                
+        //         rows[k].row += rowsAppendCount[key]
+        //         rowsAppendCount[key] += 1
+
+        //         if(rows[k].row != rows[key].row) {
+        //             rows[k].edges[0] += " edgeLeft"
+        //         }
+
+        //         // Give the new edges to the last node in the reference group
+        //         rows[key].edges[rows[key].edges.length-1] += " edgeDown edgeRight"
+        //     }
+        //     // set indices
+        //     for(let i=1;i<=v.list.length;i++) {
+        //         const listWithoutRef = v.list.filter((e) => e.charAt(0) != "$")
+        //         const classes = i == listWithoutRef.length ? '' : " edgeRight"
+        //         rows[k].indices = [...rows[k].indices, i + offset]
+        //         rows[k].edges[i-1] += classes
+        //     }
+        // }
         console.log(rows)
     })
 

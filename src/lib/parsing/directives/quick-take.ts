@@ -12,9 +12,9 @@ export function quick_take(tree:any):string {
             // ])
             // el.properties.src = node.properties.src
             console.log("found quick take!", node.properties.src)
-            content += toHtml( h('div.column', [node.children]))
+            content += toHtml( h('div.column.mt-0.pt-0.pb-5', [node.children]))
             if(node.properties.src) {
-                content += toHtml(h('div.column', [h('img', {src: node.properties.src})]))
+                content += toHtml(h('div.column.mt-0.pt-0.pb-5', [h('img', {src: node.properties.src})]))
             }
         }
     })
