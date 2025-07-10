@@ -164,14 +164,6 @@ export class Project extends Element implements Focusable {
         this.id = this.path
     }
 
-    getTutorialIdsFromGroup(groupName:string) {
-        let ids:string[] = []
-        for(const n of this.map[groupName].nodes) {
-            ids.push(n.id)
-        }
-        return ids
-    }
-
     getEdgesBetween(node1:Tutorial, node2:Tutorial, edges:Edge[]):Edge[]|false {
         const between = edges.filter(e => (e.toNode == node1.id || e.toNode == node2.id) && (e.fromNode == node1.id || e.fromNode == node2.id))
         if(between.length == 0) {
