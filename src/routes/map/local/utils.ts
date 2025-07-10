@@ -1,6 +1,9 @@
-import { text } from "@sveltejs/kit";
-import type { Coords } from "./types";
-import type { Edge, Map, Tutorial } from "./mapNodes";
+import type { Coords, Transform } from "./types";
+import { Lerpable } from "./elements/types";
+import { Edge } from "./elements/Edge";
+import { Map } from "./elements/Map";
+import { Tutorial } from "./elements/Tutorial";
+import type { MapNode } from "./elements/MapNode";
 
 export class Cursor {
     overNode = false
@@ -10,8 +13,8 @@ export class Cursor {
     dragOffsetY:number|null = null;
     mx:number;
     my:number;
-    tx:number;
-    ty:number;
+    localX:number = 0;
+    localY:number = 0;
     keys:string[] = []
     selectedNode:object|null = null
 
@@ -21,9 +24,13 @@ export class Cursor {
         this.my = p5.mouseY
     }
 
-    update() {
+    update(matrix:DOMMatrix) {
         this.mx = this.p5.mouseX
         this.my = this.p5.mouseY
+
+        const localCoords = getLocalCoords(this.p5, matrix, { x: this.mx, y: this.my })
+        this.localX = localCoords.x
+        this.localY = localCoords.y
     }
 
     getDrag(interact:boolean):Coords {
@@ -42,6 +49,9 @@ export class Cursor {
         }
         
     }
+    over(node:MapNode, offset:number=0):boolean {
+        return this.p5.dist(this.localX, this.localY, node.x/2, node.y/2) <= (node.width + offset)/2
+    }
 
     click(data:any):any|null {
         let newNode = false
@@ -52,7 +62,7 @@ export class Cursor {
             if(node.selected) {
                 selectedNodes.push(i)
             }
-            if(this.p5.dist(this.tx, this.ty, node.x/2, node.y/2) <= 50) {
+            if(this.p5.dist(this.localX, this.localY, node.x/2, node.y/2) <= 50) {
                 node.selected = !node.selected;
                 this.selectedNode = node
                 index = i
@@ -96,11 +106,6 @@ export class Cursor {
     getState() {
         return this.state
     }
-
-    setTransformCoords(coords:Coords) {
-        this.tx = coords.x
-        this.ty = coords.y
-    }
 }
 
 export class Cartographer {
@@ -109,7 +114,9 @@ export class Cartographer {
     x:number = 0;
     y:number = 0;
     font:any
+    icons:any
     tick:number = 0
+    mask:Lerpable = new Lerpable(0, 175)
     offset:Coords = {
         x: 0, y: 0
     }
@@ -165,8 +172,10 @@ export class Cartographer {
 
     draw(data:Map, cursor:Cursor) {
         this.tick++
-        const localCoord = getLocalCoords(this.p5, {x: this.p5.mouseX, y: this.p5.mouseY});
-        cursor.setTransformCoords(localCoord)
+
+        // Lerp mask value
+        const maskValue = this.mask
+        
         // Draw Edges
         for(let i=0;i<data.edges.length;i++) {
             const edge:Edge = data.edges[i]
@@ -182,7 +191,7 @@ export class Cartographer {
 
             // If the edge is highlighted, draw a bolder line as well
             if(edge.highlighted) {
-                this.p5.stroke(this.p5.color(255, 0, 0));
+                this.p5.stroke(this.p5.color(0, 0, 0));
                 this.p5.strokeWeight(18);
                 if(edge.highlighted == 'dashed') {
                     this.bezier(p0,p1,p2,p3,0.1) // TODO: set `t` based on how far apart the nodes are
@@ -196,181 +205,148 @@ export class Cartographer {
         } 
         
         // Draw Nodes
-        for(let i=0;i<data.nodes.length;i++) {
-            const node = data.nodes[i]
+        let hoveredNodes:Tutorial[] = []
+        for(const node of data.nodes) {
             
-            // if mouse is hovering over a node, highlight it
-            // let the cursor know it's in a hover state
-            cursor.overNode = false;
+            node.draw(this.p5, cursor)
+            if(cursor.over(node)) { hoveredNodes.push(node); this.mask.setTarget(1) }
 
-            let box = this.font.textBounds(node.frontmatter.title, node.x/2, node.y/2)
-            const w = 200 > box.w + 25 ? box.w + 25 : 200
-            const h = (Math.floor(box.w / 140)+1) * (box.h + this.p5.textLeading())
-
-            if(node.highlighted) {
-                this.p5.fill(this.p5.color(255, 0, 0))
-                this.p5.circle(node.x/2, node.y/2, w + 18);
-                cursor.overNode = true
-            }
-            if(this.p5.dist(localCoord.x, localCoord.y, node.x/2, node.y/2) <= w/2 || node.hover) {
-                this.p5.fill(this.p5.color(0, 0, 255))
-                this.p5.circle(node.x/2, node.y/2, w + 18)
-            }
-
-            // Draw node
-            const color = node.selected? this.p5.color(0, 255, 0) : 255            
-            this.p5.fill(color)
-            // this.p5.rect(node.x/2-(w/2), node.y/2-(h/2), w, h)
-            this.p5.circle(node.x/2, node.y/2, w)
-            
-            this.p5.fill(0)
-            this.p5.text(node.frontmatter.title, node.x/2-150/2, node.y/2, 150)
-            
-            // Icons
-            if(node.completed) {
-                let cx = node.x/2 + w/3
-                let cy = node.y/2 - w/3
-                this.p5.strokeWeight(24)
-                this.p5.line(cx, cy, cx - 25, cy - 25)
-                this.p5.line(cx, cy, cx + 50, cy - 50)
-                this.p5.stroke('rgb(72, 199, 116)');
-                this.p5.strokeWeight(18)
-                this.p5.line(cx, cy, cx - 25, cy - 25)
-                this.p5.line(cx, cy, cx + 50, cy - 50)
-                this.p5.strokeWeight(1)
-            }
-
+            // TODO: move this to Tutorial.draw()
             // Add "start here" callout
-            if(node.frontmatter.start && !node.completed) {
-                let offsetY = Math.abs((this.tick/3) % 30 - 15)
-                this.p5.triangle(node.x/2 - 125/2, (node.y/2 - w*1.5) + offsetY, node.x/2 + 125/2, (node.y/2 - w*1.5) + offsetY, node.x/2, (node.y/2 - w*1.5+125) + offsetY)
-                this.p5.circle(node.x/2, (node.y/2 - w*1.5) + offsetY, 125)
-                this.p5.fill(255)
-                this.p5.stroke(255)
-                this.p5.text("Start Here", node.x/2 - 48, (node.y/2 - w*1.5) + offsetY, 100)
-            }
+            // if(node.frontmatter.start && !node.completed) {
+            //     let offsetY = Math.abs((this.tick/3) % 30 - 15)
+            //     this.p5.triangle(node.x/2 - 125/2, (node.y/2 - w*1.5) + offsetY, node.x/2 + 125/2, (node.y/2 - w*1.5) + offsetY, node.x/2, (node.y/2 - w*1.5+125) + offsetY)
+            //     this.p5.circle(node.x/2, (node.y/2 - w*1.5) + offsetY, 125)
+            //     this.p5.fill(255)
+            //     this.p5.stroke(255)
+            //     this.p5.text("Start Here", node.x/2 - 48, (node.y/2 - w*1.5) + offsetY, 100)
+            // }
+
             this.p5.stroke(0)
-            
         }
+        // Draw the semi-opaque background to help highlight the hovered node
+        // this.mask.update()
+        // const c = this.p5.color(255)
+        // c.setAlpha(this.mask.getLerp())
+        // this.p5.background(c)
+        // if(hoveredNodes.length > 0) {
+        //     for(const node of hoveredNodes) { node.draw(this.p5, cursor) } 
+        // } else {
+        //     this.mask.setTarget(0)
+        // }
+
+        // Draw project center (debugging)
+        // for(let i=0;i<data.projects.length;i++) {
+        //     const proj = data.projects[i]
+        //     if(proj.selected) {
+        //         this.p5.circle(proj.center.x, proj.center.y, 100)
+        //     }
+        // }
                
     }
 }
 
+
+
 export class Camera {
     
     p5:any
-    currentScale:number = 1
-    scale:number = 1; lscale:number = 1
     x:number = 0; y:number = 0;
     lx:number = 0; ly:number = 0;
+    ix:number; iy:number
+    transform:Transform = { x: 0, y: 0, scale: 1}
+    lerpTransform:Transform = { x: 0, y: 0, scale: 1}
+    matrix:DOMMatrix;
     offsetX:number = 0; offsetY:number = 0
+    moving:boolean = false
 
     constructor(p5:any, data:object, scale:number) {
         this.p5 = p5;
-        this.scale = scale;
-        this.currentScale = this.scale
-        if(data && data.nodes) {
-            let ysum = 0; let xsum = 0
-            for(let i=0;i<data.nodes.length;i++) {
-                ysum += data.nodes[i].y
-                xsum += data.nodes[i].x
-            } 
-            const avgY = ysum/data.nodes.length
-            const avgX = xsum/data.nodes.length
-            const coords = {x: avgX/2, y: avgY/2}
-            const scoords = this.getScreenCoords(coords)
-            this.zoom(scoords, 0.4, true) // TODO: calculate the zoom level based on how big the map is
-            this.setCoords(scoords, 0.5);
+        this.x = this.p5.width/2
+        this.y = this.p5.height/2
+        this.ix = this.x
+        this.iy = this.y
+
+        this.p5.push();
+        this.p5.translate(this.transform.x, this.transform.y);
+        this.p5.scale(this.transform.scale)
+        this.matrix = this.p5.drawingContext.getTransform()
+        this.p5.pop();
+    }
+
+    offsetTransform(coords:Coords):boolean {
+        this.transform.x += coords.x
+        this.transform.y += coords.y
+        return false
+    }
+
+    display(cb:any) {
+        this.lerpTransform = {
+            x: this.lerpTransform.x + ((this.transform.x - this.lerpTransform.x)/4),
+            y: this.lerpTransform.y + ((this.transform.y - this.lerpTransform.y)/4),
+            scale: this.lerpTransform.scale + ((this.transform.scale - this.lerpTransform.scale)/4)
         }
-        
-    }
+        this.p5.push()
+        this.p5.translate(-this.lerpTransform.x, -this.lerpTransform.y)
+        this.p5.scale(this.lerpTransform.scale)
+        cb();
+        this.matrix = this.p5.drawingContext.getTransform()
+        this.p5.pop()
 
-    setCoords(coords:Coords, centerFactor:number) {
-        const dx = this.p5.width * centerFactor - coords.x
-        const dy = this.p5.height * 0.5 - coords.y
-        // console.log(`${dx}, ${dy}`)
-        this.x += dx
-        this.y += dy
+        // this.p5.fill('rgba(0, 0, 0, 0')
+        // this.p5.circle(this.p5.width/2, this.p5.height/2, 10)
+        // this.p5.line(this.p5.width/2, this.p5.height/2 - 15, this.p5.width/2, this.p5.height/2 + 15)
+        // this.p5.line(this.p5.width/2 + 15, this.p5.height/2, this.p5.width/2 - 15, this.p5.height/2)
+        // this.p5.fill(0)
+        // this.p5.text(`${this.x},${this.y}`, this.p5.width/2, this.p5.height/2 - 30)
     }
-
-    zoom(coords:Coords, scaleFactor:number, absolute:boolean) {
+    zoom(absoluteLocation:Coords, deltaZoom:number, absolute:boolean) {
         let factor;
         if(!absolute) {
-            factor = scaleFactor
+            factor = deltaZoom
         } else {
-            factor = scaleFactor/this.scale
+            factor = deltaZoom/this.transform.scale
         }
-        this.scale = this.scale * factor;
-        this.x = coords.x - (coords.x * factor) + (this.x * factor);
-        this.y = coords.y - (coords.y * factor) + (this.y * factor);
+        this.transform.scale = this.transform.scale * factor;
+        this.transform.x = -(absoluteLocation.x - (absoluteLocation.x * factor) + (-this.transform.x * factor));
+        this.transform.y = -(absoluteLocation.y - (absoluteLocation.y * factor) + (-this.transform.y * factor));
     }
 
-    display(coords:Coords, cb:any) {
-        // lerp scale changes
-        if(this.currentScale != this.scale) {
-            const lerp = (this.scale - this.currentScale) / 4
-            this.currentScale += lerp;
-        } 
-        // update map offset coordinates
-        this.x -= coords.x; this.y -= coords.y
-        
-        // lerp click changes
-        // this.x += lerp(this.x, this.lx, 4);
-        // this.y += lerp(this.y, this.ly, 4);
-
-        // center of screen debug marker
-        // this.p5.circle(this.p5.width*centerFactor, this.p5.height*0.5, 10)
-        let transformX = this.lx + ((this.x - this.lx)/4)
-        let transformY = this.ly + ((this.y - this.ly)/4)
-        // let lerpScale  = this.scale + ((this.scale - this.lscale)/4)
-        
-        this.p5.push();
-        this.p5.translate(transformX, transformY);
-        this.p5.scale(this.currentScale)
-        cb();
-        this.p5.pop();
-        this.p5.fill(0)
-        // this.p5.text(`${this.x}, ${this.y}`, 20, this.p5.height - 25)
-
-        this.lx = transformX; this.ly = transformY; //this.lscale = lerpScale
+    moveCenterTo(absolutePosition:Coords) {
+        console.log("Got call to move to", absolutePosition)
+        // figure out transformation needed to move camera to correct screen coordinate
+        const dx = this.ix - absolutePosition.x
+        const dy = this.iy - absolutePosition.y
+        this.transform.x -= dx
+        this.transform.y -= dy
     }
-    getScreenCoords(coords:Coords) {
-        let transformX = this.lx + ((this.x - this.lx)/4)
-        let transformY = this.ly + ((this.y - this.ly)/4)
-        // let lerpScale  = this.scale + ((this.scale - this.lscale)/4)
-        
-        this.p5.push();
-        this.p5.translate(transformX, transformY);
-        this.p5.scale(this.currentScale)
-        const matrix = this.p5.drawingContext.getTransform()
-        const scoords = matrix
+    getLocalCoords(coords:Coords) {
+        return getLocalCoords(this.p5, this.matrix, coords)
+    }
+    getScreenCoords(coords:Coords, center:number) {
+        const screenCoords = this.matrix
         .transformPoint(
             new DOMPoint(
-                coords.x * this.p5.pixelDensity(),
+                coords.x * this.p5.pixelDensity() - this.p5.width * center,
                 coords.y * this.p5.pixelDensity()
             )
         );
-        this.p5.pop()
-        return scoords
+        return screenCoords
+    }
+    setCenter(factor:number) {
+        this.ix = this.p5.WIDTH * factor
+        this.iy = this.p5.HEIGHT * factor
     }
 }
 
-function lerp(target:number, current:number, str:number):number {
-    if(target != current) {
-        return (current - target) / str
-    }
-    return 0
-}
-
-export function getLocalCoords(p5:any, coords:Coords) {
+export function getLocalCoords(p5:any, matrix:DOMMatrix, screenCoords:Coords) {
     // from https://www.reddit.com/r/p5js/comments/jo7ucf/clicking_on_a_translated_scaled_and_rotated_shape/
-    const matrix = p5.drawingContext.getTransform()
     const localCoord = matrix
         .inverse()
         .transformPoint(
             new DOMPoint(
-                coords.x * p5.pixelDensity(),
-                coords.y * p5.pixelDensity()
+                screenCoords.x * p5.pixelDensity(),
+                screenCoords.y * p5.pixelDensity()
             )
         );
     return localCoord

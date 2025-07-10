@@ -15,8 +15,10 @@ import YAML from 'yaml'
 import { practice } from './directives/practice'
 import { code_and_image } from './directives/code-and-image'
 import rehypeHighlight from 'rehype-highlight'
+import { loadConfig } from '$lib/config'
 
 export async function parse(path:string) {
+    const config = await loadConfig()
     let frontmatter:any = {
         title: "No title!"
     }
@@ -50,12 +52,12 @@ export async function parse(path:string) {
         .use(rehypeFormat)
         .use(rehypeStringify)
         // TODO: this is going to cause problems for us! Paths, etc.
-        .process(await read(`../modules/${path.replace('.json', '')}`))
+        .process(await read(`../${config.modules}/${path.replace('.json', '')}`))
     
     // console.log(file, frontmatter)
-    frontmatter.title = frontmatter.title? frontmatter.title :  `../modules/${path.replace('.json', '')}`
+    frontmatter.title = frontmatter.title? frontmatter.title :  `../${config.modules}/${path.replace('.json', '')}`
 
-    console.log(frontmatter.title,)
+    // console.log(frontmatter.title,)
 
     return {
         file: file,

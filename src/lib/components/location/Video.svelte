@@ -1,14 +1,15 @@
 <script lang='ts'>
     import {base} from '$app/paths'
     import { onMount } from 'svelte';
-    import type { Tutorial } from '../../../routes/map/local/mapNodes';
+    import type { Tutorial } from '../../../routes/map/local/elements/Tutorial';
+    import type { Project } from '../../../routes/map/local/elements/Project';
     import { mapData } from '../../../routes/store';
-    export let node:string|undefined
+    export let node:string
     let loaded = false
 
-    let obj:Tutorial
+    let obj:Tutorial|Project
     onMount(() => {
-        obj = $mapData.nodeObj[node]
+        obj = $mapData.nodesByPath[node]
     })
 
     function show() {
@@ -24,7 +25,8 @@
     </div>
     <div class='text'>
         <blockquote class='block is-italic'>{obj.frontmatter.description}</blockquote>
-        <p class='block'>Watch the video to see someone demonstrate the basics, or <a href="{obj.path}">open the tutorial page to read a text version</a>. This concept is a part of several <a href='{base}/projects'>projects </a>; check them out!</p>
+        <!-- TODO: <p class='block'>Watch the video to see someone demonstrate the basics, or <a href="{obj.path}">open the tutorial page to read a text version</a>.</p> -->
+        <!-- TODO: <p>This concept is a part of several <a href='{base}/projects'>projects </a>; check them out!</p> -->
     </div>
 </div>
 {/if}

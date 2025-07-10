@@ -3,11 +3,10 @@
     import LocationListItem from "./LocationListItem.svelte";
     import { createEventDispatcher, onMount } from "svelte";
     import TrailListItem from "./TrailListItem.svelte";
-    import type { Nodes } from "rehype-format/lib";
     import { mapData } from "../../store";
-    import type { Project } from "./mapNodes";
+    import type { Project } from "./elements/Project";
 
-    export let selectedNode:string;
+    // export let selectedNode:string;
     export let locs:object[] = []
 
     let term = ''
@@ -42,6 +41,9 @@
         </div>
     </div>
     <!-- // List of nodes -->
+     {#if $mapData.projects.length == 0}
+     <i>We haven't written any projects yet! Check back soon.</i>
+     {/if}
     {#each filteredNodes as node, i}
     <TrailListItem on:select node={node.id} />
     {/each}

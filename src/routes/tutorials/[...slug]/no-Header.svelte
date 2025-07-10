@@ -1,6 +1,6 @@
 <script lang='ts'>
     import { base } from '$app/paths'
-    import QuickTake from '$lib/components/location/QuickTake.svelte';
+    import QuickTake from '$lib/components/location/banner/QuickTake.svelte';
 
     // interface Frontmatter {
     //     title:string,

@@ -2,11 +2,18 @@
     // import P5 from 'p5-svelte'
     import P5 from './P5.svelte'
     import { onDestroy, onMount } from 'svelte';
-    import { Camera, Cartographer, Cursor } from './utils';
+    import { Camera, Cartographer, Cursor, getLocalCoords } from './utils';
     import { createEventDispatcher } from 'svelte'
     import { faCameraRetro } from '@fortawesome/free-solid-svg-icons';
     import type { Coords } from './types';
-    import type { Map } from './mapNodes';
+    import type { Map } from './elements/Map';
+    import { mapData } from '../../store';
+
+    /* API for map interactions
+    | Method Name        | Description 
+    | ------------------ | -------------------------------------------------------- 
+    | Map.event(url:URL) | Write to map state from a URL object based on parameters
+    */
 
     let sketch = (p5:any) => {
     };
@@ -17,17 +24,16 @@
 
     onDestroy(() => {
         console.log("Unmounting map...")
-        mapEl.$destroy()
+        // if(mapEl) { mapEl.$destroy() }
     })
 
     const dispatch = createEventDispatcher()
 
     let lastIndex:number|null = null
     function sendClick(data:any, index:number) {
-        dispatch('nodeSelect', {
-            data: data,
-            index: index
-        })        
+        dispatch('write', {
+            open: data
+        })
     }
 
     interface Node {
@@ -38,103 +44,121 @@
         highlighted?:boolean,
         file:string
     }
-    let space = false
-    let mx:number, my:number
     let cursor:Cursor;
     let camera:Camera;
     let carto:Cartographer;
-    let canvas;
+    let mx:number, my:number;
 
     export let data:Map
     export let center:number = 0.5
     export let interact = true
 
+    // $: updateCenter(center)
+
+    function updateCenter(factor:number) {
+        if(camera) { camera.setCenter(factor) }
+    }
+
+    export function readEventFrom(params:URLSearchParams) {
+        console.log("Got call to read params...")
+        if(params.has('open')) {
+            open(params.getAll('open'), params)
+        } else {
+            $mapData.deselectAll()
+        }
+        if(params.has('xy')) {
+            const str:string = params.get('xy') as string
+            const comma = str.indexOf(',')
+            const x = Number(str.substring(0, comma))
+            const y = Number(str.substring(comma+1, str.length))
+            if(isNaN(x) || isNaN(y)) {
+                console.error(`Invalid coordinates ${x}, ${y}.`)
+            }
+            camera.moveCenterTo({x: x, y: y})
+        }
+        if(params.has('zoom')) {
+            const scale = Number(params.get('zoom'))
+            camera.zoom({x: camera.ix, y: camera.iy}, scale, true)
+        }
+    }
+
+    function open(paths:string[], params:URLSearchParams) {
+        if(paths.length == 0) { params.delete('open'); return } else {
+            for(const path of paths) {
+                const node = data.nodesByPath[path + '.md']
+                node.select()
+            }
+            // TODO: Zoom in on the last path selected, for now
+            console.log(`Opening ${paths[paths.length-1] + '.md'}`)
+            const coords = data.nodesByPath[paths[paths.length-1] + '.md'].getCoords()
+            const location = camera.getScreenCoords({x: coords.x/2, y: coords.y/2}, center)
+            camera.moveCenterTo(location)
+        }
+    }
+    export function close(path:string) {
+        const node = data.nodesByPath[path + '.md']
+        node.selected = false
+        camera.zoom({x: camera.ix, y: camera.iy}, 0.5, true)
+    }
+
     export function focus(node?:Node) {
         if(!node) {
-            camera.zoom({x: camera.p5.mouseX, y: camera.p5.mouseY}, 0.5, true)   // handle camera work
-            camera.setCoords({x: camera.p5.mouseX, y: camera.p5.mouseY}, center);
+            
         } else {
             console.log("Moving camera to node...")
             node.selected = true
-            // get screen coordinates for pan
-            const coords = {x: node.x/2, y: node.y/2}
-            const scoords = camera.getScreenCoords(coords)
-            camera.zoom(scoords, 1.75, true)
-            camera.setCoords(scoords, center);
+            // get screen coordinates for focus TODO:
         }
     }
-    export function addHighlight(nodes:Node[], zoom:boolean) {
-        console.log("handling highlight...")
-        // let sumX = 0; let sumY = 0; let count = 0
-        // for(let i=0;i<data.nodes.length;i++) {
-        //     data.nodes[i].highlighted = nodes.includes('./'+data.nodes[i].file) ? true : false;
-        //     if(data.nodes[i].highlighted) {
-        //         sumX += data.nodes[i].x
-        //         sumY += data.nodes[i].y
-        //         count++
-        //     }
-        // }
-        
-        // if(nodes.length > 0 && zoom) {
-        //     const avgX = sumX/count
-        //     const avgY = sumY/count
-        //     const coords = {x: avgX/2, y: avgY/2}
-        //     const scoords = camera.getScreenCoords(coords)
-        //     camera.zoom(scoords, 0.4, true)
-        //     camera.setCoords(scoords, 0.66)
-        // }
-    }
-    export function removeHighlight(nodes:Node[], zoom:boolean) {
 
-    }
-    export function zoom(nodes:Nodes[]) {
-        let ysum = 0; let xsum = 0
-        for(let i=0;i<nodes.length;i++) {
-            ysum += nodes[i].y
-            xsum += nodes[i].x
-        } 
-        const avgY = ysum/nodes.length
-        const avgX = xsum/nodes.length
-        const coords = {x: avgX/2, y: avgY/2}
-        const scoords = camera.getScreenCoords(coords)
-        // camera.zoom(scoords, 0.5, true)
-        camera.setCoords(scoords, 0.5);
-    }
-
-    // $:console.log(interact)
     let font:any;
+    let icons:any;
     let mapSketch = (p5:any) => {
         p5.preload = () => {
             font = p5.loadFont('/Raleway-Regular.ttf')
+            icons = p5.loadFont('/icons.otf')
+            data.setSketchContext(p5)
+            
         }
         p5.setup = () => {
             const c = p5.createCanvas(p5.displayWidth, p5.displayHeight*0.83)
+
+            for(const node of data.nodes) {
+                node.setWidth(p5, font)
+                node.setFonts(font, icons)
+            }
             
             mx = p5.mouseX
             my = p5.mouseY
             cursor = new Cursor(p5);
             carto = new Cartographer(p5);
             carto.font = font
+            carto.icons = icons
             camera = new Camera(p5, data, 0.5)
 
             p5.textFont(font)
             p5.textSize(28)
             p5.textWrap('WORD')
             p5.textAlign(p5.CENTER, p5.CENTER)
+
+            dispatch('loaded')
         };
 
         p5.draw = () => {
             p5.background(255);
-            cursor.update();
-            const coords= cursor.getDrag(interact)
-            camera.display(coords, () => {
+            
+            camera.display(() => {
                 carto.draw(data, cursor);
+                cursor.update(camera.matrix);
             })
-            // TODO: If the cursor is over a node, draw the tooltip
-            if(cursor.overNode) {
-                // What content should be in the tooltip?
-                    // - description
-            }
+
+            const offsetCoords = cursor.getDrag(interact)
+            let lerpComplete = camera.offsetTransform(offsetCoords)
+            // if(lerpComplete) {
+            //     console.log("Lerp complete! Writing to url...") 
+            //     const point = camera.getLocalCoords({x: camera.ix, y: camera.iy})
+            //     dispatch('write', { x: point.x, y: point.y }) 
+            // }
         }
 
         p5.mouseClicked = (e:any) => {
@@ -144,15 +168,20 @@
                 let zoom
                 if(!node.selected) {
                     zoom = 0.5
+                    dispatch('write', {
+                        // zoom: zoom 
+                    })
+                    camera.zoom({x: camera.ix, y: camera.iy}, zoom, true)
                 } else {
                     zoom = 1.75
+                    dispatch('write', {
+                        open: [node],
+                        zoom: zoom 
+                    })
                 }
-                sendClick(node, index) // send data to UI
-                camera.zoom({x: p5.mouseX, y: p5.mouseY}, zoom, true)   // handle camera work
-                camera.setCoords({x: p5.mouseX, y: p5.mouseY}, center);
             } else {
                 console.log("No new node")
-                // highlight([])
+                // dispatch('write', {})
             }
         }
         p5.mouseWheel = (e:any) => {
@@ -166,8 +195,7 @@
             } else {
                 scaleFactor = 1 - zoomSensitivity; // Zoom out
             }
-            camera.zoom({x: camera.x, y: camera.y}, scaleFactor, false)
-            console.log("scroll event...")
+            camera.zoom({ x: cursor.mx, y: cursor.my}, scaleFactor, false)
             return false // disable scroll on page
         }
     }

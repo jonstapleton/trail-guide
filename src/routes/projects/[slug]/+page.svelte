@@ -1,18 +1,25 @@
 <script lang='ts'>
-    import { faCheck, faFire, faLocationDot, faMap, faStar } from "@fortawesome/free-solid-svg-icons";
+    import { faCheck, faChevronDown, faFire, faLocationDot, faMap, faStar } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { onMount } from "svelte";
     import {base } from '$app/paths'
     import LocationCard from "$lib/components/location/LocationCard.svelte";
     import CardWrap from "$lib/components/elements/CardWrap.svelte";
     import PanelCard from "$lib/components/elements/PanelCard.svelte";
-    import Header from "$lib/components/location/Header.svelte";
-    import QuickTake from "$lib/components/location/QuickTake.svelte";
+    import Header from "$lib/components/location/banner/Header.svelte";
+    import QuickTake from "$lib/components/location/banner/QuickTake.svelte";
     import { mapData } from "../../store";
+    import type { Project } from "../../map/local/elements/Project";
+    import TutorialBanner from "$lib/components/location/banner/TutorialBanner.svelte";
+    import ProjectMap from "$lib/components/trail/ProjectMap.svelte";
+    import Video from "$lib/components/location/Video.svelte";
+    import PanelMap from "$lib/components/trail/PanelMap.svelte";
     
     export let data
-    let selectedNode = 0;
-    let obj:any = data
+
+    let showInfo = true;
+    let selectedNode:string; // the path of a Tutorial
+    let obj:Project
     const id = 'projects/'+data.path
     onMount(() => {
         console.log('Project ID is', data.path)
@@ -20,70 +27,96 @@
             console.log("Found project in mapData")
             obj = $mapData.projectObj[id]
             // console.log(obj.frontmatter.nodes)
+            selectedNode = $mapData.projectObj[id].nodes[0].path
         }
     })
     let completed = 0;
-    function countCompleted(map:any) {
-        const completedNodes = map.projectObj[id].nodes.filter((obj:any) => {
-            return obj.completed
-        })
-        return completedNodes.length
+    function countCompleted(map:any, id:string) {
+        return map.getProjectByPath(id).getCompleted().length
     }
 
-    $: completed = countCompleted($mapData)
+    $: completed = countCompleted($mapData, id)
     
 </script>
 
-<div class='container'>
-    <div class='section content'>
-        <h1 class='title'>
-            <label class='checkbox'>
-                <input bind:value={$mapData.projectObj[id].completed} class='checkbox' type='checkbox'>
-                {obj.frontmatter.title}
-                {#if obj.frontmatter.recommended}
-                <span class='ml-2 rec'><Fa icon={faStar} /></span>
-                {/if}
-            </label>
-        </h1>
-        <div class='meta'>
-            <span class='tag'>
-                <span style="margin-right: 0.5rem;">Difficulty:</span> 
-                {#each {length: obj.frontmatter.difficulty} as _}
-                    <span class='diff-icon'><Fa icon={faFire} /></span>
-                {/each}
-            </span>
-            <span class='tag'>
-                Completed: {completed} / {obj.frontmatter.nodes.length}
-            </span>
-            <a class='tag' target="_blank" href="{base}/map">View on Map<span class='ml-2'><Fa icon={faMap} /></span></a>
+{#if obj}
+<div class='columns'>
+    <div class='column is-desktop is-narrow'>
+        <div class='sticky-wrapper'>
+            <PanelMap project={$mapData.projectObj[id]} bind:selected={selectedNode} />
         </div>
-        <div class='content'>
-            {@html obj.content.full}
-        </div>
-        <div class='level nodes'>
-            {#each $mapData.projectObj[id].nodes as node, i}
-            <a on:click={() => selectedNode = i} class='level-item {i == 0? 'first':''} {i==obj.frontmatter.nodes.length-1? "last":''}'>
-                {#if selectedNode == i}
-                    <span class='select-icon'><Fa size="2x" icon={faLocationDot} /></span>
+    </div>
+    <div class='column'>
+        <div class='section'>
+            <!-- TODO: -->
+            <!-- <div class='buttons container'>
+                <button class='button'>Previous Tutorial</button>
+                <button class='button is-success'>Next Tutorial</button>
+            </div> -->
+                <!-- <Header titleSize="24" node={obj.nodes[selectedNode].id} /> -->
+            <TutorialBanner tutorial={$mapData.nodesByPath[selectedNode]} />
+            <div class='content tutorial container'>
+                {#if $mapData.nodesByPath[selectedNode].content.full.length == 0}
+                    <p><i>We haven't written the full tutorial for this page yet! Check back soon.</i></p>
+                {:else}
+                    {@html $mapData.nodesByPath[selectedNode].content.full}
                 {/if}
-                <p>{node.frontmatter.title}</p>
-                {#if node.completed}
-                <span class='completed-icon'><Fa size="3x" icon={faCheck} /></span>
-                {/if}
-            </a>
-            {/each}
-        </div>
-        <div class='cards'>
-            <Header titleSize="24" node={obj.nodes[selectedNode].id} />
-            <hr>
-            <div class='p-5'>
-                <LocationCard tabClass={'onTrail'} exclude={["Video"]} node={obj.nodes[selectedNode].id} />
             </div>
         </div>
     </div>
 </div>
+{/if}
 
 <style lang='scss'>
+    .nav-wrap {
+        margin-left: 6rem;
+    }
+    .sticky-wrapper {
+        position: sticky;
+    }
+    .divider {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        border-bottom: 1px solid black;
+        // animation: float 2s ease-in-out infinite;
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+    }
+    .video {
+        // padding: 5rem 5rem;
+        position: relative;
+    }
+    .video iframe {
+        border: 0;
+        height: 92%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 92%;
+        border-radius: 12px;
+        margin: 1rem 1rem;
+        /* min-width: 10rem; */
+    }
+    .tutorial {
+        margin-bottom: 10rem;
+    }
+    .project-header {
+        margin-top: 6rem;
+    }
     .completed-icon {
         position: absolute;
         color: hsl(141, 53%, 53%);
@@ -108,42 +141,7 @@
             position: static;
         }
     }
-    .nodes {
-        background: linear-gradient(to bottom, white calc(50% - 3px), black calc(50% - 3px) calc(50% + 3px), white calc(50% + 3px));
-        margin-top: 5rem;
-        margin-bottom: 4rem;
-        & > a {
-            background-color: hsl(0, 0%, 21%);
-            color: white;
-            margin: 0.5rem 0.5rem;
-            border-radius: 8px;
-            height: 3rem;
-            border: 3px solid hsl(0, 0%, 21%);
-            position: relative;
-            p {
-                color: white
-            }
-            &.first { margin-left: 0 }
-            &.last { margin-right: 0 }
-            &:hover {
-                background-color: white;
-                color: black;
-                border: 3px dashed black;
-                cursor: pointer;
-                p {
-                    color: black;
-                }
-            }
-        }
-    }
-    @media screen and (max-width: 768px) {
-        .nodes {
-            background: linear-gradient(#000, #000) no-repeat center/6px 100%;
-            & > a.first, & > a.last {
-                margin: 0.5rem 0.5rem;
-            }
-        }
-    }
+    
     .title {
         font-size: 36pt;
         input {

@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit'
 import { parse } from '$lib/parsing/parser'
 import * as fs from 'fs/promises'
 import type { RouteParams } from './$types.js'
+import { loadConfig } from '$lib/config.js'
 
 
 export async function GET({ params }) {
@@ -26,19 +27,20 @@ export async function GET({ params }) {
 }
 
 export async function entries() {
+    const config = await loadConfig()
     console.log("Prerendering [...path].json")
     const subdirectories = [
-        '../modules/projects/',
-        '../modules/concepts/',
-        '../modules/applications/'
+        `../${config.modules}/projects/`,
+        `../${config.modules}/concepts/`,
+        `../${config.modules}/applications/`
     ]
     let paths:RouteParams[] = []
     for(let i=0;i<subdirectories.length;i++) {
         const files = await fs.readdir(subdirectories[i])
-        console.log(files)
+        // console.log(files)
         files.forEach((path:string) => {
             console.log("Prerendering", path)
-            paths.push({path: subdirectories[i].replace('../modules/','')+path})
+            paths.push({path: subdirectories[i].replace(`../${config.modules}/`,'')+path})
         }); 
     }
     // throw new Error(paths.toString())

@@ -1,21 +1,31 @@
 <script lang='ts'>
     // import { onMount } from 'svelte';
-    import Header from './Header.svelte';
+    import Header from '$lib/components/location/banner/Header.svelte';
     import * as components from '$lib/components/location/directives' // This is what enables custom elements in tutorial bodies
-    import QuickTake from '$lib/components/location/QuickTake.svelte';
+    import QuickTake from '$lib/components/location/banner/QuickTake.svelte';
     import { onMount } from 'svelte';
     import QuestionHost from '$lib/components/location/QuestionHost.svelte';
-    import QuestionCarousel from '$lib/components/location/QuestionCarousel.svelte';
-    
+    import QuestionCarousel from '$lib/components/location/banner/QuestionCarousel.svelte';
+    import TutorialBanner from '$lib/components/location/banner/TutorialBanner.svelte';
+    import type { Tutorial } from '../../map/local/elements/Tutorial';
+    import { mapData } from '../../store';
+
     export let data;
 
+    let obj:Tutorial
     let tabs:string[] = ["Overview"]
     let activeTab = 0
+    const id = data.path + '.md'
     onMount(() => {
-        // console.log(data)
-        if(data.content.quick) { tabs = [...tabs, "Quick Take"] }
-        if(data.content.practice) { tabs = [...tabs, "Practice"] }
-        if(data.content.prompt) { tabs = [...tabs, "Prompt" ]}
+        // Load the tutorial data from $mapData based on path
+        if($mapData.nodesByPath[id]) {
+            console.log("Found tutorial in mapData")
+            obj = $mapData.nodesByPath[id]
+            console.log(obj)
+        }
+        if(obj.content.quick) { tabs = [...tabs, "Quick Take"] }
+        // if(data.content.practice) { tabs = [...tabs, "Practice"] }
+        if(obj.content.prompt) { tabs = [...tabs, "Prompt" ]}
     })
 
     const els = {
@@ -25,39 +35,18 @@
     }
 </script>
 
-<div class='hero banner pt-5'>
-    <div class="hero-head pb-0">
-            <div class='container mt-5'>
-                <h1 class='title is-size-1'>{data.frontmatter.title}</h1>
-                <nav class="tabs is-boxed">
-                    <ul>
-                        {#each tabs as tab, i}
-                        <li class="{activeTab == i? 'is-active' : ''}">
-                            <a on:click={() => activeTab = i}>{tab}</a>
-                        </li>
-                        {/each} 
-                    </ul>
-                </nav>
-                
-            </div>
-    </div>
-    <div class='hero-body pt-0 mt-0'>
-        <div class='container'>
-            <div class='body-wrap {activeTab == 0 ? 'three' : 'four'}'>
-                <div class='el-wrap'>
-                    <!-- <Header data={data} /> -->
-                    <svelte:component this={els[tabs[activeTab]]} data={data} containerized={true} />
-                </div>
-            </div>
-        </div>
-    </div>
-    
-</div>
+{#if obj}
+<TutorialBanner tutorial={obj} />
 <div class='container content tutorial'>
     <!-- <div class='section'> -->
-        {@html data.content.full}
+        {#if obj.content.full.length == 0}
+        <p><i>We haven't written the full tutorial for this page yet! Check back soon.</i></p>
+        {:else}
+        {@html obj.content.full}
+        {/if}
     <!-- </div> -->
 </div>
+{/if}
 
 <style lang='scss'>
     .tab-wrap {

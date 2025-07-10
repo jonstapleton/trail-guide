@@ -4,19 +4,18 @@
     import { faArrowUpRightFromSquare, faBoxOpen, faLocationDot, faLocationPin, faSearch } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
     import { createEventDispatcher } from "svelte";
-    import type { Tutorial } from "./mapNodes";
+    import type { Tutorial } from "./elements/Tutorial";
     import { mapData } from "../../store";
 
     export let node:string
-    export let selected:Tutorial;
+    export let selected:string[];
 
     const dispatch = createEventDispatcher();
     function focus() {
         const n = $mapData.nodeObj[node]
-        console.log(`Focus on ${n.frontmatter.title}`)
+        // console.log(n)
         dispatch('select', {
-            data: $mapData.nodeObj[node],
-            type: 'location'
+            open: [n],
         })
     }
 
@@ -28,7 +27,6 @@
     }
 </script>
 
-<!-- TODO: a11y stuff -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div on:mouseenter={hover} on:mouseleave={dehover} class='location-list-item'>
     <div class='left'>
@@ -37,18 +35,16 @@
                 <input type='checkbox' name='complete' bind:checked={$mapData.nodeObj[node].completed}>
             </label>
         </div>
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <a on:click={focus}>{$mapData.nodeObj[node].frontmatter.title}</a>
+        <a on:click={() => $mapData.nodeObj[node].selected = false} href="{base}/map?open={$mapData.nodeObj[node].file.replace('.md', '')}">{$mapData.nodeObj[node].frontmatter.title}</a>
     </div>
     <div class='right'>
         <a data-tooltip="Open" target="_blank" href="{base}/tutorials/{$mapData.nodeObj[node].path.replace('.md','')}" class='has-tooltip-arrow hoverable'>
             <Fa icon={faArrowUpRightFromSquare} />
         </a>
-        <span class="{selected && selected.path == $mapData.nodeObj[node].path ? 'visible' : 'invisible'}">
+        <!-- TODO: -->
+        <!-- <span class="{$mapData.nodeObj[node].selected  ? 'visible' : 'invisible'}">
             <Fa icon={faLocationDot} />
-        </span>
+        </span> -->
     </div>
 </div>
 

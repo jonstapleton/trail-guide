@@ -1,7 +1,7 @@
 <script lang='ts'>
     import { onMount } from "svelte";
-    import { mapData } from "../../../routes/store";
-    import PracticeQuestion from "./PracticeQuestion.svelte";
+    import { mapData } from "../../../../routes/store";
+    import PracticeQuestion from "../PracticeQuestion.svelte";
     import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
     import Fa from 'svelte-fa'
 

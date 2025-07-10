@@ -56,3 +56,21 @@ The parser does several things with these questions:
 1. Adds the questions and their data to the `Tutorial` frontmatter
 2. Converts the slotted HTML content into props to pass to the `practice-question` custom element, which will render the question in the body of `Tutorial` pages
 3. TODO: registers the `practice-question` data with the API, generating an endpoint and metadata about the question
+
+## API
+
+The `trail-guide` API has two main sections to concern yourself with--the `/map` API which controls the interactive Map view, and the `/api` routes which provide access to the site content via static API endpoints.
+
+### The `/map` API
+
+While the user interacts with the `/map` view, their interacts **write** data to URL query fields. When the URL query fields change, the program **reads** from the URL query fields and updates the `/map` UI accordingly. The `/map` API supports the following query fields:
+
+| Field  | Type | Description | Example |
+| ------ | ---- | ----------- | ------- |
+| `xy`   | comma-separated `number` pair | Moves the camera so the coordinates are in the center of the viewport | `/map?xy=400,300` |
+| `zoom` | `number` | Adjusts the zoom level of the camera according to the value given | `/map?zoom=140` |
+| `open`  | `string` | Selects and opens the named element(s). If `xy` and/or `zoom` are not given, focuses on the center of all given elements and zooms out to accommodate their locations within the viewport | `/map?open=applications/foo&open=projects/bar` |
+
+### The `/api` Endpoints
+
+The `trail-guide` site is a static site, meaning there is no server data to `POST` to. All endpoints at the `/api` routes return data in response to `GET` requests only.

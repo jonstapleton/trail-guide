@@ -2,11 +2,11 @@
     import SearchBar from "$lib/components/elements/SearchBar.svelte";
     import LocationListItem from "./LocationListItem.svelte";
     import { createEventDispatcher } from "svelte";
-    import type { Tutorial } from "./mapNodes";
+    import type { Tutorial } from "./elements/Tutorial";
     import { mapData } from "../../store";
 
     // let nodes:Tutorial[] = $mapData.nodes
-    export let selectedNode:Tutorial
+    export let selectedNodes:string[]
 
     let term = ''
 
@@ -33,7 +33,7 @@
     </div>
     <!-- // List of nodes -->
     {#each filteredNodes as node, i}
-    <LocationListItem on:select bind:selected={selectedNode} node={node.id} />
+    <LocationListItem on:select bind:selected={selectedNodes} node={node.id} />
     {/each}
 </div>
 

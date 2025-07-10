@@ -1,7 +1,7 @@
 <script lang='ts'>
     import Fa from 'svelte-fa'
     import { faFire, faArrowUpRightFromSquare, faMap, faStar } from '@fortawesome/free-solid-svg-icons';
-    import type { Map, Project } from "../map/local/mapNodes";
+    import type { Project } from "../map/local/elements/Project";
     import { base} from '$app/paths'
     import { onMount } from 'svelte';
     import { mapData } from '../store';
@@ -25,14 +25,14 @@
 
 <article class='box'>
     <div class='columns'>
-        {#if node.frontmatter.video}
+        <!-- {#if node.frontmatter.video}
         <div class='column mr-5 is-one-third is-hidden-mobile'>
             <div class='video-wrap'>
                 <iframe src="{node.frontmatter.video}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                <!-- <span class='video-icon'><Fa icon={faVideo} size="2x" /></span> -->
+                <span class='video-icon'><Fa icon={faVideo} size="2x" /></span>
             </div>
         </div>
-        {/if}
+        {/if} -->
         <div class='column'>
             <heading class='subtitle'>
                 <label class='checkbox'>
@@ -51,7 +51,7 @@
                         <span class='ml-1 diff-icon'><Fa icon={faFire} /></span>
                         {/each}
                     </span>
-                    <span class='tag is-medium'>Completed: {completed} / {node.frontmatter.nodes.length}</span>
+                    <span class='tag is-medium'>Completed: {completed} / {node.nodes.length}</span>
                     <!-- <span class='ml-2'><Fa icon={icon} /></span> -->
                     <!-- <span class='type is-italic'>Tutorial</span> -->
                 </label>
@@ -63,7 +63,7 @@
                         <a href="{base}/{node.path}" target="_blank" class='button is-fullwidth is-dark'>Read Detailed Tutorial<span class='ml-2'><Fa icon={faArrowUpRightFromSquare} /></span></a>
                     </div>
                     <div class='control is-expanded'>
-                        <a href="{base}/map" target="_blank" class='button is-fullwidth'>View on the Map<span class='ml-2'><Fa icon={faMap} /></span></a>
+                        <a href="{base}/map?open={node.path}&zoom=0.5" target="_blank" class='button is-fullwidth'>View on the Map<span class='ml-2'><Fa icon={faMap} /></span></a>
                     </div>
                 </div>
             </section>
