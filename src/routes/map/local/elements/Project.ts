@@ -30,7 +30,12 @@ class Group {
                 this.listMask.push(false)
             }
         }
-        if(this.listMask.length != this.references.length || this.listMask.length != this.list.length) { throw new Error(`Failed to generate mask for group ${this.name} in project ${this.parent.frontmatter.title}!`) }
+        if(this.listMask.length != this.list.length) { 
+            console.log("listMask",this.listMask)
+            console.log("references", this.references)
+            console.log("list", this.list)
+            throw new Error(`Failed to generate mask for group ${this.name} in project ${this.parent.frontmatter.title}!`) 
+        }
 
         // Handle local edges & generate the mask
         const groupIds = this.getTutorialIds()
@@ -60,8 +65,6 @@ class Group {
                 this.edgeMask.push(false)
             }
         }
-
-        // Find and add the edges that skip optional tutorials
         
     }
 
@@ -131,12 +134,28 @@ export class Project extends Element implements Focusable {
         }
 
         // Now, collate the info from the groups into the Project
+        let firstIterationComplete = false
         for(const group of this.groups) {
+            // Find edge between ends of groups
+            let extraEdges:Edge[]|false = []
+            let extraEdgeMask:boolean[] = []
+            if(firstIterationComplete) {
+                extraEdges = this.getEdgesBetween(this.nodes[this.nodes.length-1], group.list[0], edges)
+                if(!extraEdges) { throw new Error(`Could not find edge between groups in Project ${this.path}`)}
+                for(let i=0;i<extraEdges.length;i++) {
+                    extraEdgeMask.push(false)
+                }
+            }
+
+            // Copy group nodes into global Project nodes
             this.nodes = [...this.nodes, ...group.list]
             this.optionalTutorialMask = [...this.optionalTutorialMask, ...group.listMask]
 
-            this.edges = [...this.edges, ...group.edges]
-            this.optionalEdgeMask = [...this.optionalEdgeMask, ...group.edgeMask]
+            // Copy edges into global Project edges, including edges that connect groups            
+            this.edges = [...this.edges, ...extraEdges, ...group.edges]
+            this.optionalEdgeMask = [...this.optionalEdgeMask, ...extraEdgeMask, ...group.edgeMask]
+
+            firstIterationComplete = true
         }
 
         // Find the center of the project
