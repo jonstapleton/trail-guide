@@ -2,6 +2,9 @@ import { loadConfig } from "$lib/config"
 import {read} from 'to-vfile'
 import {base} from '$app/paths'
 import type {MapDataResponse, resNode} from './map/local/elements/types'
+import { mapData } from './store'
+import { browser } from '$app/environment'
+import mapCheck from "$lib/parsing/tests/mapCheck"
 
 export async function load({ fetch }) {
 
@@ -17,6 +20,9 @@ export async function load({ fetch }) {
     }
 
     res.projects = await (await fetch(`${base}/api/file/projects.json`)).json() 
+
+    // tests
+    mapCheck(res.nodes, res.projects)
 
     let local;
 
