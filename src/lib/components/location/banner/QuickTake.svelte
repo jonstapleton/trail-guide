@@ -13,6 +13,8 @@
     let full:string = ''
     let quick:string = ''
     let loaded = false
+    let title:string = ''
+    let short:string = ''
     onMount(() => {
         console.log("Mounting quick take...")
         if(node) {
@@ -21,20 +23,26 @@
         } else if(data) {
             console.log("Loading Quick Take from object");
             ({full, quick} = data.content);
-            console.log(quick)
+            title = data.frontmatter.title
+            short = data.frontmatter.description
         }
         loaded = full || quick ? true: false
     })
 
     function loadContent(node:string) {
         ({full, quick} = $mapData.nodesByPath[node].content)
+        title = $mapData.nodesByPath[node].frontmatter.title
+        short = $mapData.nodesByPath[node].frontmatter.description
         loaded = full || quick ? true: false
     }
 
     $: if(node && !loaded) {loadContent(node as string)}
 </script>
 
-<div class='quick-take content {containerized ? 'columns' : ''} p-5'>
+<div class='quick-take content'>
+    <h2 class='title is-3'>{title}</h2>
+    <blockquote class='blockquote'>{short}</blockquote>
+    <div class='p-0 m-0 {containerized ? 'columns' : ''}'>
     {#if loaded}
     {@html quick && quick.length > 0 ? quick : full }
     {/if}
@@ -46,10 +54,16 @@
             </span>
         </a>
     </div> -->
+    </div>
 </div>
 
-<style>
-    /* .quick-take {
-        width: 500px;
-    } */
+<style lang='scss'>
+    .quick-take {
+        padding: 0;
+        margin: 0;
+
+    }
+    blockquote {
+        font-size: 10pt;
+    }
 </style>

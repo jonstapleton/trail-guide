@@ -67,7 +67,7 @@ export class Tutorial extends MapNode {
 
         // width of longest word is in `maxLength`, now need to scale the width based on how high or low that word is in the circle using `index`
         const offsetY = (index - (lines.length -1) / 2) * lineHeight
-        console.log(this.frontmatter.title, offsetY)
+        // console.log(this.frontmatter.title, offsetY)
         return Math.sqrt(offsetY*offsetY + (maxLength)*(maxLength)) + 30
     }
     draw(p5:any, cursor:Cursor) {

@@ -68,4 +68,7 @@ export class Map {
             proj.deselect()
         }
     }
+    getProjectByPath(path:string):Project {
+        return this.projectObj[path]
+    }
 }

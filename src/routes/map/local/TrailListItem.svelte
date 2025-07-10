@@ -9,6 +9,8 @@
     import Difficulty from "./TrailPanel/Difficulty.svelte";
     import Open from "./TrailPanel/Open.svelte";
     import Selected from "./TrailPanel/Selected.svelte";
+    import Video from "$lib/components/location/Video.svelte";
+    import YouTubeEmbed from "$lib/components/elements/YouTubeEmbed.svelte";
 
     export let node:string
     let obj:Project
@@ -67,7 +69,11 @@
     </a>
     {#if destination != route}
     <div class='trail-info'>
-        <p>{obj.frontmatter.description}</p>
+        {#if obj.frontmatter.video}
+        <YouTubeEmbed url={obj.frontmatter.video} />
+        {/if}
+        <p class='block'>{obj.frontmatter.description}</p>
+        <hr style="color: black;">
     </div>
     {/if}
 </div>
@@ -85,10 +91,13 @@
         background-color: whitesmoke;
     }
     p {
-        font-size: 10pt;
-        margin-left: 2rem;
+        font-size: 11pt;
+        padding-top: 0.5rem;
     }
     .trail-info {
         padding-bottom: 0.5rem;
+        padding-top: 1rem;
+        margin-left: 2rem;
+        padding-right: 2rem;
     }
 </style>

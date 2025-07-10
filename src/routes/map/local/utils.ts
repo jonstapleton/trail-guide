@@ -225,15 +225,15 @@ export class Cartographer {
             this.p5.stroke(0)
         }
         // Draw the semi-opaque background to help highlight the hovered node
-        this.mask.update()
-        const c = this.p5.color(255)
-        c.setAlpha(this.mask.getLerp())
-        this.p5.background(c)
-        if(hoveredNodes.length > 0) {
-            for(const node of hoveredNodes) { node.draw(this.p5, cursor) } 
-        } else {
-            this.mask.setTarget(0)
-        }
+        // this.mask.update()
+        // const c = this.p5.color(255)
+        // c.setAlpha(this.mask.getLerp())
+        // this.p5.background(c)
+        // if(hoveredNodes.length > 0) {
+        //     for(const node of hoveredNodes) { node.draw(this.p5, cursor) } 
+        // } else {
+        //     this.mask.setTarget(0)
+        // }
 
         // Draw project center (debugging)
         // for(let i=0;i<data.projects.length;i++) {

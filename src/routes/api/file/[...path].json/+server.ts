@@ -37,7 +37,7 @@ export async function entries() {
     let paths:RouteParams[] = []
     for(let i=0;i<subdirectories.length;i++) {
         const files = await fs.readdir(subdirectories[i])
-        console.log(files)
+        // console.log(files)
         files.forEach((path:string) => {
             console.log("Prerendering", path)
             paths.push({path: subdirectories[i].replace(`../${config.modules}/`,'')+path})

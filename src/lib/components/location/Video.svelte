@@ -2,11 +2,12 @@
     import {base} from '$app/paths'
     import { onMount } from 'svelte';
     import type { Tutorial } from '../../../routes/map/local/elements/Tutorial';
+    import type { Project } from '../../../routes/map/local/elements/Project';
     import { mapData } from '../../../routes/store';
     export let node:string
     let loaded = false
 
-    let obj:Tutorial
+    let obj:Tutorial|Project
     onMount(() => {
         obj = $mapData.nodesByPath[node]
     })
