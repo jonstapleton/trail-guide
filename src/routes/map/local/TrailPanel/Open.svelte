@@ -7,8 +7,8 @@
     export let node:string
 </script>
 
-<a target="_blank" href="{base}/{$mapData.projectObj[node].path}" class='mx-2 button is-small hoverable {$mapData.projectObj[node].selected? "selected":""}'>
-    <span>View Project Page</span>
+<a target="_blank" href="{base}/{$mapData.projectObj[node].path}" class='ml-2 button is-small hoverable {$mapData.projectObj[node].selected? "selected":""}'>
+    <span>Open</span>
     <span class='icon'>
         <Fa icon={faArrowUpRightFromSquare} />
     </span>

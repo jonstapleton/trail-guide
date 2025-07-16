@@ -8,6 +8,7 @@
     import QuickTake from "./banner/QuickTake.svelte";
     import QuestionHost from "./QuestionHost.svelte";
     import { base } from '$app/paths'
+    import SaveToBackpack from "../elements/SaveToBackpack.svelte";
 
     export let node:string;
     export let exclude:string[] = []

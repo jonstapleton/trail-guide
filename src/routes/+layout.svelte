@@ -4,18 +4,20 @@
   import "../app.scss";
   // import hljs from 'highlight.js';
   import 'highlight.js/styles/a11y-light.min.css';
-  import {mapData} from './store'
+  import {mapData, backpack} from './store'
   import { Map } from '../routes/map/local/elements/Map'
   import { browser } from '$app/environment';
   import { writable } from 'svelte/store';
+    import Backpack from "./map/local/Backpack.svelte";
 
   export let data;
 
 
-  let local
+  let local, backpackData
   if(browser) {
       console.log("Trying to read localStorage...")
       local = window.localStorage.getItem('map')
+      backpackData = window.localStorage.getItem('backpack')
   }
 
   // TODO: fix local storage
@@ -26,12 +28,24 @@
   //         window.localStorage.setItem('map', d);
   //     }
   // });
+
+  // backpack.subscribe(async (value:Backpack) => {
+  //   if(browser && value) {
+  //     console.log("Saving backpack data...")
+  //     const d = await JSON.stringify(value)
+  //     window.localStorage.setItem('backpack', d)
+  //   }
+  // })
  
   if(data.config.local && local) {
     console.log("Got localStorage!")
     $mapData = new Map(JSON.parse(local))
   } else {
     $mapData = new Map(data.map)
+    $backpack = {
+      projects: [],
+      tutorials: []
+    }
   }
 </script>
 

@@ -5,19 +5,11 @@
     import PanelCard from '$lib/components/elements/PanelCard.svelte';
     import TrailList from './local/TrailList.svelte';
     import LocationList from './local/LocationList.svelte';
-    import TrailInfo from './local/TrailInfo.svelte';
     import { onDestroy, onMount } from 'svelte';
-    import type { MapDataResponse } from './local/elements/types';
-    import { Map } from './local/elements/Map';
-    import { Tutorial } from './local/elements/Tutorial';
     import { mapData } from '../store';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
-    import UrlDebugger from './local/UrlDebugger.svelte';
-    import Capture from './local/Capture.svelte';
-    import { parseAllDocuments } from 'yaml';
-    import ProjectCard from '../projects/ProjectCard.svelte';
-    import TrailCard from './local/TrailPanel/TrailCard.svelte';
+    import Backpack from './local/Backpack.svelte';
 
     let options = {}
     let interactable = true;
@@ -126,6 +118,14 @@
                 loaded={openPanels.includes('Tutorials')}
             >
                 <LocationList on:select={(e) => writeToURL(e.detail)} selectedNodes={openTutorials} />
+            </PanelCard>
+            <PanelCard
+                title="Backpack"
+                on:capture={(e)=> handleCapture(e.detail)}
+                on:close={(e) => handleClose(e.detail, openPanels)}
+                loaded={openPanels.includes('Backpack')}
+            >
+                <Backpack />
             </PanelCard>
             {#each openTutorials as panel}
                 <!-- {#if !panel.includes('projects/')} -->
