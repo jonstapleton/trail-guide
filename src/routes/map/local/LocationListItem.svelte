@@ -6,6 +6,7 @@
     import { createEventDispatcher } from "svelte";
     import type { Tutorial } from "./elements/Tutorial";
     import { mapData } from "../../store";
+    import SaveToBackpack from "$lib/components/elements/SaveToBackpack.svelte";
 
     export let node:string
     export let selected:string[];
@@ -38,7 +39,12 @@
         <a on:click={() => $mapData.nodeObj[node].selected = false} href="{base}/map?open={$mapData.nodeObj[node].file.replace('.md', '')}">{$mapData.nodeObj[node].frontmatter.title}</a>
     </div>
     <div class='right'>
-        <a data-tooltip="Open" target="_blank" href="{base}/tutorials/{$mapData.nodeObj[node].path.replace('.md','')}" class='has-tooltip-arrow hoverable'>
+        <SaveToBackpack
+            status='save'
+            element={$mapData.nodeObj[node].path}
+            short={true}
+        />
+        <a data-tooltip="Open" target="_blank" href="{base}/tutorials/{$mapData.nodeObj[node].path.replace('.md','')}" class='has-tooltip-arrow'>
             <Fa icon={faArrowUpRightFromSquare} />
         </a>
         <!-- TODO: -->

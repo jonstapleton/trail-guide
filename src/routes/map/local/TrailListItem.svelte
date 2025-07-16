@@ -11,8 +11,11 @@
     import Selected from "./TrailPanel/Selected.svelte";
     import Video from "$lib/components/location/Video.svelte";
     import YouTubeEmbed from "$lib/components/elements/YouTubeEmbed.svelte";
+    import SaveToBackpack from "$lib/components/elements/SaveToBackpack.svelte";
 
     export let node:string
+    export let backpack:'save'|'delete' = 'save'
+
     let obj:Project
 
     let route = `${base}/map?open=${node}`
@@ -53,20 +56,24 @@
 
 {#if obj}
 <div class='trail-list-item'>
-    <a
+    <span
         on:mouseenter={select} 
         on:mouseleave={deselect} 
-        on:click={toggleRoute} 
-        href="{destination}"
     >
         <Checkbox node={node} />
-        {obj.frontmatter.title}
+        <a
+            on:click={toggleRoute} 
+            href="{destination}"
+        >{obj.frontmatter.title}</a>
+        
         <Recommended node={node} />
         <LocationCountPill node={node} />
         <Difficulty node={node} />
+        <SaveToBackpack status={backpack} short={true} element={obj.path+'/index.md'} />
         <Open node={node} />
+        
         <!-- <Selected node={node} /> -->
-    </a>
+</span>
     {#if destination != route}
     <div class='trail-info'>
         {#if obj.frontmatter.video}
@@ -80,7 +87,7 @@
 {/if}
 
 <style lang='scss'>
-    a {
+    span {
         padding-top: 1rem;
         padding-bottom: 0.5rem;
         padding-left: 0.5rem;

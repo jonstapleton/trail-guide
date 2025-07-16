@@ -25,7 +25,7 @@
 </script>
 
 <div class='location-list'>
-    <!-- Search Bar -->
+    <!-- TODO: Search Bar -->
     <div class='field'>
         <div class='control'>
             <input bind:value={term} class='input' type='text' placeholder="Search...">

@@ -1,10 +1,10 @@
 <script lang='ts'>
     import Fa from 'svelte-fa'
-    import { faMap, faLocationDot, faDownload, faGear, faUpload, faBagShopping, faFolder, faRoute } from '@fortawesome/free-solid-svg-icons'
+    import { faMap, faLocationDot, faDownload, faGear, faUpload, faBagShopping, faFolder, faRoute, faSuitcase, faSave } from '@fortawesome/free-solid-svg-icons'
     import { createEventDispatcher } from 'svelte'
     import Save from './Save.svelte';
     import Load from './Load.svelte';
-    import { mapData } from '../../store';
+    import { mapData, backpack } from '../../store';
     import Map from './Map.svelte';
     import Capture from './Capture.svelte';
     
@@ -51,6 +51,17 @@
             <Fa icon={faLocationDot} size='2x' />
             <span class='button-text'>Tutorials</span>
         </a>
+    </Capture>
+    <Capture on:capture>
+        <a on:click={() => select('Backpack') } 
+            class='button round {selected.includes('Backpack')? 'highlighted' : ''}'
+        >
+            <Fa icon={faSave} size='2x' />
+            <span class='button-text'>Backpack</span>
+        </a>
+        {#if $backpack.projects.length + $backpack.tutorials.length > 0}
+        <span class='tag backpack-count'>{$backpack.projects.length + $backpack.tutorials.length}</span>
+        {/if}
     </Capture>
     <!-- TODO:
     <div class='bottom'>
@@ -112,5 +123,20 @@
     }
     .highlighted {
         background-color: whitesmoke;
+    }
+    .backpack-count {
+        width: 30px;
+        font-size: 125%;
+        text-align: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        top: 5.5rem;
+        left: 4.5rem;
     }
 </style>
