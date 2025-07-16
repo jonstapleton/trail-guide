@@ -11,9 +11,11 @@
     onMount(() => {
         // console.log($mapData)
         if(node) {
-            obj = $mapData.nodeObj[node]
-            id = node
+            console.log("Found node", node)
+            obj = $mapData.nodesByPath[node]
+            id = obj.id
         } else if(data) {
+            console.log("Found data", data)
             obj = data
             id = $mapData.nodesByPath[data.path+'.md'].id
         }
