@@ -82,12 +82,10 @@
     </div> -->
     
     <div class='buttons is-centered is-fullwidth'>
-        <!-- {#if !obj.file.includes('activities/')}
         <a href={base+'tutorials/'+obj.path.replace('.md', '')} target='_blank' class='button is-fullwidth'>
             Read Detailed Tutorial
             <span class='icon ml-1'><Fa icon={faArrowUpRightFromSquare} /></span>
         </a>
-        {/if} -->
         <button on:click={() => $mapData.nodesByPath[node].completed = !$mapData.nodesByPath[node].completed} class='button is-success is-fullwidth'>
             <span class='icon mr-1'>
                 <Fa icon={$mapData.nodesByPath[node].completed ? faSquareCheck : faSquare} />

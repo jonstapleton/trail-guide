@@ -5,7 +5,7 @@
 
     export let node:string
     export let data:any
-    let obj;
+    let obj:any;
     let id:string;
     let questions:any[] = []
     onMount(() => {
@@ -20,7 +20,6 @@
             id = $mapData.nodesByPath[data.path+'.md'].id
         }
         
-        console.log(obj)
         if(obj) {
             questions = obj.content.practice
         }
